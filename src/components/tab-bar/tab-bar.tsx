@@ -1,6 +1,6 @@
 import { useDefaultColors } from "@/src/hooks/useDefaultColors";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { PlatformPressable, Text } from "@react-navigation/elements";
+import { PlatformPressable } from "@react-navigation/elements";
 import { useLinkBuilder } from "@react-navigation/native";
 import { View } from "react-native";
 import { ICONS } from "./tab-bar.constants";
@@ -57,11 +57,20 @@ export const TabBar = ({
             testID={options.tabBarButtonTestID}
             onPress={onPress}
             onLongPress={onLongPress}
-            style={styles.item}
+            style={
+              route.name === "search" ? styles.searchItemWrapper : styles.item
+            }
           >
-            <Text>
-              {ICONS[route.name](isFocused ? colors.tertiary : colors.white)}
-            </Text>
+            {route.name === "search" ? (
+              <View style={styles.searchItemButton}>
+                {ICONS["search"](isFocused ? colors.primary : colors.white) ||
+                  label}
+              </View>
+            ) : (
+              ICONS[route.name](isFocused ? colors.tertiary : colors.white) ||
+              label
+            )}
+            {}
           </PlatformPressable>
         );
       })}

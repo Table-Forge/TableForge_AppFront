@@ -14,7 +14,7 @@ const ICONS: { [key: string]: (color: string) => ReactElement } = {
     />
   ),
   search: (color: string): ReactElement => (
-    <MaterialIcons name="search" size={20} color={color} />
+    <MaterialIcons name="search" size={28} color={color} />
   ),
   notifications: (color: string): ReactElement => (
     <MaterialCommunityIcons name="bell-outline" size={20} color={color} />

@@ -4,15 +4,27 @@ import { StyleSheet } from "react-native";
 const colors = DEFAULT_COLORS;
 
 export const styles = StyleSheet.create({
+  containerWrapper: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  svgBackground: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    height: 80,
+  },
   container: {
     flexDirection: "row",
-    position: "fixed",
-    bottom: 0,
+    top: 0,
     left: 0,
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: colors.primary,
-    gap: 4,
     paddingBottom: 10,
   },
   item: {
@@ -21,14 +33,11 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   searchItemWrapper: {
-    top: -20,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.background,
-    width: 80,
-    height: 80,
-    borderBottomLeftRadius: 35,
-    borderBottomRightRadius: 35,
+    backgroundColor: "transparent",
+    position: "relative",
   },
   searchItemButton: {
     flex: 1,
@@ -40,6 +49,9 @@ export const styles = StyleSheet.create({
     borderRadius: 100,
     aspectRatio: 1,
     position: "absolute",
+    left: "50%",
+    transform: [{ translateX: "-50%" }],
+    top: -50,
     shadowColor: "#000",
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 5 },

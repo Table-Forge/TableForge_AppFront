@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
-import { View } from "react-native";
+import { SafeAreaView } from "react-native";
 import { styles } from "./main-container.styles";
 
 export const MainContainer = ({ children }: PropsWithChildren) => {
-  return <View style={styles.container}>{children}</View>;
+  return <SafeAreaView style={styles.container}>{children}</SafeAreaView>;
 };

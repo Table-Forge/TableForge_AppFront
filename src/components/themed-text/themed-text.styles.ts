@@ -6,5 +6,7 @@ const { colors } = DefaultTheme;
 export const styles = StyleSheet.create({
   text: {
     color: colors.text,
+    display: "flex",
+    gap: 4,
   },
 });

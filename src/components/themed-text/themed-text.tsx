@@ -1,7 +1,21 @@
+import { fonts } from "@/src/theme/fonts";
 import { PropsWithChildren } from "react";
-import { Text } from "react-native";
+import { Text, TextStyle } from "react-native";
 import { styles } from "./themed-text.styles";
 
-export const ThemedText = ({ children }: PropsWithChildren) => {
-  return <Text style={styles.text}>{children}</Text>;
+type FontWeight = keyof typeof fonts;
+
+interface IProps {
+  style?: TextStyle | TextStyle[];
+  weight?: FontWeight;
+}
+
+export const ThemedText = ({
+  style,
+  children,
+  weight = "regular",
+}: PropsWithChildren & IProps) => {
+  const fontWeightStyle = fonts[weight] || fonts.regular;
+
+  return <Text style={[styles.text, fontWeightStyle, style]}>{children}</Text>;
 };

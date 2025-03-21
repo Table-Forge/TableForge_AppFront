@@ -1,5 +1,5 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
 const colors = DEFAULT_COLORS;
 
@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 70,
+    height: Platform.OS === "ios" ? 80 : 70,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "transparent",
@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     width: "100%",
-    height: 70,
+    height: Platform.OS === "ios" ? 80 : 70,
   },
   container: {
     display: "flex",

@@ -8,5 +8,6 @@ export const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: Platform.OS === "ios" ? 70 : 90,
     paddingHorizontal: 15,
+    gap: 20,
   },
 });

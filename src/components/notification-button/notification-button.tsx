@@ -3,9 +3,9 @@ import { ParamListBase, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Pressable } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { styles } from "./notification-blob.styles";
+import { styles } from "./notification-button.styles";
 
-export const NotificationBlob = () => {
+export const NotificationButton = () => {
   const colors = DEFAULT_COLORS;
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 

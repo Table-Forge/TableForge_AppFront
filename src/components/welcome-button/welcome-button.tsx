@@ -2,9 +2,9 @@ import { ParamListBase, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Image, Pressable, View } from "react-native";
 import { ThemedText } from "../themed-text/themed-text";
-import { styles } from "./welcome-blob.style";
+import { styles } from "./welcome-button.style";
 
-export const WelcomeBlob = () => {
+export const WelcomeButton = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
   return (

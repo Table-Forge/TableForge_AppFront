@@ -7,6 +7,8 @@ import Svg, { Path } from "react-native-svg";
 import { ICONS } from "./tab-bar.constants";
 import { styles } from "./tab-bar.styles";
 
+import Entypo from "react-native-vector-icons/Entypo";
+
 export const TabBar = ({
   state,
   descriptors,
@@ -91,6 +93,10 @@ export const TabBar = ({
               ) : (
                 ICONS[route.name](isFocused ? colors.tertiary : colors.white) ||
                 label
+              )}
+
+              {isFocused && route.name !== "search" && (
+                <Entypo name="dot-single" color={colors.tertiary} size={16} />
               )}
             </PlatformPressable>
           );

@@ -10,6 +10,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { Button } from "../button/button";
 import { ErrorMessage } from "../error-message/error-message";
 import { Label } from "../label/label";
+import { RadioOptions } from "../multiple-options/multiple-options";
 import { DefaultTextInput } from "../text-input/text-input";
 import { ISearchSchema, searchSchema } from "./search-bar.schema";
 import { styles } from "./search-bar.styles";
@@ -26,8 +27,8 @@ export const SearchBar = () => {
     defaultValues: {
       search: "",
       location: location?.city || "",
-      level: "easy",
-      playerQty: 4,
+      level: [],
+      playerQty: 1,
     },
     mode: "onChange",
   });
@@ -39,7 +40,9 @@ export const SearchBar = () => {
   } = hookForm;
 
   const onSubmit = (data: ISearchSchema) => {
-    console.log("Form data:", data);
+    console.log("Search data:", data);
+
+    setIsOpen(false);
   };
 
   const searchValue = hookForm.watch("search");
@@ -86,6 +89,7 @@ export const SearchBar = () => {
                 value={value}
                 onChangeText={onChange}
                 placeholderTextColor={"rgba(255,255,255,0.3)"}
+                onSubmitEditing={handleSubmit(onSubmit)}
               />
             )}
           />
@@ -126,17 +130,16 @@ export const SearchBar = () => {
         <View style={styles.fieldset}>
           <Label text="Nível de Dificuldade" />
 
-          <Controller
-            control={control}
+          <RadioOptions
+            hookform={hookForm}
             name="level"
-            render={({ field: { onChange, value } }) => (
-              <DefaultTextInput
-                hasError={!!errors?.level?.message}
-                placeholder={"Escolha a dificuldade"}
-                value={value}
-                onChangeText={onChange}
-              />
-            )}
+            hasError={!!errors?.level?.message}
+            options={[
+              { value: "easy", name: "Iniciante" },
+              { value: "medium", name: "Intermediário" },
+              { value: "hard", name: "Veterano" },
+              { value: "professional", name: "Profissional" },
+            ]}
           />
 
           {errors?.level?.message && (
@@ -159,7 +162,6 @@ export const SearchBar = () => {
               />
             )}
           />
-
           {errors?.playerQty?.message && (
             <ErrorMessage text={errors?.playerQty?.message} />
           )}

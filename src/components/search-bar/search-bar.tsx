@@ -11,6 +11,7 @@ import { Button } from "../button/button";
 import { ErrorMessage } from "../error-message/error-message";
 import { Label } from "../label/label";
 import { RadioOptions } from "../multiple-options/multiple-options";
+import { ProgressInput } from "../progress-input/progress-input";
 import { DefaultTextInput } from "../text-input/text-input";
 import { ISearchSchema, searchSchema } from "./search-bar.schema";
 import { styles } from "./search-bar.styles";
@@ -150,17 +151,11 @@ export const SearchBar = () => {
         <View style={styles.fieldset}>
           <Label text="Quantidade de Jogadores" />
 
-          <Controller
-            control={control}
+          <ProgressInput
+            hookform={hookForm}
             name="playerQty"
-            render={({ field: { onChange, value } }) => (
-              <DefaultTextInput
-                hasError={!!errors?.playerQty?.message}
-                placeholder={"Número de jogadores"}
-                value={value?.toString()}
-                onChangeText={onChange}
-              />
-            )}
+            min={1}
+            max={10}
           />
           {errors?.playerQty?.message && (
             <ErrorMessage text={errors?.playerQty?.message} />

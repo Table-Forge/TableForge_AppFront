@@ -1,4 +1,4 @@
-import { ICampaign } from "@/src/interfaces/campaign";
+import { ICampaign } from "@/src/interfaces";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { Image, Pressable, View } from "react-native";
 

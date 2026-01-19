@@ -1,7 +1,7 @@
-import { Primitives, TOptions } from "@/src/interfaces/default-intefaces";
 import { useController } from "react-hook-form";
 import { Text, TouchableOpacity, View } from "react-native";
 import { styles } from "./multiple-options.styles";
+import { TOptions, TPrimitives } from "@/src/interfaces";
 
 interface RadioOptionsProps {
   hookform: any;
@@ -23,7 +23,7 @@ export const RadioOptions = ({
     control: hookform.control,
   });
 
-  const handlePress = (optionValue?: Primitives) => {
+  const handlePress = (optionValue?: TPrimitives) => {
     const currentValue = Array.isArray(value) ? value : [];
 
     if (currentValue.includes(optionValue)) {

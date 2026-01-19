@@ -1,4 +1,4 @@
-import { ICampaign } from "../interfaces/campaign";
+import { ICampaign } from "../interfaces";
 
 const campaignList: ICampaign[] = [
   {

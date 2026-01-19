@@ -2,7 +2,7 @@ import { BackButton } from "@/src/components/back-button/back-blob";
 import { MainContainer } from "@/src/components/main-container/main-container";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { campaignList } from "@/src/data/mock";
-import { ICampaign } from "@/src/interfaces/campaign";
+import { ICampaign } from "@/src/interfaces";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";

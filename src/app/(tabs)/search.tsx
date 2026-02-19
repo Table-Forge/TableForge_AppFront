@@ -6,13 +6,10 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { campaignList } from "@/src/data/mock";
 import { useLocation } from "@/src/hooks/useLocation";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import {
-  ActivityIndicator,
-  FlatList,
-  SafeAreaView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
+
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 
 const colors = DEFAULT_COLORS;

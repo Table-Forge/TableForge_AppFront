@@ -1,6 +1,7 @@
 import { PropsWithChildren } from "react";
-import { SafeAreaView, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { mainContainerStyles } from "./main-container.styles";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export const MainContainer = ({ children }: PropsWithChildren) => {
   return (

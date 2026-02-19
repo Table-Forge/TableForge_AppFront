@@ -124,7 +124,7 @@ export const SearchBar = () => {
             )}
           />
           {errors?.location?.message && (
-            <ErrorMessage text={errors?.location?.message} />
+            <ErrorMessage text={errors?.location?.message as string} />
           )}
         </View>
 
@@ -144,7 +144,7 @@ export const SearchBar = () => {
           />
 
           {errors?.level?.message && (
-            <ErrorMessage text={errors?.level?.message} />
+            <ErrorMessage text={errors?.level?.message as string} />
           )}
         </View>
 
@@ -158,7 +158,7 @@ export const SearchBar = () => {
             max={10}
           />
           {errors?.playerQty?.message && (
-            <ErrorMessage text={errors?.playerQty?.message} />
+            <ErrorMessage text={errors?.playerQty?.message as string} />
           )}
         </View>
 

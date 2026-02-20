@@ -3,15 +3,15 @@ import { z } from "zod";
 
 export const UserSchema = z
   .object({
-    id: z.number(),
+    id: z.number().optional(),
     createdAt: dateOptional,
     username: z.string(),
     nickname: z.string(),
     email: z.string().email("E-mail inválido"),
     password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
     confirmPassword: z.string().optional(),
-    status: z.string(),
-    gender: z.string(),
+    status: z.string().optional(),
+    gender: z.string().optional(),
     birthDate: z.string().transform((val) => new Date(val)),
     avatarUrl: z.union([z.string()]).optional(),
   })
@@ -46,7 +46,9 @@ export const UserSchema = z
   });
 
 export const RecoverPasswordSchema = z.object({
-  email: z.string().min(1, "O email é obrigatório"),
+  email: z
+    .string()
+    .min(1, "Somos nerds, mas não videntes. O e-mail é obrigatório."),
 });
 
 export type IUser = z.infer<typeof UserSchema>;

@@ -35,9 +35,10 @@ export const useUsersMutation = () => {
       Toast.show({
         type: "success",
         text1: "Cadastro concluído! 🎉",
-        text2: "Sua conta foi criada com sucesso.",
+        text2:
+          "Sua conta foi criada com sucesso. Faça login para acessar sua conta!",
         position: "top",
-        visibilityTime: 3000,
+        visibilityTime: 4000,
       });
 
       router.replace("/login");

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInputProps,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
@@ -14,20 +15,19 @@ import { Label } from "@/src/components/label/label";
 import { ErrorMessage } from "@/src/components/error-message/error-message";
 
 interface InputProps extends TextInputProps {
-  label?: string;
   error?: string;
   isPassword?: boolean;
 }
+
 export const Input = forwardRef<TextInput, InputProps>(
-  ({ label, error, isPassword, style, ...props }, ref) => {
+  ({ error, isPassword, style, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(isPassword);
 
     return (
-      <View style={styles.container}>
-        {label && <Label style={styles.label} text={label} />}
-
+      <>
         <View style={[styles.inputContainer, error ? styles.inputError : null]}>
           <TextInput
+            ref={ref}
             style={[styles.input, style]}
             placeholderTextColor="#999"
             secureTextEntry={showPassword}
@@ -49,19 +49,12 @@ export const Input = forwardRef<TextInput, InputProps>(
         </View>
 
         {error && <ErrorMessage text={error} />}
-      </View>
+      </>
     );
   },
 );
 
 const styles = StyleSheet.create({
-  container: { marginBottom: 16, width: "100%" },
-  label: {
-    ...fonts.medium,
-    color: DEFAULT_COLORS.white,
-    marginBottom: 8,
-    fontSize: 16,
-  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -71,6 +64,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 15,
     height: 50,
+    marginBottom: 4,
   },
   input: {
     flex: 1,

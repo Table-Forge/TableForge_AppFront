@@ -22,6 +22,7 @@ import {
 } from "@/src/features/users/schemas/user.schema";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
+import { Label } from "@/src/components/label/label";
 
 export default function RecoverPasswordScreen() {
   const router = useRouter();
@@ -32,6 +33,9 @@ export default function RecoverPasswordScreen() {
     formState: { errors },
   } = useForm<IRecoverPassword>({
     resolver: zodResolver(RecoverPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
   });
 
   const onSubmit = async (data: IRecoverPassword) => {
@@ -76,13 +80,15 @@ export default function RecoverPasswordScreen() {
           name="email"
           render={({ field: { onChange, value } }) => {
             return (
-              <Input
-                label="Email"
-                placeholder="Digite seu email"
-                value={value}
-                onChangeText={onChange}
-                error={errors.email?.message?.toString()}
-              />
+              <View style={styles.fieldContainer}>
+                <Label text={"Email"} />
+                <Input
+                  placeholder="Digite seu email"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.email?.message?.toString()}
+                />
+              </View>
             );
           }}
         />
@@ -113,6 +119,10 @@ const styles = StyleSheet.create({
     backgroundColor: DEFAULT_COLORS.background,
     padding: 30,
     justifyContent: "center",
+    gap: 16,
+  },
+  fieldContainer: {
+    width: "100%",
   },
   header: { alignItems: "center", marginBottom: 30 },
   title: {

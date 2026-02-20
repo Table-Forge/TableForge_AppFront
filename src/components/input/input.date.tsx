@@ -13,6 +13,7 @@ import DateTimePicker, {
 import { Input } from "../input/input";
 import { Button } from "../button/button";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { Label } from "@/src/components/label/label";
 
 interface IDateInputProps {
   label: string;
@@ -22,6 +23,7 @@ interface IDateInputProps {
   placeholder?: string;
   minDate?: Date;
   maxDate?: Date;
+  infoText?: string;
 }
 
 export const DateInput = ({
@@ -32,6 +34,7 @@ export const DateInput = ({
   placeholder,
   minDate,
   maxDate,
+  infoText,
 }: IDateInputProps) => {
   const [show, setShow] = useState(false);
   const dateValue = value ? new Date(value) : new Date();
@@ -57,11 +60,11 @@ export const DateInput = ({
 
   return (
     <View style={{ width: "100%" }}>
+      <Label text={label} infoText={infoText} />
       <TouchableOpacity activeOpacity={0.7} onPress={() => setShow(true)}>
         <View pointerEvents="none">
           <Input
-            label={label}
-            placeholder={placeholder || "00/00/0000"}
+            placeholder={placeholder || "__/__/____"}
             value={formatDate(value)}
             error={error}
             editable={false}

@@ -23,6 +23,7 @@ import { Button } from "@/src/components/button/button";
 import LogoIcon from "@/src/assets/images/logo2.png";
 import { BrandName } from "@/src/components/brand-name/brand-name";
 import { useRouter } from "expo-router";
+import { Label } from "@/src/components/label/label";
 
 export default function LoginScreen() {
   const { loginMutation, isLoadingLoginMutation } = useUsersMutation();
@@ -71,13 +72,15 @@ export default function LoginScreen() {
           name="login"
           render={({ field: { onChange, value } }) => {
             return (
-              <Input
-                label="Login"
-                placeholder="Digite seu login"
-                value={value}
-                onChangeText={onChange}
-                error={errors.login?.message?.toString()}
-              />
+              <View style={styles.fieldContainer}>
+                <Label text={"Login"} />
+                <Input
+                  placeholder="Digite seu login"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.login?.message?.toString()}
+                />
+              </View>
             );
           }}
         />
@@ -86,14 +89,16 @@ export default function LoginScreen() {
           control={control}
           name="password"
           render={({ field: { onChange, value } }) => (
-            <Input
-              label="Senha"
-              placeholder="Digite sua senha"
-              isPassword
-              value={value}
-              onChangeText={onChange}
-              error={errors.password?.message?.toString()}
-            />
+            <View style={styles.fieldContainer}>
+              <Label text={"Senha"} />
+              <Input
+                placeholder="Digite sua senha"
+                isPassword
+                value={value}
+                onChangeText={onChange}
+                error={errors.password?.message?.toString()}
+              />
+            </View>
           )}
         />
 
@@ -129,6 +134,10 @@ const styles = StyleSheet.create({
     backgroundColor: DEFAULT_COLORS.background,
     padding: 30,
     justifyContent: "center",
+    gap: 16,
+  },
+  fieldContainer: {
+    width: "100%",
   },
   header: { alignItems: "center", marginBottom: 30 },
   title: {

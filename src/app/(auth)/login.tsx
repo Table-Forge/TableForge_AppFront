@@ -34,6 +34,10 @@ export default function LoginScreen() {
     formState: { errors },
   } = useForm<ILoginRequest>({
     resolver: zodResolver(LoginRequestSchema),
+    defaultValues: {
+      login: "",
+      password: "",
+    },
   });
 
   const onSubmit = async (data: ILoginRequest) => {

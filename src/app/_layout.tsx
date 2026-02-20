@@ -7,6 +7,10 @@ import { AuthProvider } from "../context/auth";
 import { toastConfig } from "@/src/config/toast-config";
 import Toast from "react-native-toast-message";
 
+if (__DEV__) {
+  import("./../../ReactotronConfig");
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

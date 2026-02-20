@@ -21,17 +21,48 @@ api.interceptors.request.use(
       }
     }
 
-    console.log(`[API] Request: ${config.method?.toUpperCase()} ${config.url}`);
+    if (__DEV__) {
+      console.tron.display({
+        name: `REQ: ${config.method?.toUpperCase()}`,
+        preview: config.url,
+        value: {
+          url: config.url,
+          method: config.method,
+          params: config.params,
+          data: config.data,
+        },
+        important: true,
+      });
+    }
+
     return config;
   },
   (error) => Promise.reject(error),
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (__DEV__) {
+      console.tron.display({
+        name: `RES: ${response.status}`,
+        preview: response.config.url,
+        value: response.data,
+      });
+    }
+    return response;
+  },
   (error) => {
-    if (error.response?.status === 401) {
-      console.error("Sessão expirada ou não autorizado");
+    if (__DEV__) {
+      console.tron.display({
+        name: "API ERROR",
+        preview: error.config?.url,
+        value: {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+        },
+        important: true,
+      });
     }
     return Promise.reject(error);
   },

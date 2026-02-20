@@ -29,7 +29,7 @@ export default function CreateAccountScreen() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<IUser>({
+  } = useForm({
     resolver: zodResolver(UserSchema),
   });
 

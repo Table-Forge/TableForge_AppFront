@@ -1,9 +1,10 @@
+import { dateOptional } from "@/src/utils/custom-schema-validations";
 import { z } from "zod";
 
 export const UserSchema = z
   .object({
     id: z.number(),
-    createdAt: z.string().transform((val) => new Date(val)),
+    createdAt: dateOptional,
     username: z.string(),
     nickname: z.string(),
     email: z.string().email("E-mail inválido"),

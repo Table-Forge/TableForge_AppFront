@@ -1,8 +1,6 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { StyleSheet } from "react-native";
 
-const colors = DEFAULT_COLORS;
-
 export const styles = StyleSheet.create({
   wrapper: {
     flexDirection: "column",
@@ -22,7 +20,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: colors.primary,
+    backgroundColor: DEFAULT_COLORS.primary,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
     padding: 8,
@@ -37,7 +35,7 @@ export const styles = StyleSheet.create({
     borderBottomRightRadius: 8,
     width: "100%",
     position: "absolute",
-    backgroundColor: colors.primary,
+    backgroundColor: DEFAULT_COLORS.primary,
     top: "100%",
     left: 0,
   },
@@ -49,13 +47,13 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   searchInput: {
-    color: colors.white,
+    color: DEFAULT_COLORS.white,
     fontSize: 16,
     flex: 1,
   },
   filterButton: {
     borderRadius: 5,
     padding: 8,
-    backgroundColor: colors.background,
+    backgroundColor: DEFAULT_COLORS.background,
   },
 });

@@ -1,8 +1,6 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { StyleSheet } from "react-native";
 
-const colors = DEFAULT_COLORS;
-
 export const styles = StyleSheet.create({
   wrapper: {
     flexDirection: "row",
@@ -17,26 +15,26 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.secondary,
+    borderColor: DEFAULT_COLORS.secondary,
     backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
   optionSelected: {
-    borderColor: colors.secondary,
-    backgroundColor: colors.secondary,
+    borderColor: DEFAULT_COLORS.secondary,
+    backgroundColor: DEFAULT_COLORS.secondary,
   },
   optionError: {
-    borderColor: colors.danger,
+    borderColor: DEFAULT_COLORS.danger,
   },
   optionText: {
     fontSize: 16,
     fontWeight: "400",
-    color: colors.white,
+    color: DEFAULT_COLORS.white,
     textAlign: "center",
   },
   optionTextSelected: {
-    color: colors.primary,
+    color: DEFAULT_COLORS.primary,
     fontWeight: "500",
   },
 });

@@ -1,15 +1,13 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { StyleSheet } from "react-native";
 
-const colors = DEFAULT_COLORS;
-
 export const styles = StyleSheet.create({
   wrapper: {
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "column",
     gap: 8,
-    backgroundColor: colors.primary,
+    backgroundColor: DEFAULT_COLORS.primary,
     padding: 10,
     borderRadius: 8,
     width: "100%",
@@ -25,7 +23,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: colors.secondary,
+    borderColor: DEFAULT_COLORS.secondary,
   },
   image: {
     width: "100%",

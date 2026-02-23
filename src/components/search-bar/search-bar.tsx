@@ -1,5 +1,5 @@
 import { SlidersIcon } from "@/src/assets/icons";
-import { useLocation } from "@/src/hooks/useLocation";
+import { useLocation } from "@/src/hooks/use-location";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -15,8 +15,6 @@ import { ProgressInput } from "../progress-input/progress-input";
 import { DefaultTextInput } from "../text-input/text-input";
 import { ISearchSchema, SearchSchema } from "./search-bar.schema";
 import { styles } from "./search-bar.styles";
-
-const colors = DEFAULT_COLORS;
 
 export const SearchBar = () => {
   const { location } = useLocation();
@@ -76,7 +74,9 @@ export const SearchBar = () => {
             <MaterialIcons
               name="search"
               size={24}
-              color={searchValue ? colors.white : "rgba(255,255,255,0.3)"}
+              color={
+                searchValue ? DEFAULT_COLORS.white : "rgba(255,255,255,0.3)"
+              }
             />
           </Pressable>
 
@@ -103,7 +103,7 @@ export const SearchBar = () => {
             pressed && { opacity: 0.7 },
           ]}
         >
-          <SlidersIcon size={20} color={colors.white} />
+          <SlidersIcon size={20} color={DEFAULT_COLORS.white} />
         </Pressable>
       </View>
 

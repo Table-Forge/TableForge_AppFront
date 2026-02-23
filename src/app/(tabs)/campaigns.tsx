@@ -1,21 +1,23 @@
+import { ActionButton } from "@/src/components/action-button/action-button";
 import { CampaignItem } from "@/src/components/campaign-item/campaign-item";
 import { mainContainerStyles } from "@/src/components/main-container/main-container.styles";
-import { NotificationButton } from "@/src/components/notification-button/notification-button";
 import { SearchBar } from "@/src/components/search-bar/search-bar";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { campaignList } from "@/src/data/mock";
-import { useLocation } from "@/src/hooks/useLocation";
+import { useLocation } from "@/src/hooks/use-location";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
-
+import { ParamListBase, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 
-const colors = DEFAULT_COLORS;
-
 export default function Search() {
   //adicionar update ao puxar pra baixo pra baixo, com loading
+
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
   const { location, loading } = useLocation();
   const locationString = `${location?.city || ""}${
@@ -30,12 +32,12 @@ export default function Search() {
             <ThemedText style={{ fontSize: 14 }}>Localização</ThemedText>
             <View style={styles.locationText}>
               {loading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={DEFAULT_COLORS.white} />
               ) : (
                 <>
                   <FontAwesome6
                     name="location-dot"
-                    color={colors.secondary}
+                    color={DEFAULT_COLORS.secondary}
                     size={16}
                   />
                   <ThemedText style={{ fontSize: 16 }} weight="bold">
@@ -45,7 +47,12 @@ export default function Search() {
               )}
             </View>
           </View>
-          <NotificationButton />
+
+          <ActionButton
+            variant="circle"
+            icon={<Entypo name="bell" size={22} color={DEFAULT_COLORS.white} />}
+            onPress={() => navigation.navigate("notifications")}
+          />
         </View>
 
         <SearchBar />

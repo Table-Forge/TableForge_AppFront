@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { ILoginRequest, ILoginResponse } from "../schemas/auth.schema";
 import { useAuth } from "@/src/context/auth";
-import { Alert } from "react-native";
 import { AuthService } from "@/src/features/users/services/auth.services";
 import { UserService } from "@/src/features/users/services/users.services";
 import { IUser } from "@/src/features/users/schemas/user.schema";

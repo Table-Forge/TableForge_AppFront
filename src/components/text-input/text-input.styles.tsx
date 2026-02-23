@@ -1,8 +1,6 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { StyleSheet } from "react-native";
 
-const colors = DEFAULT_COLORS;
-
 export const styles = StyleSheet.create({
   wrapper: {
     display: "flex",
@@ -10,20 +8,20 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
     backgroundColor: "transparent",
-    color: colors.white,
+    color: DEFAULT_COLORS.white,
     height: 48,
     borderRadius: 16,
-    borderColor: colors.secondary,
+    borderColor: DEFAULT_COLORS.secondary,
     borderWidth: 1,
     paddingHorizontal: 16,
   },
   borderError: {
-    borderColor: colors.danger,
+    borderColor: DEFAULT_COLORS.danger,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: colors.white,
+    color: DEFAULT_COLORS.white,
   },
   icon: {
     marginRight: 10,

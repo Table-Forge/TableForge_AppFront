@@ -1,5 +1,4 @@
 import { MainContainer } from "@/src/components/main-container/main-container";
-import { NotificationButton } from "@/src/components/notification-button/notification-button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { WelcomeButton } from "@/src/components/welcome-button/welcome-button";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/src/constants/screen-size";
@@ -10,17 +9,41 @@ import { advantages, carousel } from "@/src/data/mock";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import Carousel from "react-native-reanimated-carousel";
 import FeatherIcons from "react-native-vector-icons/Feather";
-
-const colors = DEFAULT_COLORS;
+import { ActionButton } from "@/src/components/action-button/action-button";
+import Ionicons from "@expo/vector-icons/build/Ionicons";
+import { ParamListBase, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { HeaderActions } from "@/src/components/header-actions/header-actions";
+import { useAuth } from "@/src/context/auth";
+import { Entypo } from "@expo/vector-icons";
 
 export default function Home() {
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+  const { user } = useAuth();
+
   return (
     <MainContainer>
-      <View style={styles.topWrapper}>
-        <WelcomeButton />
+      <HeaderActions hasPadding={false}>
+        <ActionButton
+          variant="pill"
+          icon={
+            <Image
+              style={styles.image}
+              source={{
+                uri: `${user?.avatarUrl ? user?.avatarUrl : "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png"}`,
+              }}
+            />
+          }
+          label={`Bem vindo(a), ${user?.nickname}!`}
+          onPress={() => navigation.navigate("profile")}
+        />
 
-        <NotificationButton />
-      </View>
+        <ActionButton
+          variant="circle"
+          icon={<Entypo name="bell" size={22} color={DEFAULT_COLORS.white} />}
+          onPress={() => navigation.navigate("notifications")}
+        />
+      </HeaderActions>
 
       <Carousel
         width={SCREEN_WIDTH}
@@ -59,7 +82,11 @@ export default function Home() {
           <View style={styles.advantagesList}>
             {advantages.map((item, index) => (
               <ThemedText key={index} style={{ fontSize: 16 }}>
-                <FeatherIcons name="check-circle" size={16} color={"#fff"} />{" "}
+                <FeatherIcons
+                  name="check-circle"
+                  size={16}
+                  color={DEFAULT_COLORS.white}
+                />{" "}
                 {item.text}
               </ThemedText>
             ))}
@@ -85,13 +112,6 @@ export default function Home() {
 }
 
 export const styles = StyleSheet.create({
-  topWrapper: {
-    flex: 1,
-    justifyContent: "space-between",
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-  },
   slide: {
     flex: 1,
     borderRadius: 12,
@@ -119,7 +139,7 @@ export const styles = StyleSheet.create({
     gap: 10,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.white,
+    borderColor: DEFAULT_COLORS.white,
     borderRadius: 16,
   },
   advantagesList: {

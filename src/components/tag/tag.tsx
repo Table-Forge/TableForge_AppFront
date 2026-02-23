@@ -3,8 +3,6 @@ import { View } from "react-native";
 import { ThemedText } from "../themed-text/themed-text";
 import { styles } from "./tag.styles";
 
-const colors = DEFAULT_COLORS;
-
 export const Tag = ({
   icon,
   text,
@@ -15,7 +13,7 @@ export const Tag = ({
   return (
     <View style={styles.wrapper}>
       {icon && icon}
-      <ThemedText style={{ fontSize: 12, color: colors.primary }}>
+      <ThemedText style={{ fontSize: 12, color: DEFAULT_COLORS.primary }}>
         {text}
       </ThemedText>
     </View>

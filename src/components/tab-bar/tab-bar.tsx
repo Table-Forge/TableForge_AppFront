@@ -1,23 +1,19 @@
-import { useDefaultColors } from "@/src/hooks/useDefaultColors";
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { PlatformPressable } from "@react-navigation/elements";
-import { useLinkBuilder } from "@react-navigation/native";
+import React from "react";
 import { View } from "react-native";
+import { PlatformPressable } from "@react-navigation/elements";
 import Svg, { Path } from "react-native-svg";
-import { ICONS } from "./tab-bar.constants";
-import { styles } from "./tab-bar.styles";
-
 import Entypo from "react-native-vector-icons/Entypo";
 import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
+
+import { ICONS } from "./tab-bar.constants";
+import { styles } from "./tab-bar.styles";
+import { DEFAULT_COLORS } from "@/src/theme/colors";
 
 export const TabBar = ({
   state,
   descriptors,
   navigation,
 }: MaterialTopTabBarProps) => {
-  const colors = useDefaultColors();
-  const { buildHref } = useLinkBuilder();
-
   return (
     <View style={styles.containerWrapper}>
       <Svg
@@ -28,27 +24,16 @@ export const TabBar = ({
         preserveAspectRatio="none"
       >
         <Path
-          d="
-           M0,0 
-           H160 
-           C150,100 250,100 240,0 
-           H400 
-           V100 
-           H0 
-           Z"
-          fill={colors.primary}
+          d="M0,0 H160 C150,100 250,100 240,0 H400 V100 H0 Z"
+          fill={DEFAULT_COLORS.primary}
         />
       </Svg>
 
       <View style={styles.container}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
-          const label =
-            options.tabBarLabel !== undefined
-              ? options.tabBarLabel
-              : options.title !== undefined
-                ? options.title
-                : route.name;
+
+          const label = options.tabBarLabel ?? options.title ?? route.name;
 
           if (["_sitemap", "+not-found"].includes(route.name)) return null;
 
@@ -62,7 +47,11 @@ export const TabBar = ({
             });
 
             if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
+              navigation.navigate({
+                name: route.name,
+                merge: true,
+                params: route.params,
+              });
             }
           };
 
@@ -76,7 +65,6 @@ export const TabBar = ({
           return (
             <PlatformPressable
               key={route.key}
-              href={buildHref(route.name, route.params)}
               accessibilityState={isFocused ? { selected: true } : {}}
               accessibilityLabel={options.tabBarAccessibilityLabel}
               testID={options.tabBarButtonTestID}
@@ -91,16 +79,21 @@ export const TabBar = ({
               {route.name === "campaigns" ? (
                 <View style={styles.searchItemButton}>
                   {ICONS["campaigns"](
-                    isFocused ? colors.primary : colors.white,
+                    isFocused ? DEFAULT_COLORS.primary : DEFAULT_COLORS.white,
                   ) || label}
                 </View>
               ) : (
-                ICONS[route.name](isFocused ? colors.tertiary : colors.white) ||
-                label
+                ICONS[route.name]?.(
+                  isFocused ? DEFAULT_COLORS.tertiary : DEFAULT_COLORS.white,
+                ) || label
               )}
 
               {isFocused && route.name !== "campaigns" && (
-                <Entypo name="dot-single" color={colors.tertiary} size={16} />
+                <Entypo
+                  name="dot-single"
+                  color={DEFAULT_COLORS.tertiary}
+                  size={16}
+                />
               )}
             </PlatformPressable>
           );

@@ -1,8 +1,6 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { StyleSheet } from "react-native";
 
-const colors = DEFAULT_COLORS;
-
 export const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
@@ -16,6 +14,6 @@ export const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 18,
     fontWeight: "bold",
-    color: colors.white,
+    color: DEFAULT_COLORS.white,
   },
 });

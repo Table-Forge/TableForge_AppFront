@@ -11,8 +11,6 @@ import { Tag } from "../tag/tag";
 import { ThemedText } from "../themed-text/themed-text";
 import { styles } from "./campaign-item.styles";
 
-const colors = DEFAULT_COLORS;
-
 export const CampaignItem = ({ data }: { data: ICampaign }) => {
   const router = useRouter();
 
@@ -50,19 +48,31 @@ export const CampaignItem = ({ data }: { data: ICampaign }) => {
 
           <View style={styles.tags}>
             <Tag
-              icon={<FontAwesome6 name="location-dot" color={colors.primary} />}
+              icon={
+                <FontAwesome6
+                  name="location-dot"
+                  color={DEFAULT_COLORS.primary}
+                />
+              }
               text={data.location}
             />
             <Tag
-              icon={<FontAwesome5 name="book-reader" color={colors.primary} />}
+              icon={
+                <FontAwesome5
+                  name="book-reader"
+                  color={DEFAULT_COLORS.primary}
+                />
+              }
               text={data.system}
             />
             <Tag
-              icon={<FontAwesome6 name="stairs" color={colors.primary} />}
+              icon={
+                <FontAwesome6 name="stairs" color={DEFAULT_COLORS.primary} />
+              }
               text={data.level}
             />
             <Tag
-              icon={<Fontisto name="persons" color={colors.primary} />}
+              icon={<Fontisto name="persons" color={DEFAULT_COLORS.primary} />}
               text={`${data.currentPartySize}/${data.maxPartySize}`}
             />
           </View>

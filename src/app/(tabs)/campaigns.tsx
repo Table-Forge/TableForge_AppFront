@@ -11,12 +11,10 @@ import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ParamListBase, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 
 export default function Search() {
   //adicionar update ao puxar pra baixo pra baixo, com loading
-
 
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
@@ -34,12 +32,10 @@ export default function Search() {
             <View style={styles.locationText}>
               {loading ? (
                 <ActivityIndicator color={DEFAULT_COLORS.white} />
-                <ActivityIndicator color={DEFAULT_COLORS.white} />
               ) : (
                 <>
                   <FontAwesome6
                     name="location-dot"
-                    color={DEFAULT_COLORS.secondary}
                     color={DEFAULT_COLORS.secondary}
                     size={16}
                   />

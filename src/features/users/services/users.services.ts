@@ -1,5 +1,9 @@
 import { api } from "../../api";
-import { IUser, UserSchema } from "@/src/features/users/schemas/user.schema";
+import {
+  IUpdatePassword,
+  IUser,
+  UserSchema,
+} from "@/src/features/users/schemas/user.schema";
 
 const ENDPOINT = "/users";
 
@@ -14,13 +18,29 @@ export const UserService = {
     return data;
   },
 
-  create: async (userData: Partial<IUser>) => {
-    const { data } = await api.post(`${ENDPOINT}`, userData);
+  create: async (params: Partial<IUser>) => {
+    const { data } = await api.post(`${ENDPOINT}`, params);
     return data;
   },
 
-  update: async (userData: IUser) => {
-    const { data } = await api.put(`${ENDPOINT}/${userData.id}`, userData);
+  update: async (params: IUser) => {
+    const { data } = await api.put(`${ENDPOINT}/${params.id}`, {
+      params,
+    });
+    return data;
+  },
+
+  updatePassword: async (params: IUpdatePassword) => {
+    const { data } = await api.put(
+      `${ENDPOINT}/password/${params.userId}`,
+      null,
+      {
+        params: {
+          currentPassword: params.currentPassword,
+          newPassword: params.newPassword,
+        },
+      },
+    );
     return data;
   },
 };

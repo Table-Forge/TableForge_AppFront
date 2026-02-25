@@ -97,8 +97,9 @@ export const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 50,
     overflow: "hidden",
-    borderWidth: 2,
-    borderColor: DEFAULT_COLORS.secondary,
+
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.tertiary,
   },
   label: {
     color: DEFAULT_COLORS.white,

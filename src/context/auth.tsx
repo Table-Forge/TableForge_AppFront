@@ -9,6 +9,7 @@ import {
 import * as SecureStore from "expo-secure-store";
 import { useRouter, useSegments } from "expo-router";
 import { ILoginResponse } from "@/src/features/users/schemas/auth.schema";
+import Toast from "react-native-toast-message";
 
 interface AuthContextProps {
   user: ILoginResponse["user"] | null;
@@ -63,6 +64,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await SecureStore.deleteItemAsync("auth_data");
     setUser(null);
   };
+
+  useEffect(() => {
+    async function loadStorageData() {
+      try {
+        const authDataSerialized = await SecureStore.getItemAsync("auth_data");
+
+        if (authDataSerialized) {
+          const _authData: ILoginResponse = JSON.parse(authDataSerialized);
+
+          const expirationDate = new Date(_authData.token.expiration);
+          const now = new Date();
+
+          if (expirationDate > now) {
+            setUser(_authData.user);
+          } else {
+            Toast.show({
+              type: "error",
+              text1: "Sessão expirada. Redirecionando...",
+            });
+            await SecureStore.deleteItemAsync("auth_data");
+            setUser(null);
+          }
+        }
+      } catch (e) {
+        Toast.show({
+          type: "error",
+          text1: "Erro ao carregar sessão",
+          text2: `${e}`,
+        });
+        await SecureStore.deleteItemAsync("auth_data");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadStorageData();
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, signIn, signOut, isLoading }}>

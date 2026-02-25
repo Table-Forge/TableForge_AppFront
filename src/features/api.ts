@@ -15,9 +15,12 @@ api.interceptors.request.use(
     const authDataSerialized = await SecureStore.getItemAsync("auth_data");
 
     if (authDataSerialized) {
-      const { token } = JSON.parse(authDataSerialized);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      const authData = JSON.parse(authDataSerialized);
+
+      const tokenValue = authData.token?.value;
+
+      if (tokenValue) {
+        config.headers.Authorization = `Bearer ${tokenValue}`;
       }
     }
 

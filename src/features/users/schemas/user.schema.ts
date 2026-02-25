@@ -51,5 +51,29 @@ export const RecoverPasswordSchema = z.object({
     .min(1, "Somos nerds, mas não videntes. O e-mail é obrigatório."),
 });
 
+export const UpdatePasswordSchema = z
+  .object({
+    userId: z.number(),
+    currentPassword: z
+      .string()
+      .min(1, "O segredo atual é obrigatório para sua segurança."),
+    newPassword: z
+      .string()
+      .min(6, "O novo segredo deve ter pelo menos 6 caracteres."),
+    confirmPassword: z
+      .string()
+      .min(1, "A confirmação do segredo é obrigatória."),
+  })
+  .superRefine(({ newPassword, confirmPassword }, ctx) => {
+    if (confirmPassword !== newPassword) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Os novos segredos não coincidem!",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+
 export type IUser = z.infer<typeof UserSchema>;
 export type IRecoverPassword = z.infer<typeof RecoverPasswordSchema>;
+export type IUpdatePassword = z.infer<typeof UpdatePasswordSchema>;

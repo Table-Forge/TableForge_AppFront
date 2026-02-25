@@ -2,22 +2,33 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { Ionicons } from "@expo/vector-icons";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 
 interface IProps {
-  title: string;
+  title?: string;
   children: React.ReactNode;
-  onEdit: () => void;
+  onEdit?: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
-export const InfoCard = ({ title, children, onEdit }: IProps) => (
-  <View style={styles.card}>
-    <View style={styles.cardHeader}>
-      <ThemedText style={styles.cardTitle}>{title}</ThemedText>
-      <TouchableOpacity onPress={onEdit}>
-        <Ionicons name="pencil" size={18} color={DEFAULT_COLORS.white} />
-      </TouchableOpacity>
-    </View>
+export const InfoCard = ({ title, children, onEdit, style }: IProps) => (
+  <View style={[styles.card, style]}>
+    {(title || onEdit) && (
+      <View style={styles.cardHeader}>
+        {title && <ThemedText style={styles.cardTitle}>{title}</ThemedText>}
+        {onEdit && (
+          <TouchableOpacity onPress={onEdit}>
+            <Ionicons name="pencil" size={18} color={DEFAULT_COLORS.white} />
+          </TouchableOpacity>
+        )}
+      </View>
+    )}
     {children}
   </View>
 );

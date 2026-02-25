@@ -34,7 +34,7 @@ export default function Home() {
                 }}
               />
             ) : (
-              <KnightHeadIcon size={22} color={DEFAULT_COLORS.secondary} />
+              <KnightHeadIcon size={22} color={DEFAULT_COLORS.white} />
             )
           }
           label={`Bem vindo(a), ${user?.nickname}!`}
@@ -77,7 +77,13 @@ export default function Home() {
         />
 
         <View style={styles.callWrapper}>
-          <ThemedText weight="bold" style={{ fontSize: 20, marginBottom: 16 }}>
+          <ThemedText
+            weight="bold"
+            style={{
+              fontSize: 20,
+              marginBottom: 16,
+            }}
+          >
             Seja um Nobre!
           </ThemedText>
 
@@ -146,9 +152,15 @@ export const styles = StyleSheet.create({
     display: "flex",
     gap: 10,
     padding: 16,
-    borderWidth: 1,
-    borderColor: DEFAULT_COLORS.white,
-    borderRadius: 16,
+
+    flex: 1,
+    backgroundColor: DEFAULT_COLORS.primary,
+    borderRadius: 30,
+
+    borderWidth: 2,
+    borderColor: "rgba(251, 69, 1, 0.3)",
+
+    position: "relative",
   },
   advantagesList: {
     display: "flex",

@@ -35,12 +35,28 @@ export default function RootLayout() {
             }}
           >
             <Stack.Screen name="(tabs)" />
+
             <Stack.Screen
               name="campaign/[id]"
               options={{
                 presentation: "card",
               }}
             />
+
+            <Stack.Screen
+              name="settings"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
+              name="password-security"
+              options={{
+                presentation: "card",
+              }}
+            />
+
             <Stack.Screen name="(auth)" />
           </Stack>
 

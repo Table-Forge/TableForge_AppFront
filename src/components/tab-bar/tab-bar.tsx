@@ -78,9 +78,14 @@ export const TabBar = ({
               }
             >
               {route.name === "campaigns" ? (
-                <View style={styles.searchItemButton}>
+                <View
+                  style={[
+                    styles.searchItemButton,
+                    isFocused && styles.searchItemButtonFocused,
+                  ]}
+                >
                   {ICONS["campaigns"](
-                    isFocused ? DEFAULT_COLORS.primary : DEFAULT_COLORS.white,
+                    isFocused ? DEFAULT_COLORS.tertiary : DEFAULT_COLORS.white,
                   ) || label}
                 </View>
               ) : (
@@ -165,5 +170,13 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 8,
+
+    borderWidth: 2,
+    borderColor: DEFAULT_COLORS.primary,
+  },
+  searchItemButtonFocused: {
+    backgroundColor: DEFAULT_COLORS.primary,
+    borderColor: DEFAULT_COLORS.tertiary,
+    borderWidth: 1,
   },
 });

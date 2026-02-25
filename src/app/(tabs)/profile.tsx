@@ -1,14 +1,13 @@
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { KnightHeadIcon, LogoutIcon } from "@/src/components/icons";
+import { KnightHeadIcon } from "@/src/components/icons";
 import { InfoCard } from "@/src/components/info-card/info-card";
 import { MainContainer } from "@/src/components/main-container/main-container";
-import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ScrollView,
@@ -23,22 +22,22 @@ import { styles as infoCardStyles } from "@/src/components/info-card/info-card";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { LoadingOverlay } from "@/src/components/loading-overlay/loading-overlay";
 import { formatDate } from "@/src/utils/format";
+import { Tag } from "@/src/components/tag/tag";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation } from "expo-router";
+import { ParamListBase } from "@react-navigation/native";
 
 export default function Profile() {
-  const { signOut, user } = useAuth();
+  const { user } = useAuth();
   const { handleBack } = useBackRouter();
+
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
   const userId = user?.id ? Number(user.id) : undefined;
   const { data, isPending, refetch } = useUser(userId);
 
-  const [isLogoutOpen, setLogoutOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("Perfil");
   const [refreshing, setRefreshing] = useState(false);
-
-  const handleSignOut = async () => {
-    setLogoutOpen(false);
-    signOut();
-  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -76,8 +75,14 @@ export default function Profile() {
 
             <ActionButton
               variant="circle"
-              icon={<LogoutIcon size={24} color={DEFAULT_COLORS.white} />}
-              onPress={() => setLogoutOpen(true)}
+              icon={
+                <FontAwesome
+                  name="gear"
+                  size={24}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              onPress={() => navigation.navigate("settings")}
               backgroundColor={DEFAULT_COLORS.tertiary}
             />
           </HeaderActions>
@@ -152,22 +157,43 @@ export default function Profile() {
                 </ThemedText>
               </View>
             </InfoCard>
+
+            <InfoCard title="Preferências de Jogo" onEdit={() => {}}>
+              <View style={infoCardStyles.cardContentItem}>
+                <ThemedText style={infoCardStyles.cardContentLabel}>
+                  Sistema
+                </ThemedText>
+                <View style={infoCardStyles.cardContent}>
+                  <Tag text="Tormenta" />
+                  <Tag text="D&D" />
+                </View>
+              </View>
+              <View style={infoCardStyles.cardContentItem}>
+                <ThemedText style={infoCardStyles.cardContentLabel}>
+                  Classe
+                </ThemedText>
+                <View style={infoCardStyles.cardContent}>
+                  <Tag text="Clérigo" />
+                  <Tag text="Artífice" />
+                  <Tag text="Samurai" />
+                </View>
+              </View>
+            </InfoCard>
+
+            <InfoCard title="Meu Plano">
+              <View style={infoCardStyles.cardContent}>
+                <View style={infoCardStyles.cardContentItem}>
+                  <ThemedText style={infoCardStyles.cardContentLabel}>
+                    Básico
+                  </ThemedText>
+                </View>
+              </View>
+            </InfoCard>
           </View>
         </ScrollView>
       </MainContainer>
 
       {isPending && !refreshing && <LoadingOverlay />}
-
-      <ModalBase
-        visible={isLogoutOpen}
-        onClose={() => setLogoutOpen(false)}
-        onConfirm={handleSignOut}
-        title="Sair da Conta"
-        description="Tem certeza que deseja sair?"
-        confirmText="Sim, Sair"
-        confirmVariant="tertiary"
-        animationType="slide"
-      />
     </>
   );
 }

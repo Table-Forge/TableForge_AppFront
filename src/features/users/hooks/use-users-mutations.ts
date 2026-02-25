@@ -3,7 +3,10 @@ import { ILoginRequest, ILoginResponse } from "../schemas/auth.schema";
 import { useAuth } from "@/src/context/auth";
 import { AuthService } from "@/src/features/users/services/auth.services";
 import { UserService } from "@/src/features/users/services/users.services";
-import { IUser } from "@/src/features/users/schemas/user.schema";
+import {
+  IUpdatePassword,
+  IUser,
+} from "@/src/features/users/schemas/user.schema";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 
@@ -17,7 +20,7 @@ export const useUsersMutation = () => {
       await signIn(data);
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || "Credenciais inválidas";
+      const message = error.response?.data?.Message || "Credenciais inválidas";
 
       Toast.show({
         type: "error",
@@ -42,7 +45,7 @@ export const useUsersMutation = () => {
       router.replace("/login");
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || "Erro ao criar conta";
+      const message = error.response?.data?.Message || "Erro ao criar conta";
       Toast.show({
         type: "error",
         text1: "Ops! Algo deu errado",
@@ -50,10 +53,36 @@ export const useUsersMutation = () => {
       });
     },
   });
+
+  const updatePasswordMutation = useMutation({
+    mutationFn: (data: IUpdatePassword) => UserService.updatePassword(data),
+    onSuccess: async () => {
+      Toast.show({
+        type: "success",
+        text1: "Senha alterada com sucesso! 🎉",
+        text2:
+          "Sua senha foi com sucesso! No seu próximo acesso, você já poderá usar sua nova senha.",
+        position: "top",
+        visibilityTime: 4000,
+      });
+    },
+    onError: (error: any) => {
+      console.log("error", error.response);
+      const message = error.response?.data?.Message || "Erro ao alterar senha.";
+      Toast.show({
+        type: "error",
+        text1: "Ops! Algo deu errado",
+        text2: message,
+      });
+    },
+  });
+
   return {
     loginMutation,
     isLoadingLoginMutation: loginMutation.isPending,
     newUserMutation,
     isLoadingNewUserMutation: newUserMutation.isPending,
+    updatePasswordMutation,
+    isUpdatingPassword: updatePasswordMutation.isPending,
   };
 };

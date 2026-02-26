@@ -14,6 +14,7 @@ const campaignList: ICampaign[] = [
     system: "Tormenta",
     currentPartySize: 4,
     maxPartySize: 5,
+    gameMaster: "Kassandra Tenebra",
   },
   {
     id: 1,
@@ -27,6 +28,7 @@ const campaignList: ICampaign[] = [
     system: "D&D 5e",
     currentPartySize: 3,
     maxPartySize: 6,
+    gameMaster: "Mestre 'Pé Vermelho'",
   },
   {
     id: 2,
@@ -40,6 +42,7 @@ const campaignList: ICampaign[] = [
     system: "Pathfinder 2e",
     currentPartySize: 5,
     maxPartySize: 5,
+    gameMaster: "Evelyn Bloodrose",
   },
   {
     id: 3,
@@ -53,6 +56,7 @@ const campaignList: ICampaign[] = [
     system: "Cyberpunk RED",
     currentPartySize: 2,
     maxPartySize: 5,
+    gameMaster: "Deckard Cyber",
   },
   {
     id: 4,
@@ -66,6 +70,7 @@ const campaignList: ICampaign[] = [
     system: "Tormenta 20",
     currentPartySize: 4,
     maxPartySize: 6,
+    gameMaster: "Leonel Arton",
   },
   {
     id: 5,
@@ -79,6 +84,7 @@ const campaignList: ICampaign[] = [
     system: "Call of Cthulhu",
     currentPartySize: 1,
     maxPartySize: 4,
+    gameMaster: "H.P. Craft",
   },
 ];
 

@@ -8,6 +8,7 @@ interface ICampaign {
   level: string;
   currentPartySize: number;
   maxPartySize: number;
+  gameMaster: string;
 }
 
 export type { ICampaign };

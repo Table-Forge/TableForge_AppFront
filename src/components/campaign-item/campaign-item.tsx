@@ -43,12 +43,38 @@ export const CampaignItem = ({
           alignItems: "center",
         }}
       >
-        <ThemedText
-          weight="bold"
-          style={{ fontSize: 18, color: DEFAULT_COLORS.white }}
-        >
-          {data.title}
-        </ThemedText>
+        <View>
+          <ThemedText
+            weight="bold"
+            style={{ fontSize: 18, color: DEFAULT_COLORS.white }}
+          >
+            {data.title}
+          </ThemedText>
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
+              marginTop: 2,
+            }}
+          >
+            <FontAwesome6
+              name="crown"
+              size={10}
+              color={DEFAULT_COLORS.tertiary}
+            />
+            <ThemedText
+              style={{
+                fontSize: 12,
+                color: DEFAULT_COLORS.white,
+                opacity: 0.6,
+              }}
+            >
+              por {data.gameMaster || "Mestre Desconhecido"}
+            </ThemedText>
+          </View>
+        </View>
 
         {/* status */}
         {/* <View

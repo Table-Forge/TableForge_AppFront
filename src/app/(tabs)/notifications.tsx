@@ -12,6 +12,8 @@ import {
   FontAwesome5,
 } from "@expo/vector-icons";
 
+import { Mail, MailOpen } from "lucide-react-native";
+
 interface NotificationItem {
   id: string;
   type: "reminder" | "message" | "friend_request" | "campaign_request";
@@ -61,18 +63,18 @@ const NOTIFICATIONS_MOCK: NotificationItem[] = [
 export default function Notifications() {
   const { handleBack } = useBackRouter();
 
-  const renderIcon = (type: NotificationItem["type"], color: string) => {
+  const renderIcon = (
+    type: NotificationItem["type"],
+    color: string,
+    isRead: boolean,
+  ) => {
+    const iconProps = { size: 22, color: color };
+
     const icons = {
-      reminder: (
-        <Ionicons name="notifications-outline" size={22} color={color} />
-      ),
-      message: <Ionicons name="mail-outline" size={22} color={color} />,
-      friend_request: (
-        <Ionicons name="person-add-outline" size={22} color={color} />
-      ),
-      campaign_request: (
-        <MaterialCommunityIcons name="castle" size={22} color={color} />
-      ),
+      reminder: <Ionicons name="notifications-outline" {...iconProps} />,
+      message: isRead ? <MailOpen {...iconProps} /> : <Mail {...iconProps} />,
+      friend_request: <Ionicons name="person-add-outline" {...iconProps} />,
+      campaign_request: <MaterialCommunityIcons name="castle" {...iconProps} />,
     };
 
     return icons[type] || icons.reminder;
@@ -85,6 +87,7 @@ export default function Notifications() {
           {renderIcon(
             item.type,
             !item.read ? DEFAULT_COLORS.tertiary : DEFAULT_COLORS.grays._400,
+            item.read,
           )}
         </View>
 

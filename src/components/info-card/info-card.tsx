@@ -35,6 +35,7 @@ export const InfoCard = ({ title, children, onEdit, style }: IProps) => (
 
 export const styles = StyleSheet.create({
   card: {
+    width: "100%",
     backgroundColor: DEFAULT_COLORS.background,
     borderRadius: 15,
     padding: 15,
@@ -83,5 +84,16 @@ export const styles = StyleSheet.create({
     ...fonts.bold,
     fontSize: 16,
     color: DEFAULT_COLORS.white,
+  },
+
+  cardList: {
+    display: "flex",
+    gap: 10,
+  },
+  cardItem: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "flex-start",
+    width: "100%",
   },
 });

@@ -16,6 +16,11 @@ import { useAuth } from "@/src/context/auth";
 import { Entypo } from "@expo/vector-icons";
 import { KnightHeadIcon } from "@/src/components/icons";
 
+import {
+  InfoCard,
+  styles as infoCardStyles,
+} from "@/src/components/info-card/info-card";
+
 export default function Home() {
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
   const { user } = useAuth();
@@ -87,14 +92,13 @@ export default function Home() {
             Seja um Nobre!
           </ThemedText>
 
-          <View style={styles.advantagesWrapper}>
-            <ThemedText weight="bold" style={{ fontSize: 16 }}>
-              Vantagens da Nobreza
-            </ThemedText>
-
-            <View style={styles.advantagesList}>
+          <InfoCard
+            title="Vantagens da Nobreza"
+            style={{ backgroundColor: DEFAULT_COLORS.primary }}
+          >
+            <View style={infoCardStyles.cardList}>
               {advantages.map((item, index) => (
-                <View key={index} style={styles.advantageItem}>
+                <View key={index} style={infoCardStyles.cardItem}>
                   <FeatherIcons
                     name="check-circle"
                     size={16}
@@ -120,7 +124,7 @@ export default function Home() {
                 text="Quero Assinar!"
               />
             </View>
-          </View>
+          </InfoCard>
         </View>
       </ScrollView>
     </MainContainer>

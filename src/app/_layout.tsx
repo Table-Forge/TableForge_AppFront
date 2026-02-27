@@ -64,6 +64,13 @@ export default function RootLayout() {
               }}
             />
 
+            <Stack.Screen
+              name="my-plan"
+              options={{
+                presentation: "card",
+              }}
+            />
+
             <Stack.Screen name="(auth)" />
           </Stack>
 

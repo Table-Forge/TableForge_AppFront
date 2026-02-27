@@ -1,8 +1,11 @@
-import { DEFAULT_COLORS } from "@/src/theme/colors";
 import Slider from "@react-native-community/slider";
 import { useController } from "react-hook-form";
 import { Text, View } from "react-native";
-import { styles } from "./progress-input.styles";
+
+
+import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { StyleSheet } from "react-native";
+import { fonts } from "@/src/theme/fonts";
 
 interface ProgressInputProps {
   hookform: any;
@@ -41,4 +44,20 @@ export const ProgressInput = ({
       <Text style={styles.valueText}>{value}</Text>
     </View>
   );
-};
+}
+export const styles = StyleSheet.create({
+  wrapper: {
+    width: "100%",
+    alignItems: "center",
+  },
+  slider: {
+    width: "100%",
+    height: 40,
+  },
+  valueText: {
+    marginTop: 10,
+    fontSize: 18,
+    ...fonts.bold,
+    color: DEFAULT_COLORS.white,
+  },
+});

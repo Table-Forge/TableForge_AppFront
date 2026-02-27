@@ -12,7 +12,6 @@ import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations
 import { Input } from "@/src/components/input/input";
 import { Button } from "@/src/components/button/button";
 import { Label } from "@/src/components/label/label";
-import { MainContainer } from "@/src/components/main-container/main-container";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
@@ -24,6 +23,8 @@ import {
   IUpdatePassword,
 } from "@/src/features/users/schemas/user.schema";
 import { useAuth } from "@/src/context/auth";
+import { fonts } from "@/src/theme/fonts";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PasswordAndSecurityScreen() {
   const { user } = useAuth();
@@ -49,7 +50,7 @@ export default function PasswordAndSecurityScreen() {
   };
 
   return (
-    <MainContainer>
+    <SafeAreaView style={[{ flex: 1 }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -151,14 +152,14 @@ export default function PasswordAndSecurityScreen() {
           />
         </ScrollView>
       </KeyboardAvoidingView>
-    </MainContainer>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    ...fonts.bold,
     color: DEFAULT_COLORS.white,
   },
   container: {
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     opacity: 0.7,
-    fontWeight: "bold",
+    ...fonts.bold,
     color: DEFAULT_COLORS.white,
   },
   formContent: {

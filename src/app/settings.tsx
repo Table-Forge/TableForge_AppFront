@@ -1,7 +1,6 @@
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { InfoCard } from "@/src/components/info-card/info-card";
-import { MainContainer } from "@/src/components/main-container/main-container";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
@@ -14,6 +13,8 @@ import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "expo-router";
 import { ParamListBase } from "@react-navigation/native";
+import { fonts } from "@/src/theme/fonts";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
   const { signOut } = useAuth();
@@ -63,7 +64,7 @@ export default function SettingsScreen() {
 
   return (
     <>
-      <MainContainer>
+      <SafeAreaView style={[{ flex: 1 }]}>
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
@@ -100,6 +101,12 @@ export default function SettingsScreen() {
                 label="Notificações"
                 onPress={() => navigation.navigate("notifications-settings")}
               />
+              <View style={styles.separator} />
+              <SettingItem
+                icon="diamond"
+                label="Meu Plano"
+                onPress={() => navigation.navigate("my-plan")}
+              />
             </InfoCard>
 
             <View style={styles.sectionHeader}>
@@ -123,7 +130,7 @@ export default function SettingsScreen() {
             </InfoCard>
           </View>
         </ScrollView>
-      </MainContainer>
+      </SafeAreaView>
 
       <ModalBase
         visible={isLogoutOpen}
@@ -142,7 +149,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    ...fonts.bold,
     color: DEFAULT_COLORS.white,
   },
   contentBody: {
@@ -156,7 +163,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     opacity: 0.6,
-    fontWeight: "600",
+    ...fonts.medium,
   },
   settingItem: {
     flexDirection: "row",

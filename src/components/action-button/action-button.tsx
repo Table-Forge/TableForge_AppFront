@@ -1,4 +1,5 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
 import React from "react";
 import {
   Pressable,
@@ -104,6 +105,6 @@ export const styles = StyleSheet.create({
   label: {
     color: DEFAULT_COLORS.white,
     fontSize: 14,
-    fontWeight: "600",
+    ...fonts.medium,
   },
 });

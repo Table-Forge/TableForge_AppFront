@@ -1,4 +1,5 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -29,7 +30,7 @@ export const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
-    fontWeight: "400",
+    ...fonts.regular,
     color: DEFAULT_COLORS.white,
     textAlign: "center",
   },

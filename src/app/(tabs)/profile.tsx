@@ -7,7 +7,7 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ScrollView,
@@ -26,6 +26,7 @@ import { ParamListBase } from "@react-navigation/native";
 import { ProfileTab } from "@/src/pages-components/profile/profile-tab";
 import { CharactersTab } from "@/src/pages-components/profile/characters-tab";
 import { CampaignsTab } from "@/src/pages-components/profile/campaigns-tab";
+import { fonts } from "@/src/theme/fonts";
 
 const TABS = ["Perfil", "Personagens", "Campanhas"] as const;
 type ITabs = (typeof TABS)[number];
@@ -76,18 +77,31 @@ export default function Profile() {
               onPress={handleBack}
             />
 
-            <ActionButton
-              variant="circle"
-              icon={
-                <FontAwesome
-                  name="gear"
-                  size={24}
-                  color={DEFAULT_COLORS.white}
-                />
-              }
-              onPress={() => navigation.navigate("settings")}
-              backgroundColor={DEFAULT_COLORS.tertiary}
-            />
+            <View style={styles.groupedIcons}>
+              <ActionButton
+                variant="circle"
+                icon={
+                  <MaterialIcons
+                    name="diamond"
+                    size={28}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                onPress={() => navigation.navigate("my-plan")}
+                backgroundColor={DEFAULT_COLORS.tertiary}
+              />
+              <ActionButton
+                variant="circle"
+                icon={
+                  <FontAwesome
+                    name="gear"
+                    size={24}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                onPress={() => navigation.navigate("settings")}
+              />
+            </View>
           </HeaderActions>
 
           <View style={styles.contentBody}>
@@ -105,7 +119,7 @@ export default function Profile() {
             </View>
 
             <View style={styles.profileInfo}>
-              <ThemedText style={{ fontWeight: "bold" }}>
+              <ThemedText style={{ ...fonts.bold }}>
                 {data?.nickname}
               </ThemedText>
               <ThemedText style={{ opacity: 0.7 }}>{data?.username}</ThemedText>
@@ -150,7 +164,7 @@ const styles = StyleSheet.create({
   contentBody: {
     marginTop: 50,
     backgroundColor: DEFAULT_COLORS.primary,
-    borderRadius: 30,
+    borderRadius: 20,
 
     borderWidth: 2,
     borderColor: DEFAULT_COLORS.tertiary_30,
@@ -220,5 +234,9 @@ const styles = StyleSheet.create({
     backgroundColor: DEFAULT_COLORS.primary,
     borderWidth: 1,
     borderColor: DEFAULT_COLORS.tertiary,
+  },
+  groupedIcons: {
+    flexDirection: "row",
+    gap: 10,
   },
 });

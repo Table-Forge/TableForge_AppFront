@@ -1,4 +1,5 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
 import { BaseToast, ErrorToast } from "react-native-toast-message";
 
 export const toastConfig = {
@@ -12,7 +13,7 @@ export const toastConfig = {
       contentContainerStyle={{ paddingHorizontal: 15 }}
       text1Style={{
         fontSize: 16,
-        fontWeight: "bold",
+        ...fonts.bold,
         color: DEFAULT_COLORS.white,
       }}
       text2Style={{

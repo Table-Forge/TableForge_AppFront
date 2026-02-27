@@ -13,6 +13,7 @@ import {
 } from "@expo/vector-icons";
 
 import { Mail, MailOpen } from "lucide-react-native";
+import { fonts } from "@/src/theme/fonts";
 
 interface NotificationItem {
   id: string;
@@ -102,7 +103,9 @@ export default function Notifications() {
           <View style={styles.actionsRow}>
             {item.type === "campaign_request" && (
               <>
-                <TouchableOpacity style={styles.btnActionHighlight}>
+                <TouchableOpacity
+                  style={[styles.btnAction, styles.btnActionHighlight]}
+                >
                   <ThemedText style={styles.actionText}>Ver Pedido</ThemedText>
                 </TouchableOpacity>
               </>
@@ -110,7 +113,9 @@ export default function Notifications() {
             {(item.type === "friend_request" ||
               item.type === "campaign_request") && (
               <>
-                <TouchableOpacity style={styles.btnActionHighlight}>
+                <TouchableOpacity
+                  style={[styles.btnAction, styles.btnActionHighlight]}
+                >
                   <ThemedText style={styles.actionText}>Aceitar</ThemedText>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.btnAction}>
@@ -160,7 +165,7 @@ export default function Notifications() {
 }
 
 const styles = StyleSheet.create({
-  headerTitle: { fontSize: 20, fontWeight: "bold" },
+  headerTitle: { fontSize: 20, ...fonts.bold },
   clearAll: {
     alignSelf: "flex-end",
     paddingHorizontal: 16,
@@ -171,7 +176,7 @@ const styles = StyleSheet.create({
   clearAllText: {
     color: DEFAULT_COLORS.tertiary,
     fontSize: 14,
-    fontWeight: "600",
+    ...fonts.medium,
   },
   listContent: { paddingBottom: 20 },
 
@@ -209,7 +214,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   title: {
-    fontWeight: "bold",
+    ...fonts.bold,
     fontSize: 16,
     color: DEFAULT_COLORS.white,
   },
@@ -232,19 +237,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 6,
     backgroundColor: DEFAULT_COLORS.grays._500,
+    justifyContent: "center",
+    alignItems: "center",
   },
   btnActionHighlight: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
     backgroundColor: DEFAULT_COLORS.tertiary,
   },
   actionText: {
     fontSize: 12,
-    fontWeight: "bold",
+    ...fonts.bold,
     color: DEFAULT_COLORS.white,
     textTransform: "uppercase",
-    width: "100%",
+    textAlign: "center",
   },
 
   separator: {

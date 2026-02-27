@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { Platform, View, StyleSheet, StyleProp, ViewStyle } from "react-native";
+import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface IProps extends PropsWithChildren {
@@ -17,10 +17,8 @@ export const MainContainer = ({ children, style }: IProps) => {
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     paddingTop: 20,
-    paddingBottom: Platform.OS === "ios" ? 50 : 80,
+    paddingBottom: 40,
     gap: 20,
   },
 });

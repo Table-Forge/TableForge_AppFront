@@ -7,6 +7,7 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
+import { fonts } from "@/src/theme/fonts";
 
 interface MessageItem {
   id: string;
@@ -126,7 +127,7 @@ export default function Messages() {
 }
 
 const styles = StyleSheet.create({
-  headerTitle: { fontSize: 20, fontWeight: "bold" },
+  headerTitle: { fontSize: 20, ...fonts.bold },
   clearAll: {
     alignSelf: "flex-end",
     paddingHorizontal: 16,
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
   clearAllText: {
     color: DEFAULT_COLORS.tertiary,
     fontSize: 14,
-    fontWeight: "600",
+    ...fonts.medium,
   },
   listContent: { paddingBottom: 20 },
 
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   userName: {
-    fontWeight: "bold",
+    ...fonts.bold,
     fontSize: 16,
     color: DEFAULT_COLORS.white,
   },

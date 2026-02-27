@@ -10,7 +10,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
 import { Button } from "@/src/components/button/button";
-import { MainContainer } from "@/src/components/main-container/main-container";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
@@ -23,8 +22,10 @@ import {
 } from "@/src/features/users/schemas/user.schema";
 import { useAuth } from "@/src/context/auth";
 import { ControlledToggle } from "@/src/components/toggle/controlled-toggle";
+import { fonts } from "@/src/theme/fonts";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function NotificationsSettings() {
+export default function NotificationsSettingsScreen() {
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
   const { updatePasswordMutation, isUpdatingPassword } = useUsersMutation();
@@ -44,7 +45,7 @@ export default function NotificationsSettings() {
   };
 
   return (
-    <MainContainer>
+    <SafeAreaView style={[{ flex: 1 }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -118,14 +119,14 @@ export default function NotificationsSettings() {
           />
         </ScrollView>
       </KeyboardAvoidingView>
-    </MainContainer>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    ...fonts.bold,
     color: DEFAULT_COLORS.white,
   },
   container: {
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     opacity: 0.7,
-    fontWeight: "bold",
+    ...fonts.bold,
     color: DEFAULT_COLORS.white,
   },
   formContent: {

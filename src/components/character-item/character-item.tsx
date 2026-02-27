@@ -3,6 +3,7 @@ import { Image, Pressable, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ThemedText } from "../themed-text/themed-text";
 import { ICharacter } from "@/src/interfaces/character.interfaces";
+import { fonts } from "@/src/theme/fonts";
 
 interface IProps {
   data: ICharacter;
@@ -34,7 +35,7 @@ export const CharacterItem = ({ data, cardColor = "#666666" }: IProps) => {
             style={{
               fontSize: 10,
               color: DEFAULT_COLORS.tertiary,
-              fontWeight: "bold",
+              ...fonts.bold,
             }}
           >
             {data.class?.toUpperCase() || "-"}

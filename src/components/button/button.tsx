@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Pressable } from "react-native";
 import { ThemedText } from "../themed-text/themed-text";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import * as Haptics from "expo-haptics";
+import { fonts } from "@/src/theme/fonts";
 
 interface ButtonProps {
   text?: string;
@@ -111,7 +112,7 @@ export const styles = StyleSheet.create({
   },
   text: {
     color: DEFAULT_COLORS.white,
-    fontWeight: "bold",
+    ...fonts.bold,
     textTransform: "uppercase",
   },
   textSm: {

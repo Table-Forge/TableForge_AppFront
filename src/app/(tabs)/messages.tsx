@@ -64,8 +64,18 @@ export default function Messages() {
 
   const [messages, setMessages] = useState<MessageItem[]>(INITIAL_MESSAGES);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const isSelectionMode = selectedIds.length > 0;
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+
+    setTimeout(() => {
+      setMessages(INITIAL_MESSAGES);
+      setRefreshing(false);
+    }, 2000);
+  }, []);
 
   const sortedData = useMemo(() => {
     return [...messages].sort((a, b) => {
@@ -265,12 +275,26 @@ export default function Messages() {
       </HeaderActions>
 
       <FlatList
+        showsVerticalScrollIndicator={false}
         style={{ width: "100%" }}
         data={sortedData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { flexGrow: 1 }]}
+        ListEmptyComponent={
+          <ThemedText
+            style={{
+              textAlign: "center",
+              marginTop: 40,
+              color: DEFAULT_COLORS.grays._300,
+            }}
+          >
+            Nenhuma mensagem por aqui.
+          </ThemedText>
+        }
+        refreshing={refreshing}
+        onRefresh={onRefresh}
       />
     </MainContainer>
   );
@@ -316,7 +340,7 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.grays._300,
     lineHeight: 18,
   },
-  unreadText: { color: DEFAULT_COLORS.white, ...fonts.bold },
+  unreadText: { color: DEFAULT_COLORS.grays._200, ...fonts.medium },
   separator: {
     height: 1,
     backgroundColor: "rgba(255,255,255,0.05)",

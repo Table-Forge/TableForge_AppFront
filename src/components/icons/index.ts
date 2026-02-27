@@ -7,3 +7,4 @@ export { KnightIcon } from "./knight";
 export { LogoutIcon } from "./logout";
 export { KnightHeadIcon } from "./knight-head";
 export { DMIcon } from "./dm-icon";
+export { WizardTowerIcon } from "./wizard-tower";

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { FlatList, View, TouchableOpacity, StyleSheet } from "react-native";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
@@ -21,23 +21,25 @@ interface MessageItem {
   lastMessage: string;
   time: string;
   read: boolean;
+  isPinned: boolean;
 }
 
-const MESSAGES_MOCK: MessageItem[] = [
+const INITIAL_MESSAGES: MessageItem[] = [
   {
     id: "1",
     userName: "Roanokay",
     lastMessage: "Duis eu est sed tellus vestibulum facilisis.",
     time: "10:45",
     read: false,
+    isPinned: false,
   },
   {
     id: "2",
     userName: "Morello",
-    lastMessage:
-      "Donec vel laoreet diam. In ipsum felis, hendrerit sit amet lobortis quis...",
+    lastMessage: "Donec vel laoreet diam...",
     time: "15 fev",
     read: true,
+    isPinned: false,
   },
   {
     id: "3",
@@ -45,21 +47,32 @@ const MESSAGES_MOCK: MessageItem[] = [
     lastMessage: "Nulla vel.",
     time: "01 Jan",
     read: true,
+    isPinned: false,
   },
   {
     id: "4",
     userName: "Raspin",
-    lastMessage:
-      "Suspendisse vitae mi elit. Nunc rhoncus eros id aliquam egestas...",
+    lastMessage: "Suspendisse vitae mi elit...",
     time: "31 Dez",
     read: true,
+    isPinned: false,
   },
 ];
 
 export default function Messages() {
   const { handleBack } = useBackRouter();
 
+  const [messages, setMessages] = useState<MessageItem[]>(INITIAL_MESSAGES);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const isSelectionMode = selectedIds.length > 0;
+
+  const sortedData = useMemo(() => {
+    return [...messages].sort((a, b) => {
+      if (a.isPinned === b.isPinned) return 0;
+      return a.isPinned ? -1 : 1;
+    });
+  }, [messages]);
 
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) =>
@@ -69,7 +82,26 @@ export default function Messages() {
     );
   };
 
-  const isSelectionMode = selectedIds.length > 0;
+  const handlePinAction = (shouldPin: boolean) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        selectedIds.includes(m.id) ? { ...m, isPinned: shouldPin } : m,
+      ),
+    );
+    setSelectedIds([]);
+  };
+
+  const handleMarkAsRead = () => {
+    setMessages((prev) =>
+      prev.map((m) => (selectedIds.includes(m.id) ? { ...m, read: true } : m)),
+    );
+    setSelectedIds([]);
+  };
+
+  const handleDelete = () => {
+    setMessages((prev) => prev.filter((m) => !selectedIds.includes(m.id)));
+    setSelectedIds([]);
+  };
 
   const renderItem = ({ item }: { item: MessageItem }) => {
     const isSelected = selectedIds.includes(item.id);
@@ -83,13 +115,9 @@ export default function Messages() {
         ]}
         activeOpacity={0.7}
         onLongPress={() => toggleSelection(item.id)}
-        onPress={() => {
-          if (isSelectionMode) {
-            toggleSelection(item.id);
-          } else {
-            console.log("Abrir mensagem");
-          }
-        }}
+        onPress={() =>
+          isSelectionMode ? toggleSelection(item.id) : console.log("Abrir chat")
+        }
       >
         <View style={styles.row}>
           <View
@@ -120,7 +148,17 @@ export default function Messages() {
 
           <View style={styles.content}>
             <View style={styles.headerRow}>
-              <ThemedText style={styles.userName}>{item.userName}</ThemedText>
+              <View style={styles.nameContainer}>
+                {item.isPinned && (
+                  <MaterialCommunityIcons
+                    name="pin"
+                    size={14}
+                    color={DEFAULT_COLORS.tertiary}
+                    style={{ marginRight: 4 }}
+                  />
+                )}
+                <ThemedText style={styles.userName}>{item.userName}</ThemedText>
+              </View>
               <ThemedText style={styles.time}>{item.time}</ThemedText>
             </View>
             <ThemedText
@@ -137,8 +175,22 @@ export default function Messages() {
 
   const menuOptions = () => {
     const hasSelection = selectedIds.length > 0;
+    const selectedMessages = messages.filter((m) => selectedIds.includes(m.id));
+    const allSelectedArePinned =
+      selectedMessages.length > 0 && selectedMessages.every((m) => m.isPinned);
 
     return [
+      {
+        label: allSelectedArePinned ? "Desafixar do topo" : "Fixar no topo",
+        icon: (
+          <MaterialCommunityIcons
+            name={allSelectedArePinned ? "pin-off-outline" : "pin-outline"}
+            size={18}
+            color={DEFAULT_COLORS.tertiary}
+          />
+        ),
+        onPress: () => handlePinAction(!allSelectedArePinned),
+      },
       {
         label: hasSelection ? "Limpar Seleção" : "Selecionar Tudo",
         icon: (
@@ -150,10 +202,10 @@ export default function Messages() {
             color={DEFAULT_COLORS.tertiary}
           />
         ),
-        onPress: () => {
-          if (hasSelection) setSelectedIds([]);
-          else setSelectedIds(MESSAGES_MOCK.map((m) => m.id));
-        },
+        onPress: () =>
+          hasSelection
+            ? setSelectedIds([])
+            : setSelectedIds(messages.map((m) => m.id)),
       },
       {
         label: "Marcar como lidas",
@@ -164,19 +216,22 @@ export default function Messages() {
             color={DEFAULT_COLORS.tertiary}
           />
         ),
-        onPress: () => {
-          // Lógica para marcar selectedIds ou todas como lidas
-        },
+        onPress: handleMarkAsRead,
       },
       {
         label: "Apagar selecionadas",
-        icon: <Ionicons name="trash-outline" size={18} color="#FF4444" />,
-        onPress: () => {
-          // Lógica de delete
-        },
+        icon: (
+          <Ionicons
+            name="trash-outline"
+            size={18}
+            color={DEFAULT_COLORS.danger}
+          />
+        ),
+        onPress: handleDelete,
       },
     ];
   };
+
   return (
     <MainContainer>
       <HeaderActions>
@@ -191,7 +246,11 @@ export default function Messages() {
           }
           onPress={handleBack}
         />
-        <ThemedText style={styles.headerTitle}>Mensagens</ThemedText>
+        <ThemedText style={styles.headerTitle}>
+          {isSelectionMode
+            ? `${selectedIds.length} selecionada(s)`
+            : "Mensagens"}
+        </ThemedText>
 
         <MenuPopup
           trigger={
@@ -207,7 +266,7 @@ export default function Messages() {
 
       <FlatList
         style={{ width: "100%" }}
-        data={MESSAGES_MOCK}
+        data={sortedData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -218,31 +277,18 @@ export default function Messages() {
 }
 
 const styles = StyleSheet.create({
-  headerTitle: { fontSize: 20, ...fonts.bold },
-
+  headerTitle: { fontSize: 20, ...fonts.bold, color: DEFAULT_COLORS.white },
   listContent: { paddingBottom: 20 },
-
-  messageCard: {
-    width: "100%",
-    paddingHorizontal: 16,
-    paddingVertical: 15,
-    backgroundColor: "transparent",
-  },
-
+  messageCard: { width: "100%", paddingHorizontal: 16, paddingVertical: 15 },
   unreadCard: {
     backgroundColor: DEFAULT_COLORS.tertiary_20,
     borderLeftWidth: 3,
     borderLeftColor: DEFAULT_COLORS.tertiary,
   },
-
   selectedCard: {
     backgroundColor: "rgba(your-color, 0.1)",
-    borderLeftWidth: 4,
-    borderLeftColor: DEFAULT_COLORS.tertiary,
   },
-
   row: { flexDirection: "row", alignItems: "center" },
-
   avatarContainer: {
     width: 48,
     height: 48,
@@ -255,7 +301,6 @@ const styles = StyleSheet.create({
   },
   unreadAvatarBorder: { borderColor: DEFAULT_COLORS.tertiary_30 },
   readAvatarBorder: { borderColor: "rgba(255, 255, 255, 0.05)" },
-
   content: { flex: 1 },
   headerRow: {
     flexDirection: "row",
@@ -263,21 +308,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 2,
   },
-  userName: {
-    ...fonts.bold,
-    fontSize: 16,
-    color: DEFAULT_COLORS.white,
-  },
+  nameContainer: { flexDirection: "row", alignItems: "center" },
+  userName: { ...fonts.bold, fontSize: 16, color: DEFAULT_COLORS.white },
   time: { fontSize: 12, color: DEFAULT_COLORS.grays._400 },
   lastMessage: {
     fontSize: 14,
     color: DEFAULT_COLORS.grays._300,
     lineHeight: 18,
   },
-  unreadText: {
-    color: DEFAULT_COLORS.grays._100,
-  },
-
+  unreadText: { color: DEFAULT_COLORS.white, ...fonts.bold },
   separator: {
     height: 1,
     backgroundColor: "rgba(255,255,255,0.05)",

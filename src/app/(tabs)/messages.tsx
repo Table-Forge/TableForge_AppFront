@@ -101,15 +101,17 @@ export default function Messages() {
     setSelectedIds([]);
   };
 
-  const handleMarkAsRead = () => {
-    setMessages((prev) =>
-      prev.map((m) => (selectedIds.includes(m.id) ? { ...m, read: true } : m)),
-    );
+  const handleDelete = () => {
+    setMessages((prev) => prev.filter((m) => !selectedIds.includes(m.id)));
     setSelectedIds([]);
   };
 
-  const handleDelete = () => {
-    setMessages((prev) => prev.filter((m) => !selectedIds.includes(m.id)));
+  const handleMarkReadStatus = (isRead: boolean) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        selectedIds.includes(m.id) ? { ...m, read: isRead } : m,
+      ),
+    );
     setSelectedIds([]);
   };
 
@@ -189,6 +191,9 @@ export default function Messages() {
     const allSelectedArePinned =
       selectedMessages.length > 0 && selectedMessages.every((m) => m.isPinned);
 
+    const allSelectedAreRead =
+      selectedMessages.length > 0 && selectedMessages.every((m) => m.read);
+
     return [
       {
         label: allSelectedArePinned ? "Desafixar do topo" : "Fixar no topo",
@@ -218,15 +223,15 @@ export default function Messages() {
             : setSelectedIds(messages.map((m) => m.id)),
       },
       {
-        label: "Marcar como lidas",
+        label: allSelectedAreRead ? "Marcar como não lida" : "Marcar como lida",
         icon: (
           <MaterialCommunityIcons
-            name="email-open-outline"
+            name={allSelectedAreRead ? "email-outline" : "email-open-outline"}
             size={18}
             color={DEFAULT_COLORS.tertiary}
           />
         ),
-        onPress: handleMarkAsRead,
+        onPress: () => handleMarkReadStatus(!allSelectedAreRead),
       },
       {
         label: "Apagar selecionadas",

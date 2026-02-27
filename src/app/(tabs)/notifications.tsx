@@ -123,15 +123,17 @@ export default function Notifications() {
     );
   };
 
-  const handleMarkAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((n) => (selectedIds.includes(n.id) ? { ...n, read: true } : n)),
-    );
+  const handleDelete = () => {
+    setNotifications((prev) => prev.filter((n) => !selectedIds.includes(n.id)));
     setSelectedIds([]);
   };
 
-  const handleDelete = () => {
-    setNotifications((prev) => prev.filter((n) => !selectedIds.includes(n.id)));
+  const handleMarkReadStatus = (isRead: boolean) => {
+    setNotifications((prev) =>
+      prev.map((m) =>
+        selectedIds.includes(m.id) ? { ...m, read: isRead } : m,
+      ),
+    );
     setSelectedIds([]);
   };
 
@@ -233,6 +235,14 @@ export default function Notifications() {
 
   const menuOptions = () => {
     const hasSelection = selectedIds.length > 0;
+
+    const selectedNotifications = notifications.filter((m) =>
+      selectedIds.includes(m.id),
+    );
+    const allSelectedAreRead =
+      selectedNotifications.length > 0 &&
+      selectedNotifications.every((m) => m.read);
+
     return [
       {
         label: hasSelection ? "Limpar Seleção" : "Selecionar Tudo",
@@ -251,15 +261,15 @@ export default function Notifications() {
             : setSelectedIds(notifications.map((n) => n.id)),
       },
       {
-        label: "Marcar como lidas",
+        label: allSelectedAreRead ? "Marcar como não lida" : "Marcar como lida",
         icon: (
           <MaterialCommunityIcons
-            name="email-open-outline"
+            name={allSelectedAreRead ? "email-outline" : "email-open-outline"}
             size={18}
             color={DEFAULT_COLORS.tertiary}
           />
         ),
-        onPress: handleMarkAsRead,
+        onPress: () => handleMarkReadStatus(!allSelectedAreRead),
       },
       {
         label: "Limpar selecionadas",
@@ -356,7 +366,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   unreadCard: {
-    backgroundColor: DEFAULT_COLORS.tertiary_50,
+    backgroundColor: DEFAULT_COLORS.tertiary_20,
     borderLeftWidth: 3,
     borderLeftColor: DEFAULT_COLORS.tertiary,
   },

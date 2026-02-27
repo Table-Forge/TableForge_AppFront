@@ -27,6 +27,9 @@ import { ProfileTab } from "@/src/pages-components/profile/profile-tab";
 import { CharactersTab } from "@/src/pages-components/profile/characters-tab";
 import { CampaignsTab } from "@/src/pages-components/profile/campaigns-tab";
 import { fonts } from "@/src/theme/fonts";
+import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
+import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
+import { Mail } from "lucide-react-native";
 
 const TABS = ["Perfil", "Personagens", "Campanhas"] as const;
 type ITabs = (typeof TABS)[number];
@@ -116,6 +119,47 @@ export default function Profile() {
                   <KnightHeadIcon color={DEFAULT_COLORS.primary} size={90} />
                 </View>
               )}
+            </View>
+
+            <View style={styles.menuPopupWrapper}>
+              <MenuPopup
+                trigger={
+                  <MaterialDesignIcons
+                    name="dots-horizontal-circle-outline"
+                    size={32}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                options={[
+                  {
+                    label: "Enviar Mensagem",
+                    icon: <Mail size={18} color={DEFAULT_COLORS.tertiary} />,
+                    onPress: () => {},
+                  },
+                  {
+                    label: "Remover Amigo",
+                    icon: (
+                      <Ionicons
+                        name="person-remove-outline"
+                        size={18}
+                        color={DEFAULT_COLORS.tertiary}
+                      />
+                    ),
+                    onPress: () => {},
+                  },
+                  {
+                    label: "Bloquear",
+                    icon: (
+                      <MaterialDesignIcons
+                        name="block-helper"
+                        size={18}
+                        color={DEFAULT_COLORS.tertiary}
+                      />
+                    ),
+                    onPress: () => {},
+                  },
+                ]}
+              />
             </View>
 
             <View style={styles.profileInfo}>
@@ -238,5 +282,10 @@ const styles = StyleSheet.create({
   groupedIcons: {
     flexDirection: "row",
     gap: 10,
+  },
+  menuPopupWrapper: {
+    position: "absolute",
+    right: 15,
+    top: 15,
   },
 });

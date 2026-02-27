@@ -48,7 +48,10 @@ export default function MyPlanScreen() {
             </ThemedText>
           </View>
 
-          <InfoCard style={[{ backgroundColor: DEFAULT_COLORS.primary }]}>
+          <InfoCard
+            title="Plano Atual"
+            style={[{ backgroundColor: DEFAULT_COLORS.primary }]}
+          >
             <View style={infoCardStyles.cardTitle}>
               <ThemedText fontSize={16} weight="bold">
                 Básico

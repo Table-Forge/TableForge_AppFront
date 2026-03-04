@@ -4,6 +4,7 @@ interface IProps {
   children?: React.ReactNode;
   position?: "full" | "left" | "right";
   hasPadding?: boolean;
+  padding?: number;
   gap?: number;
 }
 
@@ -11,6 +12,7 @@ export const HeaderActions = ({
   children,
   position = "full",
   hasPadding = true,
+  padding,
   gap = 10,
 }: IProps) => {
   const alignmentMap: Record<string, ViewStyle["justifyContent"]> = {
@@ -19,29 +21,22 @@ export const HeaderActions = ({
     right: "flex-end",
   };
 
-  return (
-    <View
-      style={[
-        styles.wrapper,
-        {
-          justifyContent: alignmentMap[position],
-          gap: gap,
-          paddingHorizontal: hasPadding ? 16 : 0,
-        },
-      ]}
-    >
-      {children}
-    </View>
-  );
+  const dynamicStyles: ViewStyle = {
+    justifyContent: alignmentMap[position],
+    gap,
+    ...(padding !== undefined
+      ? { padding }
+      : { paddingHorizontal: hasPadding ? 16 : 0 }),
+  };
+
+  return <View style={[styles.wrapper, dynamicStyles]}>{children}</View>;
 };
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   wrapper: {
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
     backgroundColor: "transparent",
-    overflow: "visible",
-    paddingHorizontal: 10,
   },
 });

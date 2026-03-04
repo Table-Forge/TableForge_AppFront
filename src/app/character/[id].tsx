@@ -5,9 +5,18 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { charactersList } from "@/src/data/mock";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { Ionicons } from "@expo/vector-icons";
+import { fonts } from "@/src/theme/fonts";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { Text, View } from "react-native";
+import {
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  View,
+  Dimensions,
+} from "react-native";
+
+const { width } = Dimensions.get("window");
 
 export default function CharacterScreen() {
   const { id } = useLocalSearchParams();
@@ -15,26 +24,176 @@ export default function CharacterScreen() {
 
   const data = charactersList.find((item) => item.id === Number(id));
 
-  if (!data) return <Text>Loading...</Text>;
-  return (
-    <MainContainer>
-      <HeaderActions>
-        <ActionButton
-          variant="circle"
-          icon={
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          onPress={handleBack}
-        />
-      </HeaderActions>
+  if (!data) return <ThemedText>Personagem não encontrado...</ThemedText>;
 
-      <View>
-        <ThemedText>{data?.name}</ThemedText>
-      </View>
+  return (
+    <MainContainer style={styles.container}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+        <ImageBackground source={{ uri: data.image }} style={styles.banner}>
+          <HeaderActions position="left">
+            <ActionButton
+              variant="circle"
+              style={styles.backButton}
+              icon={
+                <Ionicons
+                  name="arrow-back"
+                  size={24}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              onPress={handleBack}
+            />
+          </HeaderActions>
+
+          <View style={styles.nameOverlay}>
+            <ThemedText weight="bold" style={styles.charName}>
+              {data.name}
+            </ThemedText>
+            <View style={styles.classTag}>
+              <ThemedText style={styles.classTagText}>
+                {data.class.toUpperCase()}
+              </ThemedText>
+            </View>
+          </View>
+        </ImageBackground>
+
+        {/* ATRIBUTOS RÁPIDOS (GRID) */}
+        <View style={styles.statsGrid}>
+          <StatCard label="RAÇA" value={data.race} icon="dna" />
+          <StatCard
+            label="ALINHAMENTO"
+            value={data.alignment}
+            icon="scale-balance"
+          />
+        </View>
+
+        {/* HISTÓRIA / BIO */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <MaterialCommunityIcons
+              name="book-open-variant"
+              size={20}
+              color={DEFAULT_COLORS.tertiary}
+            />
+            <ThemedText weight="bold" style={styles.sectionTitle}>
+              HISTÓRIA DO PERSONAGEM
+            </ThemedText>
+          </View>
+
+          <View style={styles.historyCard}>
+            <ThemedText style={styles.historyText}>{data.history}</ThemedText>
+          </View>
+        </View>
+      </ScrollView>
     </MainContainer>
   );
 }
+
+// Sub-componente para os cards de atributos
+const StatCard = ({ label, value, icon }: any) => (
+  <View style={styles.statCard}>
+    <MaterialCommunityIcons
+      name={icon}
+      size={18}
+      color={DEFAULT_COLORS.tertiary}
+    />
+    <View>
+      <ThemedText style={styles.statLabel}>{label}</ThemedText>
+      <ThemedText weight="bold" style={styles.statValue}>
+        {value}
+      </ThemedText>
+    </View>
+  </View>
+);
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  banner: {
+    width: "100%",
+    height: width * 1.1, // Personagem ganha mais altura que a campanha
+    justifyContent: "space-between",
+  },
+  backButton: {
+    backgroundColor: "rgba(26, 26, 46, 0.7)",
+    borderColor: "rgba(126, 135, 226, 0.3)",
+  },
+  nameOverlay: {
+    padding: 20,
+    backgroundColor: "rgba(26, 26, 46, 0.85)",
+    borderTopWidth: 2,
+    borderTopColor: DEFAULT_COLORS.tertiary,
+  },
+  charName: {
+    fontSize: 32,
+    color: DEFAULT_COLORS.white,
+    letterSpacing: 1,
+  },
+  classTag: {
+    backgroundColor: "rgba(251, 69, 1, 0.2)",
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.tertiary,
+  },
+  classTagText: {
+    fontSize: 12,
+    color: DEFAULT_COLORS.tertiary,
+    ...fonts.bold,
+  },
+  statsGrid: {
+    flexDirection: "row",
+    padding: 20,
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(126, 135, 226, 0.1)",
+  },
+  statLabel: {
+    fontSize: 10,
+    color: "rgba(255,255,255,0.4)",
+    letterSpacing: 1,
+  },
+  statValue: {
+    fontSize: 14,
+    color: DEFAULT_COLORS.white,
+  },
+  section: {
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    color: DEFAULT_COLORS.tertiary,
+    letterSpacing: 1,
+  },
+  historyCard: {
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    padding: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(126, 135, 226, 0.05)",
+  },
+  historyText: {
+    fontSize: 16,
+    color: "rgba(255,255,255,0.7)",
+    lineHeight: 26,
+    fontStyle: "italic",
+  },
+});

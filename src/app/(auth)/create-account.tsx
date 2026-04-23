@@ -90,6 +90,8 @@ export default function CreateAccountScreen() {
                     placeholder="ex.: avalon_mestre"
                     value={value}
                     onChangeText={onChange}
+                    autoCapitalize="none"
+                    removeSpaces
                     error={errors?.username?.message?.toString()}
                   />
                 </View>
@@ -126,6 +128,8 @@ export default function CreateAccountScreen() {
                     value={value}
                     onChangeText={onChange}
                     keyboardType="email-address"
+                    autoCapitalize="none"
+                    removeSpaces
                     error={errors?.email?.message?.toString()}
                   />
                 </View>
@@ -163,6 +167,8 @@ export default function CreateAccountScreen() {
                     isPassword
                     value={value}
                     onChangeText={onChange}
+                    autoCapitalize="none"
+                    removeSpaces
                     error={errors?.password?.message?.toString()}
                   />
                 </View>
@@ -180,6 +186,8 @@ export default function CreateAccountScreen() {
                     isPassword
                     value={value}
                     onChangeText={onChange}
+                    autoCapitalize="none"
+                    removeSpaces
                     error={errors?.confirmPassword?.message?.toString()}
                   />
                 </View>

@@ -78,6 +78,8 @@ export default function LoginScreen() {
                     placeholder="Seu nome de herói"
                     value={value}
                     onChangeText={onChange}
+                    autoCapitalize="none"
+                    removeSpaces
                     error={errors.login?.message?.toString()}
                   />
                 </View>
@@ -95,6 +97,8 @@ export default function LoginScreen() {
                     isPassword
                     value={value}
                     onChangeText={onChange}
+                    autoCapitalize="none"
+                    removeSpaces
                     error={errors.password?.message?.toString()}
                   />
                 </View>

@@ -105,6 +105,8 @@ export default function MyAccountScreen() {
                       placeholder="ex.: avalon_mestre"
                       value={value}
                       onChangeText={onChange}
+                      autoCapitalize="none"
+                      removeSpaces
                       error={errors?.username?.message}
                     />
                   </View>
@@ -142,6 +144,8 @@ export default function MyAccountScreen() {
                       value={value}
                       onChangeText={onChange}
                       keyboardType="email-address"
+                      autoCapitalize="none"
+                      removeSpaces
                       error={errors?.email?.message}
                     />
                   </View>

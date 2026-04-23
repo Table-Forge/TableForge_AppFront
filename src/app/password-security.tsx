@@ -50,7 +50,7 @@ export default function PasswordAndSecurityScreen() {
   };
 
   return (
-    <SafeAreaView style={[{ flex: 1 }]}>
+    <SafeAreaView style={[{ flex: 1 }]}> 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -99,6 +99,8 @@ export default function PasswordAndSecurityScreen() {
                       isPassword
                       value={value}
                       onChangeText={onChange}
+                      autoCapitalize="none"
+                      removeSpaces
                       error={errors?.currentPassword?.message?.toString()}
                     />
                   </View>
@@ -119,6 +121,8 @@ export default function PasswordAndSecurityScreen() {
                       isPassword
                       value={value}
                       onChangeText={onChange}
+                      autoCapitalize="none"
+                      removeSpaces
                       error={errors?.newPassword?.message?.toString()}
                     />
                   </View>
@@ -136,6 +140,8 @@ export default function PasswordAndSecurityScreen() {
                       isPassword
                       value={value}
                       onChangeText={onChange}
+                      autoCapitalize="none"
+                      removeSpaces
                       error={errors?.confirmPassword?.message?.toString()}
                     />
                   </View>
@@ -148,7 +154,7 @@ export default function PasswordAndSecurityScreen() {
             variant="tertiary"
             onPress={handleSubmit(onSubmit)}
             isLoading={isUpdatingPassword}
-            text="Forjar Nova Senha"
+            text="FORJAR NOVA SENHA"
           />
         </ScrollView>
       </KeyboardAvoidingView>

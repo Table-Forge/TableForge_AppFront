@@ -15,11 +15,20 @@ interface InputProps extends TextInputProps {
   error?: string;
   isPassword?: boolean;
   disabled?: boolean;
+  removeSpaces?: boolean;
 }
 
 export const Input = forwardRef<TextInput, InputProps>(
-  ({ error, isPassword, style, disabled, ...props }, ref) => {
+  (
+    { error, isPassword, style, disabled, removeSpaces = false, onChangeText, ...props },
+    ref,
+  ) => {
     const [showPassword, setShowPassword] = useState(isPassword);
+
+    const handleChangeText = (value: string) => {
+      const sanitizedValue = removeSpaces ? value.replace(/\s+/g, "") : value;
+      onChangeText?.(sanitizedValue);
+    };
 
     return (
       <View style={styles.wrapper}>
@@ -39,6 +48,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             secureTextEntry={showPassword}
             editable={!disabled}
             selectTextOnFocus={!disabled}
+            onChangeText={handleChangeText}
             {...props}
           />
 

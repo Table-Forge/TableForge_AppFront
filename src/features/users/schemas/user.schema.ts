@@ -6,11 +6,28 @@ import {
 } from "@/src/utils/custom-schema-validations";
 import { z } from "zod";
 
+const hasNoSpaces = (value: string) => !/\s/.test(value);
+
+const usernameRequired = stringRequired.refine(
+  hasNoSpaces,
+  "O nome de usuário não pode conter espaços.",
+);
+
+const emailWithoutSpaces = emailRequired.refine(
+  hasNoSpaces,
+  "O e-mail não pode conter espaços.",
+);
+
+const passwordWithMinLength = z
+  .string()
+  .min(6, "A senha deve ter pelo menos 6 caracteres")
+  .refine(hasNoSpaces, "A senha não pode conter espaços.");
+
 const BaseUserSchema = z.object({
   id: z.number().optional(),
-  username: stringRequired,
+  username: usernameRequired,
   nickname: stringRequired,
-  email: emailRequired,
+  email: emailWithoutSpaces,
   gender: z.string().optional(),
   birthDate: dateRequired,
   avatarUrl: z.string().optional(),
@@ -18,15 +35,25 @@ const BaseUserSchema = z.object({
 
 export const UserSchema = BaseUserSchema.extend({
   createdAt: dateOptional,
-  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+  password: passwordWithMinLength,
   confirmPassword: z.string().optional(),
   status: z.string().optional(),
 }).superRefine((data, ctx) => {
+  const confirmPassword = (data.confirmPassword ?? "").trim();
+
   if (!data.password) {
     ctx.addIssue({
       code: "custom",
       message: "A nova senha é obrigatória.",
       path: ["password"],
+    });
+  }
+
+  if (confirmPassword && !hasNoSpaces(confirmPassword)) {
+    ctx.addIssue({
+      code: "custom",
+      message: "A confirmação da senha não pode conter espaços.",
+      path: ["confirmPassword"],
     });
   }
 
@@ -44,9 +71,7 @@ export const UserUpdateSchema = BaseUserSchema.partial().extend({
 });
 
 export const RecoverPasswordSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Somos nerds, mas não videntes. O e-mail é obrigatório."),
+  email: emailWithoutSpaces,
 });
 
 export const UpdatePasswordSchema = z
@@ -54,13 +79,16 @@ export const UpdatePasswordSchema = z
     userId: z.number(),
     currentPassword: z
       .string()
-      .min(1, "O segredo atual é obrigatório para sua segurança."),
+      .min(1, "O segredo atual é obrigatório para sua segurança.")
+      .refine(hasNoSpaces, "A senha não pode conter espaços."),
     newPassword: z
       .string()
-      .min(6, "O novo segredo deve ter pelo menos 6 caracteres."),
+      .min(6, "O novo segredo deve ter pelo menos 6 caracteres.")
+      .refine(hasNoSpaces, "A senha não pode conter espaços."),
     confirmPassword: z
       .string()
-      .min(1, "A confirmação do segredo é obrigatória."),
+      .min(1, "A confirmação do segredo é obrigatória.")
+      .refine(hasNoSpaces, "A confirmação da senha não pode conter espaços."),
   })
   .superRefine(({ newPassword, confirmPassword }, ctx) => {
     if (confirmPassword !== newPassword) {

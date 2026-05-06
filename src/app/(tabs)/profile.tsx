@@ -10,15 +10,18 @@ import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   TouchableOpacity,
   View,
   StyleSheet,
   RefreshControl,
   Image,
+  Pressable,
 } from "react-native";
 
 import { useUser } from "@/src/features/users/hooks/use-user";
+import { useAvatarPicker } from "@/src/features/users/hooks/use-avatar-picker";
 import { LoadingOverlay } from "@/src/components/loading-overlay/loading-overlay";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "expo-router";
@@ -45,6 +48,12 @@ export default function Profile() {
 
   const [activeTab, setActiveTab] = useState<ITabs>("Perfil");
   const [refreshing, setRefreshing] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string>();
+  const { selectAvatar, isUpdatingAvatar } = useAvatarPicker({
+    userId,
+    onPreview: setAvatarPreview,
+  });
+  const currentAvatar = avatarPreview ?? data?.avatarUrl;
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -108,10 +117,17 @@ export default function Profile() {
           </HeaderActions>
 
           <View style={styles.contentBody}>
-            <View style={styles.avatarContainer}>
-              {data?.avatarUrl ? (
+            <Pressable
+              onPress={selectAvatar}
+              disabled={isUpdatingAvatar}
+              style={({ pressed }) => [
+                styles.avatarContainer,
+                pressed && styles.avatarContainerPressed,
+              ]}
+            >
+              {currentAvatar ? (
                 <Image
-                  source={{ uri: data?.avatarUrl }}
+                  source={{ uri: currentAvatar }}
                   style={styles.avatarImage}
                 />
               ) : (
@@ -119,7 +135,19 @@ export default function Profile() {
                   <KnightHeadIcon color={DEFAULT_COLORS.primary} size={90} />
                 </View>
               )}
-            </View>
+
+              <View style={styles.avatarEditBadge}>
+                {isUpdatingAvatar ? (
+                  <ActivityIndicator size="small" color={DEFAULT_COLORS.white} />
+                ) : (
+                  <Ionicons
+                    name="camera"
+                    size={18}
+                    color={DEFAULT_COLORS.white}
+                  />
+                )}
+              </View>
+            </Pressable>
 
             <View style={styles.menuPopupWrapper}>
               <MenuPopup
@@ -223,6 +251,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -50,
   },
+  avatarContainerPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
+  },
   avatarImage: {
     width: 120,
     height: 120,
@@ -255,6 +287,19 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
 
     elevation: 12,
+  },
+  avatarEditBadge: {
+    position: "absolute",
+    right: 2,
+    bottom: 4,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: DEFAULT_COLORS.tertiary,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: DEFAULT_COLORS.primary,
   },
   profileInfo: {
     alignItems: "center",

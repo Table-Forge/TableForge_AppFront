@@ -100,6 +100,11 @@ export const UpdatePasswordSchema = z
     }
   });
 
+export type IUserAvatarPayload = {
+  id: number;
+  content: string;
+};
+
 export type IUser = z.infer<typeof UserSchema>;
 export type IRecoverPassword = z.infer<typeof RecoverPasswordSchema>;
 export type IUpdatePassword = z.infer<typeof UpdatePasswordSchema>;

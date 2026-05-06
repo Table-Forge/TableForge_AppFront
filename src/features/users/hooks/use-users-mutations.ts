@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ILoginRequest, ILoginResponse } from "../schemas/auth.schema";
 import { useAuth } from "@/src/context/auth";
 import { AuthService } from "@/src/features/users/services/auth.services";
@@ -6,10 +6,12 @@ import { UserService } from "@/src/features/users/services/users.services";
 import {
   IUpdatePassword,
   IUser,
+  IUserAvatarPayload,
   IUserUpdateOutput,
 } from "@/src/features/users/schemas/user.schema";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
+import { USER } from "./query-key";
 
 type TValidateRecoveryCodeParams = {
   email: string;
@@ -48,6 +50,7 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 export const useUsersMutation = () => {
   const { signIn } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
     mutationFn: (credentials: ILoginRequest) => AuthService.login(credentials),
@@ -103,6 +106,32 @@ export const useUsersMutation = () => {
     },
     onError: (error: unknown) => {
       const message = getErrorMessage(error, "Erro ao editar conta");
+      Toast.show({
+        type: "error",
+        text1: "Ops! Algo deu errado",
+        text2: message,
+      });
+    },
+  });
+
+  const updateAvatarMutation = useMutation({
+    mutationFn: (data: IUserAvatarPayload) => UserService.updateAvatar(data),
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({ queryKey: [USER, variables.id] });
+
+      Toast.show({
+        type: "success",
+        text1: "Imagem atualizada!",
+        text2: "Sua foto de perfil foi salva com sucesso.",
+        position: "top",
+        visibilityTime: 4000,
+      });
+    },
+    onError: (error: unknown) => {
+      const message = getErrorMessage(
+        error,
+        "Não foi possível atualizar a imagem de perfil.",
+      );
       Toast.show({
         type: "error",
         text1: "Ops! Algo deu errado",
@@ -186,6 +215,8 @@ export const useUsersMutation = () => {
     isUpdatingPassword: updatePasswordMutation.isPending,
     updateUserMutation,
     isUpdatingUser: updateUserMutation.isPending,
+    updateAvatarMutation,
+    isUpdatingAvatar: updateAvatarMutation.isPending,
     sendRecoveryCodeMutation,
     isSendingRecoveryCode: sendRecoveryCodeMutation.isPending,
     validateRecoveryCodeMutation,

@@ -1,9 +1,12 @@
 import React from "react";
 import {
+  ActivityIndicator,
+  Image,
   View,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
 } from "react-native";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
@@ -14,6 +17,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
+import { useAvatarPicker } from "@/src/features/users/hooks/use-avatar-picker";
+import { useUser } from "@/src/features/users/hooks/use-user";
 import { Input } from "@/src/components/input/input";
 import { DateInput } from "@/src/components/input/input.date";
 import { Button } from "@/src/components/button/button";
@@ -24,6 +29,7 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { InfoCard } from "@/src/components/info-card/info-card";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { useAuth } from "@/src/context/auth";
+import { KnightHeadIcon } from "@/src/components/icons";
 import {
   IUserUpdateInput,
   IUserUpdateOutput,
@@ -36,25 +42,36 @@ export default function MyAccountScreen() {
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
   const { updateUserMutation, isUpdatingUser } = useUsersMutation();
+  const userId = user?.id ? Number(user.id) : undefined;
+  const { data: userData, isPending: isLoadingUser } = useUser(userId);
+
+  const [avatarPreview, setAvatarPreview] = React.useState<string>();
+  const { selectAvatar, isUpdatingAvatar } = useAvatarPicker({
+    userId,
+    onPreview: setAvatarPreview,
+  });
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<IUserUpdateInput>({
     resolver: zodResolver(UserUpdateSchema),
-    defaultValues: {
-      id: user?.id,
-      username: user?.username ?? "",
-      nickname: user?.nickname ?? "",
-      email: user?.email ?? "",
-      birthDate: user?.birthDate ? new Date(user.birthDate).toISOString() : "",
-    },
+    defaultValues: userData,
   });
+
+  React.useEffect(() => {
+    if (!userData) return;
+
+    reset(userData);
+  }, [reset, userData]);
 
   const onSubmit: SubmitHandler<IUserUpdateInput> = async (data) => {
     updateUserMutation.mutate(data as IUserUpdateOutput);
   };
+
+  const currentAvatar = avatarPreview ?? userData?.avatarUrl;
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -92,6 +109,46 @@ export default function MyAccountScreen() {
 
           <InfoCard style={styles.formCard}>
             <View style={styles.formContent}>
+              <View style={styles.avatarSection}>
+                <Pressable
+                  onPress={selectAvatar}
+                  disabled={isUpdatingAvatar}
+                  style={({ pressed }) => [
+                    styles.avatarButton,
+                    pressed && styles.avatarButtonPressed,
+                  ]}
+                >
+                  {currentAvatar ? (
+                    <Image
+                      source={{ uri: currentAvatar }}
+                      style={styles.avatarImage}
+                    />
+                  ) : (
+                    <View style={styles.avatarPlaceholder}>
+                      <KnightHeadIcon
+                        color={DEFAULT_COLORS.primary}
+                        size={62}
+                      />
+                    </View>
+                  )}
+
+                  <View style={styles.avatarEditBadge}>
+                    {isUpdatingAvatar ? (
+                      <ActivityIndicator
+                        size="small"
+                        color={DEFAULT_COLORS.white}
+                      />
+                    ) : (
+                      <Ionicons
+                        name="camera"
+                        size={18}
+                        color={DEFAULT_COLORS.white}
+                      />
+                    )}
+                  </View>
+                </Pressable>
+              </View>
+
               <Controller
                 control={control}
                 name="username"
@@ -107,6 +164,7 @@ export default function MyAccountScreen() {
                       onChangeText={onChange}
                       autoCapitalize="none"
                       removeSpaces
+                      disabled={isLoadingUser}
                       error={errors?.username?.message}
                     />
                   </View>
@@ -126,6 +184,7 @@ export default function MyAccountScreen() {
                       placeholder="ex.: Avalon, O Mestre"
                       value={value}
                       onChangeText={onChange}
+                      disabled={isLoadingUser}
                       error={errors?.nickname?.message}
                     />
                   </View>
@@ -180,6 +239,7 @@ export default function MyAccountScreen() {
                       onSelect={onChange}
                       error={error?.message}
                       options={GENDER_OPTIONS}
+                      disabled={isLoadingUser}
                     />
                   </View>
                 )}
@@ -190,7 +250,8 @@ export default function MyAccountScreen() {
           <Button
             variant="tertiary"
             onPress={handleSubmit(onSubmit)}
-            isLoading={isUpdatingUser}
+            isLoading={isUpdatingUser || isLoadingUser}
+            disabled={isLoadingUser}
             text="ATUALIZAR PERGAMINHO"
           />
         </ScrollView>
@@ -233,5 +294,55 @@ const styles = StyleSheet.create({
   },
   fieldContainer: {
     width: "100%",
+  },
+  avatarSection: {
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 6,
+  },
+  avatarButton: {
+    width: 116,
+    height: 116,
+    borderRadius: 58,
+    borderWidth: 3,
+    borderColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.background,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: DEFAULT_COLORS.tertiary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  avatarButtonPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 58,
+  },
+  avatarPlaceholder: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 58,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: DEFAULT_COLORS.background,
+  },
+  avatarEditBadge: {
+    position: "absolute",
+    right: 0,
+    bottom: 4,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: DEFAULT_COLORS.tertiary,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: DEFAULT_COLORS.primary,
   },
 });

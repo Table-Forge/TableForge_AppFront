@@ -10,6 +10,7 @@ import {
 import { useLocation } from "@/src/hooks/use-location";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { Entypo } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { ParamListBase, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -19,6 +20,7 @@ import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 
 export default function Campaigns() {
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+  const router = useRouter();
   const [activeIndex, setActiveIndex] = useState(0);
 
   const { location, loading } = useLocation();
@@ -90,12 +92,20 @@ export default function Campaigns() {
           </View>
         </View>
 
-        <ActionButton
-          variant="circle"
-          icon={<Entypo name="bell" size={20} color={DEFAULT_COLORS.white} />}
-          onPress={() => navigation.navigate("notifications")}
-          style={styles.bellButton}
-        />
+        <View style={styles.headerActions}>
+          <ActionButton
+            variant="circle"
+            icon={<Entypo name="plus" size={22} color={DEFAULT_COLORS.white} />}
+            onPress={() => router.push("/campaign/create")}
+            style={styles.headerButton}
+          />
+          <ActionButton
+            variant="circle"
+            icon={<Entypo name="bell" size={20} color={DEFAULT_COLORS.white} />}
+            onPress={() => navigation.navigate("notifications")}
+            style={styles.headerButton}
+          />
+        </View>
       </View>
 
       <View style={styles.listHeader}>
@@ -203,7 +213,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: DEFAULT_COLORS.white,
   },
-  bellButton: {
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  headerButton: {
     backgroundColor: "rgba(26, 26, 46, 0.8)",
     borderWidth: 1,
     borderColor: "rgba(126, 135, 226, 0.3)",

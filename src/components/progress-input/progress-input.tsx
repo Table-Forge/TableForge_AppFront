@@ -1,111 +1,248 @@
+import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
-import { useController } from "react-hook-form";
-import { Text, View, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { ErrorMessage } from "@/src/components/error-message/error-message";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 
 interface ProgressInputProps {
-  hookform: any;
-  name: string;
+  value: number;
+  onChange: (value: number) => void;
   min: number;
   max: number;
+  error?: string;
 }
 
 export const ProgressInput = ({
-  hookform,
-  name,
+  value,
+  onChange,
   min,
   max,
+  error,
 }: ProgressInputProps) => {
-  const {
-    field: { onChange, value },
-  } = useController({
-    name,
-    control: hookform.control,
-    defaultValue: min,
-  });
+  const normalizedMin = Math.min(min, max);
+  const normalizedMax = Math.max(min, max);
+  const range = Math.max(normalizedMax - normalizedMin, 1);
+  const clampedValue = Math.min(
+    Math.max(Number(value) || normalizedMin, normalizedMin),
+    normalizedMax,
+  );
+  const progress = ((clampedValue - normalizedMin) / range) * 100;
+
+  const handleChange = (newValue: number) => {
+    onChange(
+      Math.min(Math.max(Math.round(newValue), normalizedMin), normalizedMax),
+    );
+  };
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.header}>
-        <Text style={styles.labelInfo}>
-          {value <= 1 ? "Aventureiro Solitário" : `${value} Heróis`}
-        </Text>
-        <View style={styles.badge}>
-          <Text style={styles.valueText}>{value}</Text>
+    <View style={styles.container}>
+      <View style={[styles.wrapper, error && styles.wrapperError]}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.labelInfo}>Tamanho do Grupo</Text>
+            <Text style={styles.helperText}>
+              {clampedValue <= 1
+                ? "Aventureiro solo"
+                : `${clampedValue} pessoas`}
+            </Text>
+          </View>
+
+          <View style={styles.badge}>
+            <Ionicons name="people" size={16} color={DEFAULT_COLORS.tertiary} />
+            <Text style={styles.valueText}>{clampedValue}</Text>
+          </View>
+        </View>
+
+        <View style={styles.controls}>
+          <Pressable
+            onPress={() => handleChange(clampedValue - 1)}
+            disabled={clampedValue <= normalizedMin}
+            style={({ pressed }) => [
+              styles.stepButton,
+              clampedValue <= normalizedMin && styles.stepButtonDisabled,
+              pressed && styles.stepButtonPressed,
+            ]}
+          >
+            <Ionicons name="remove" size={18} color={DEFAULT_COLORS.white} />
+          </Pressable>
+
+          <View style={styles.sliderArea}>
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: `${progress}%` }]} />
+            </View>
+
+            <Slider
+              style={styles.slider}
+              minimumValue={normalizedMin}
+              maximumValue={normalizedMax}
+              value={clampedValue}
+              onValueChange={handleChange}
+              minimumTrackTintColor="transparent"
+              maximumTrackTintColor="transparent"
+              thumbTintColor={DEFAULT_COLORS.white}
+              step={1}
+            />
+          </View>
+
+          <Pressable
+            onPress={() => handleChange(clampedValue + 1)}
+            disabled={clampedValue >= normalizedMax}
+            style={({ pressed }) => [
+              styles.stepButton,
+              clampedValue >= normalizedMax && styles.stepButtonDisabled,
+              pressed && styles.stepButtonPressed,
+            ]}
+          >
+            <Ionicons name="add" size={18} color={DEFAULT_COLORS.white} />
+          </Pressable>
+        </View>
+
+        <View style={styles.partyPreview}>
+          {Array.from({ length: normalizedMax - normalizedMin + 1 }).map(
+            (_, index) => {
+              const partyValue = normalizedMin + index;
+              const isActive = partyValue <= clampedValue;
+
+              return (
+                <View
+                  key={partyValue}
+                  style={[styles.partyDot, isActive && styles.partyDotActive]}
+                />
+              );
+            },
+          )}
+        </View>
+
+        <View style={styles.rangeLabels}>
+          <Text style={styles.limitText}>{normalizedMin}</Text>
+          <Text style={styles.limitText}>{normalizedMax}</Text>
         </View>
       </View>
 
-      <Slider
-        style={styles.slider}
-        minimumValue={min}
-        maximumValue={max}
-        value={value}
-        onValueChange={onChange}
-        minimumTrackTintColor={DEFAULT_COLORS.tertiary}
-        maximumTrackTintColor="rgba(126, 135, 226, 0.2)"
-        thumbTintColor={DEFAULT_COLORS.white}
-        step={1}
-      />
-
-      <View style={styles.rangeLabels}>
-        <Text style={styles.limitText}>{min}</Text>
-        <Text style={styles.limitText}>{max}</Text>
-      </View>
+      {error && <ErrorMessage text={error} />}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    marginBottom: 4,
+  },
   wrapper: {
     width: "100%",
     backgroundColor: "rgba(255, 255, 255, 0.03)",
-    padding: 12,
-    borderRadius: 8,
+    padding: 14,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.1)",
+    borderColor: "rgba(126, 135, 226, 0.35)",
+  },
+  wrapperError: {
+    borderColor: DEFAULT_COLORS.danger,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
-    paddingHorizontal: 4,
+    marginBottom: 14,
   },
   labelInfo: {
-    ...fonts.regular,
+    ...fonts.bold,
     fontSize: 12,
-    color: "rgba(255, 255, 255, 0.5)",
+    color: DEFAULT_COLORS.secondary,
     textTransform: "uppercase",
     letterSpacing: 1,
   },
+  helperText: {
+    ...fonts.regular,
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.72)",
+    marginTop: 2,
+  },
   badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
     backgroundColor: "rgba(251, 69, 1, 0.15)",
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: DEFAULT_COLORS.tertiary,
   },
   valueText: {
-    fontSize: 14,
+    fontSize: 18,
     ...fonts.heavy,
     color: DEFAULT_COLORS.tertiary,
   },
+  controls: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  stepButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(126, 135, 226, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(126, 135, 226, 0.45)",
+  },
+  stepButtonPressed: {
+    opacity: 0.8,
+  },
+  stepButtonDisabled: {
+    opacity: 0.35,
+  },
+  sliderArea: {
+    flex: 1,
+    height: 36,
+    justifyContent: "center",
+  },
+  progressTrack: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "rgba(126, 135, 226, 0.18)",
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 5,
+    backgroundColor: DEFAULT_COLORS.tertiary,
+  },
   slider: {
     width: "100%",
-    height: 30,
+    height: 36,
+  },
+  partyPreview: {
+    flexDirection: "row",
+    gap: 6,
+    marginTop: 12,
+  },
+  partyDot: {
+    flex: 1,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+  },
+  partyDotActive: {
+    backgroundColor: DEFAULT_COLORS.secondary,
   },
   rangeLabels: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 4,
-    marginTop: -4,
+    marginTop: 8,
   },
   limitText: {
-    fontSize: 10,
-    color: "rgba(255, 255, 255, 0.3)",
+    fontSize: 11,
+    color: "rgba(255, 255, 255, 0.42)",
     ...fonts.regular,
   },
 });

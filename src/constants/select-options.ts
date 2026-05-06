@@ -7,3 +7,11 @@ export const GENDER_OPTIONS: TOptions[] = [
   { name: "Prefiro não responder", value: "prefiro_nao_responder" },
   { name: "Outro", value: "outro" },
 ];
+
+export const CAMPAIGN_DIFFICULTY_OPTIONS: TOptions[] = [
+  { name: "Nenhuma", value: "None" },
+];
+
+export const CAMPAIGN_STATUS_OPTIONS: TOptions[] = [
+  { name: "Nenhum", value: "None" },
+];

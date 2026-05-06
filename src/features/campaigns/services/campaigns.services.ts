@@ -1,25 +1,41 @@
-import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
+import {
+  ICampaign,
+  ICampaignCreate,
+} from "@/src/features/campaigns/schemas/campaign.schema";
 
 import {
   IGetPaginatedParams,
   IPaginatedApiResponse,
+  TOptions,
 } from "@/src/interfaces";
 import { api } from "../../api";
 
 const ENDPOINT = "/campaigns";
+
+type IGetCampaignsParams = IGetPaginatedParams & {
+  creatorId?: number;
+};
 
 export const CampaignService = {
   getPaginated: async ({
     page = 1,
     size = 20,
     search,
-  }: IGetPaginatedParams = {}): Promise<
-    IPaginatedApiResponse<ICampaign>
-  > => {
+    creatorId,
+  }: IGetCampaignsParams = {}): Promise<IPaginatedApiResponse<ICampaign>> => {
     const { data } = await api.get(ENDPOINT, {
-      params: { page, size, search },
+      params: { page, size, search, creatorId },
     });
 
+    return data;
+  },
+  create: async (payload: ICampaignCreate) => {
+    const { data } = await api.post(ENDPOINT, payload);
+
+    return data;
+  },
+  getDifficultyLevelEnum: async (): Promise<TOptions[]> => {
+    const { data } = await api.get(`${ENDPOINT}/enums/difficulty-level`);
     return data;
   },
 };

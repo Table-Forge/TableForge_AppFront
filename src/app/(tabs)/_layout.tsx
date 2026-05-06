@@ -13,7 +13,7 @@ export default function TabsLayout() {
       tabBarPosition="bottom"
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
-        swipeEnabled: true,
+        swipeEnabled: false,
         animationEnabled: true,
         lazy: true,
       }}

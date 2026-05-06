@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
 import { FlatList, View, TouchableOpacity, StyleSheet } from "react-native";
-import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { MainContainer } from "@/src/components/main-container/main-container";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
@@ -250,17 +249,6 @@ export default function Messages() {
   return (
     <MainContainer>
       <HeaderActions>
-        <ActionButton
-          variant="circle"
-          icon={
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          onPress={handleBack}
-        />
         <ThemedText style={styles.headerTitle}>
           {isSelectionMode
             ? `${selectedIds.length} selecionada(s)`

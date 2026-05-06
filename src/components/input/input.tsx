@@ -5,6 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInputProps,
+  StyleProp,
+  ViewStyle,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
@@ -16,14 +18,27 @@ interface InputProps extends TextInputProps {
   isPassword?: boolean;
   disabled?: boolean;
   removeSpaces?: boolean;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const Input = forwardRef<TextInput, InputProps>(
   (
-    { error, isPassword, style, disabled, removeSpaces = false, onChangeText, ...props },
+    {
+      error,
+      isPassword,
+      style,
+      disabled,
+      removeSpaces = false,
+      onChangeText,
+      containerStyle,
+      onFocus,
+      onBlur,
+      ...props
+    },
     ref,
   ) => {
     const [showPassword, setShowPassword] = useState(isPassword);
+    const [isFocused, setIsFocused] = useState(false);
 
     const handleChangeText = (value: string) => {
       const sanitizedValue = removeSpaces ? value.replace(/\s+/g, "") : value;
@@ -35,10 +50,21 @@ export const Input = forwardRef<TextInput, InputProps>(
         <View
           style={[
             styles.inputContainer,
+            isFocused && styles.inputFocused,
             error ? styles.inputError : null,
             disabled && styles.inputDisabled,
+            containerStyle,
           ]}
         >
+          <View
+            style={[
+              styles.statusMark,
+              isFocused && styles.statusMarkFocused,
+              error && styles.statusMarkError,
+              disabled && styles.statusMarkDisabled,
+            ]}
+          />
+
           <TextInput
             ref={ref}
             style={[styles.input, style, disabled && styles.inputTextDisabled]}
@@ -49,6 +75,14 @@ export const Input = forwardRef<TextInput, InputProps>(
             editable={!disabled}
             selectTextOnFocus={!disabled}
             onChangeText={handleChangeText}
+            onFocus={(event) => {
+              setIsFocused(true);
+              onFocus?.(event);
+            }}
+            onBlur={(event) => {
+              setIsFocused(false);
+              onBlur?.(event);
+            }}
             {...props}
           />
 
@@ -91,12 +125,25 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "transparent",
+    backgroundColor: "rgba(255, 255, 255, 0.035)",
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.white,
+    borderColor: "rgba(126, 135, 226, 0.45)",
     borderRadius: 16,
     paddingHorizontal: 15,
-    height: 50,
+    height: 52,
+    shadowColor: DEFAULT_COLORS.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  inputFocused: {
+    borderColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: "rgba(255, 255, 255, 0.055)",
+    shadowColor: DEFAULT_COLORS.tertiary,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
   },
   input: {
     flex: 1,
@@ -118,5 +165,27 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginLeft: 10,
+  },
+  statusMark: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 10,
+    alignSelf: "center",
+    backgroundColor: "rgba(126, 135, 226, 0.5)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.18)",
+  },
+  statusMarkFocused: {
+    backgroundColor: DEFAULT_COLORS.tertiary,
+    borderColor: DEFAULT_COLORS.white,
+  },
+  statusMarkError: {
+    backgroundColor: DEFAULT_COLORS.danger,
+    borderColor: DEFAULT_COLORS.danger,
+  },
+  statusMarkDisabled: {
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderColor: "rgba(255, 255, 255, 0.08)",
   },
 });

@@ -36,6 +36,7 @@ export const Select: React.FC<IProps> = ({
   const [visible, setVisible] = useState(false);
 
   const selectedOption = options.find((opt) => opt.value === value);
+  const hasValue = Boolean(selectedOption);
 
   const handlePressOption = (item: TOptions) => {
     onSelect(item.value);
@@ -47,21 +48,49 @@ export const Select: React.FC<IProps> = ({
       <TouchableOpacity
         style={[
           styles.trigger,
+          visible ? styles.triggerActive : null,
+          hasValue ? styles.triggerFilled : null,
           error ? styles.borderError : null,
           disabled ? styles.triggerDisabled : null,
         ]}
-        onPress={() => setVisible(true)}
+        onPress={() => {
+          if (disabled) return;
+          setVisible(true);
+        }}
         activeOpacity={0.8}
       >
-        <ThemedText
-          style={[
-            styles.triggerText,
-            !selectedOption && styles.placeholder,
-            disabled && styles.textDisabled,
-          ]}
-        >
-          {selectedOption ? selectedOption.name : placeholder}
-        </ThemedText>
+        <View style={styles.triggerContent}>
+          <View
+            style={[
+              styles.statusMark,
+              visible ? styles.statusMarkActive : null,
+              hasValue ? styles.statusMarkFilled : null,
+              error ? styles.statusMarkError : null,
+              disabled ? styles.statusMarkDisabled : null,
+            ]}
+          >
+            <MaterialCommunityIcons
+              name={hasValue ? "check-bold" : "cards-diamond-outline"}
+              size={hasValue ? 10 : 12}
+              color={
+                hasValue || visible
+                  ? DEFAULT_COLORS.white
+                  : "rgba(255, 255, 255, 0.42)"
+              }
+            />
+          </View>
+
+          <ThemedText
+            style={[
+              styles.triggerText,
+              !selectedOption && styles.placeholder,
+              disabled && styles.textDisabled,
+            ]}
+            numberOfLines={1}
+          >
+            {selectedOption ? selectedOption.name : placeholder}
+          </ThemedText>
+        </View>
 
         <MaterialCommunityIcons
           name={visible ? "chevron-up" : "chevron-down"}
@@ -138,12 +167,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "transparent",
+    backgroundColor: "rgba(255, 255, 255, 0.035)",
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.white,
+    borderColor: "rgba(126, 135, 226, 0.45)",
     borderRadius: 16,
     paddingHorizontal: 15,
-    height: 50,
+    height: 52,
+    shadowColor: DEFAULT_COLORS.secondary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  triggerActive: {
+    borderColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: "rgba(255, 255, 255, 0.055)",
+    shadowColor: DEFAULT_COLORS.tertiary,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  triggerFilled: {
+    borderColor: "rgba(251, 69, 1, 0.65)",
   },
   triggerDisabled: {
     backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -157,12 +202,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: DEFAULT_COLORS.white,
     ...fonts.regular,
+    flex: 1,
   },
   placeholder: {
     color: "rgba(255, 255, 255, 0.4)",
   },
   textDisabled: {
     color: "rgba(255, 255, 255, 0.4)",
+  },
+  triggerContent: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  statusMark: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    marginRight: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(126, 135, 226, 0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(126, 135, 226, 0.35)",
+  },
+  statusMarkActive: {
+    backgroundColor: "rgba(251, 69, 1, 0.22)",
+    borderColor: DEFAULT_COLORS.tertiary,
+  },
+  statusMarkFilled: {
+    backgroundColor: DEFAULT_COLORS.tertiary,
+    borderColor: DEFAULT_COLORS.white,
+  },
+  statusMarkError: {
+    backgroundColor: DEFAULT_COLORS.danger,
+    borderColor: DEFAULT_COLORS.danger,
+  },
+  statusMarkDisabled: {
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(255, 255, 255, 0.08)",
   },
   overlay: {
     flex: 1,

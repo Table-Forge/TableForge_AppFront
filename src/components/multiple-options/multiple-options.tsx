@@ -1,4 +1,5 @@
 import { useController } from "react-hook-form";
+import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import { TOptions, TPrimitives } from "@/src/interfaces";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
@@ -49,6 +50,22 @@ export const MultipleOptions = ({
               hasError && styles.optionError,
             ]}
           >
+            <View
+              style={[
+                styles.optionMark,
+                isSelected && styles.optionMarkSelected,
+                hasError && styles.optionMarkError,
+              ]}
+            >
+              {isSelected && (
+                <Ionicons
+                  name="checkmark"
+                  size={12}
+                  color={DEFAULT_COLORS.white}
+                />
+              )}
+            </View>
+
             <Text
               style={[
                 styles.optionText,
@@ -78,15 +95,17 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.2)",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderColor: "rgba(126, 135, 226, 0.38)",
+    backgroundColor: "rgba(255, 255, 255, 0.035)",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    gap: 6,
   },
   optionSelected: {
     borderColor: DEFAULT_COLORS.tertiary,
-    backgroundColor: "rgba(251, 69, 1, 0.1)",
+    backgroundColor: "rgba(251, 69, 1, 0.12)",
     shadowColor: DEFAULT_COLORS.tertiary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
@@ -105,5 +124,22 @@ const styles = StyleSheet.create({
   optionTextSelected: {
     color: DEFAULT_COLORS.white,
     ...fonts.heavy,
+  },
+  optionMark: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1,
+    borderColor: "rgba(126, 135, 226, 0.35)",
+    backgroundColor: "rgba(126, 135, 226, 0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  optionMarkSelected: {
+    borderColor: DEFAULT_COLORS.white,
+    backgroundColor: DEFAULT_COLORS.tertiary,
+  },
+  optionMarkError: {
+    borderColor: DEFAULT_COLORS.danger,
   },
 });

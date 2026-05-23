@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useRef, useState } from "react";
 import {
   View,
   TextInput,
@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { ErrorMessage } from "@/src/components/error-message/error-message";
+import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
 
 interface InputProps extends TextInputProps {
   error?: string;
@@ -39,6 +40,8 @@ export const Input = forwardRef<TextInput, InputProps>(
   ) => {
     const [showPassword, setShowPassword] = useState(isPassword);
     const [isFocused, setIsFocused] = useState(false);
+    const wrapperRef = useRef<View>(null);
+    const { scrollToFocusedInput } = useScrollToFocusedInput();
 
     const handleChangeText = (value: string) => {
       const sanitizedValue = removeSpaces ? value.replace(/\s+/g, "") : value;
@@ -46,7 +49,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     };
 
     return (
-      <View style={styles.wrapper}>
+      <View ref={wrapperRef} collapsable={false} style={styles.wrapper}>
         <View
           style={[
             styles.inputContainer,
@@ -77,6 +80,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             onChangeText={handleChangeText}
             onFocus={(event) => {
               setIsFocused(true);
+              scrollToFocusedInput(wrapperRef);
               onFocus?.(event);
             }}
             onBlur={(event) => {

@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
+import { useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { ErrorMessage } from "@/src/components/error-message/error-message";
+import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 
@@ -21,6 +23,8 @@ export const ProgressInput = ({
   max,
   error,
 }: ProgressInputProps) => {
+  const containerRef = useRef<View>(null);
+  const { scrollToFocusedInput } = useScrollToFocusedInput();
   const normalizedMin = Math.min(min, max);
   const normalizedMax = Math.max(min, max);
   const range = Math.max(normalizedMax - normalizedMin, 1);
@@ -37,16 +41,16 @@ export const ProgressInput = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      ref={containerRef}
+      collapsable={false}
+      style={styles.container}
+      onTouchStart={() => scrollToFocusedInput(containerRef)}
+    >
       <View style={[styles.wrapper, error && styles.wrapperError]}>
         <View style={styles.header}>
           <View>
             <Text style={styles.labelInfo}>Tamanho do Grupo</Text>
-            <Text style={styles.helperText}>
-              {clampedValue <= 1
-                ? "Aventureiro solo"
-                : `${clampedValue} pessoas`}
-            </Text>
           </View>
 
           <View style={styles.badge}>
@@ -98,27 +102,6 @@ export const ProgressInput = ({
             <Ionicons name="add" size={18} color={DEFAULT_COLORS.white} />
           </Pressable>
         </View>
-
-        <View style={styles.partyPreview}>
-          {Array.from({ length: normalizedMax - normalizedMin + 1 }).map(
-            (_, index) => {
-              const partyValue = normalizedMin + index;
-              const isActive = partyValue <= clampedValue;
-
-              return (
-                <View
-                  key={partyValue}
-                  style={[styles.partyDot, isActive && styles.partyDotActive]}
-                />
-              );
-            },
-          )}
-        </View>
-
-        <View style={styles.rangeLabels}>
-          <Text style={styles.limitText}>{normalizedMin}</Text>
-          <Text style={styles.limitText}>{normalizedMax}</Text>
-        </View>
       </View>
 
       {error && <ErrorMessage text={error} />}
@@ -154,12 +137,6 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.secondary,
     textTransform: "uppercase",
     letterSpacing: 1,
-  },
-  helperText: {
-    ...fonts.regular,
-    fontSize: 14,
-    color: "rgba(255, 255, 255, 0.72)",
-    marginTop: 2,
   },
   badge: {
     flexDirection: "row",
@@ -220,29 +197,5 @@ const styles = StyleSheet.create({
   slider: {
     width: "100%",
     height: 36,
-  },
-  partyPreview: {
-    flexDirection: "row",
-    gap: 6,
-    marginTop: 12,
-  },
-  partyDot: {
-    flex: 1,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "rgba(255, 255, 255, 0.12)",
-  },
-  partyDotActive: {
-    backgroundColor: DEFAULT_COLORS.secondary,
-  },
-  rangeLabels: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 8,
-  },
-  limitText: {
-    fontSize: 11,
-    color: "rgba(255, 255, 255, 0.42)",
-    ...fonts.regular,
   },
 });

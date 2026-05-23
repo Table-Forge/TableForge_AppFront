@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { ThemedText } from "../themed-text/themed-text";
 import { ErrorMessage } from "@/src/components/error-message/error-message";
+import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
 
 interface IProps {
   options: TOptions[];
@@ -34,6 +35,8 @@ export const Select: React.FC<IProps> = ({
   disabled = false,
 }) => {
   const [visible, setVisible] = useState(false);
+  const containerRef = useRef<View>(null);
+  const { scrollToFocusedInput } = useScrollToFocusedInput();
 
   const selectedOption = options.find((opt) => opt.value === value);
   const hasValue = Boolean(selectedOption);
@@ -44,7 +47,7 @@ export const Select: React.FC<IProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View ref={containerRef} collapsable={false} style={styles.container}>
       <TouchableOpacity
         style={[
           styles.trigger,
@@ -55,6 +58,7 @@ export const Select: React.FC<IProps> = ({
         ]}
         onPress={() => {
           if (disabled) return;
+          scrollToFocusedInput(containerRef);
           setVisible(true);
         }}
         activeOpacity={0.8}

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import Animated, {
   useSharedValue,
@@ -9,6 +9,7 @@ import Animated, {
 import { Control, useController } from "react-hook-form";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { ThemedText } from "../themed-text/themed-text";
+import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
 
 interface IProps {
   name: string;
@@ -24,6 +25,8 @@ export const ControlledToggle = ({
   description,
 }: IProps) => {
   const { field } = useController({ name, control, defaultValue: false });
+  const containerRef = useRef<View>(null);
+  const { scrollToFocusedInput } = useScrollToFocusedInput();
 
   const translateX = useSharedValue(field.value ? 1 : 0);
 
@@ -50,7 +53,12 @@ export const ControlledToggle = ({
 
   return (
     <Pressable
-      onPress={() => field.onChange(!field.value)}
+      ref={containerRef}
+      collapsable={false}
+      onPress={() => {
+        scrollToFocusedInput(containerRef);
+        field.onChange(!field.value);
+      }}
       style={styles.container}
     >
       <View style={styles.textContainer}>

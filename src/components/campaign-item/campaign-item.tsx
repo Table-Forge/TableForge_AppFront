@@ -24,6 +24,12 @@ export const CampaignItem = ({
 }: IProps) => {
   const router = useRouter();
   const isTinder = variant === "tinder";
+  const bannerUrl = data.bannerUrl || "";
+  const description = data.description || "";
+  const gameMaster = data.creatorUsername || "Mestre Desconhecido";
+  const location = data.locationName || data.address || "-";
+  const system = data.gameSystemName || `Sistema ${data.gameSystemId}`;
+  const partySize = `0/${data.playersLimit}`;
 
   return (
     <Pressable
@@ -43,7 +49,11 @@ export const CampaignItem = ({
       {isTinder ? (
         <>
           <View style={styles.tinderImageWrapper}>
-            <Image style={styles.tinderImage} source={{ uri: data.image }} />
+            {bannerUrl ? (
+              <Image style={styles.tinderImage} source={{ uri: bannerUrl }} />
+            ) : (
+              <View style={styles.tinderImagePlaceholder} />
+            )}
 
             <View style={styles.tinderImageDim} />
             <View style={styles.tinderImageBottomShade} />
@@ -60,7 +70,7 @@ export const CampaignItem = ({
               <View style={styles.masterRow}>
                 <SwordDiceIcon size={20} color={DEFAULT_COLORS.tertiary} />
                 <ThemedText style={styles.masterText}>
-                  por {data.gameMaster || "Mestre Desconhecido"}
+                  por {gameMaster}
                 </ThemedText>
               </View>
             </View>
@@ -68,7 +78,7 @@ export const CampaignItem = ({
 
           <View style={styles.tinderBody}>
             <ThemedText fontSize={14} numberOfLines={3} style={styles.summaryText}>
-              {data.summary}
+              {description}
             </ThemedText>
 
             <View style={styles.tags}>
@@ -76,17 +86,17 @@ export const CampaignItem = ({
                 icon={() => (
                   <FontAwesome6 name="location-dot" size={12} color={tagColor} />
                 )}
-                text={data.location}
+                text={location}
               />
               <Tag
                 icon={() => (
                   <FontAwesome5 name="book-reader" size={12} color={tagColor} />
                 )}
-                text={data.system}
+                text={system}
               />
               <Tag
                 icon={() => <Fontisto name="persons" size={12} color={tagColor} />}
-                text={`${data.currentPartySize}/${data.maxPartySize}`}
+                text={partySize}
               />
             </View>
           </View>
@@ -102,7 +112,7 @@ export const CampaignItem = ({
               <View style={styles.masterRow}>
                 <SwordDiceIcon size={24} color={DEFAULT_COLORS.tertiary} />
                 <ThemedText style={styles.masterText}>
-                  por {data.gameMaster || "Mestre Desconhecido"}
+                  por {gameMaster}
                 </ThemedText>
               </View>
             </View>
@@ -110,7 +120,11 @@ export const CampaignItem = ({
 
           <View style={styles.bottomWrapper}>
             <View style={styles.imageWrapper}>
-              <Image style={styles.image} source={{ uri: data.image }} />
+              {bannerUrl ? (
+                <Image style={styles.image} source={{ uri: bannerUrl }} />
+              ) : (
+                <View style={styles.imagePlaceholder} />
+              )}
             </View>
 
             <View style={styles.contentWrapper}>
@@ -119,7 +133,7 @@ export const CampaignItem = ({
                 numberOfLines={2}
                 style={styles.summaryText}
               >
-                {data.summary}
+                {description}
               </ThemedText>
 
               <View style={styles.tags}>
@@ -127,19 +141,19 @@ export const CampaignItem = ({
                   icon={() => (
                     <FontAwesome6 name="location-dot" size={12} color={tagColor} />
                   )}
-                  text={data.location}
+                  text={location}
                 />
                 <Tag
                   icon={() => (
                     <FontAwesome5 name="book-reader" size={12} color={tagColor} />
                   )}
-                  text={data.system}
+                  text={system}
                 />
                 <Tag
                   icon={() => (
                     <Fontisto name="persons" size={12} color={tagColor} />
                   )}
-                  text={`${data.currentPartySize}/${data.maxPartySize}`}
+                  text={partySize}
                 />
               </View>
             </View>
@@ -212,6 +226,11 @@ export const styles = StyleSheet.create({
     height: "100%",
     objectFit: "cover",
   },
+  imagePlaceholder: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: DEFAULT_COLORS.primary,
+  },
   contentWrapper: {
     flex: 1,
     justifyContent: "space-between",
@@ -236,6 +255,11 @@ export const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     objectFit: "cover",
+  },
+  tinderImagePlaceholder: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: DEFAULT_COLORS.background,
   },
   tinderImageDim: {
     ...StyleSheet.absoluteFillObject,

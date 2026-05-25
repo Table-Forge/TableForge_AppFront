@@ -1,18 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Ionicons } from "@expo/vector-icons";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
 import {
-  ActivityIndicator,
-  Image,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from "react-native";
-import { useEffect, useRef, useState } from "react";
-import * as ImagePicker from "expo-image-picker";
+import { useEffect, useRef } from "react";
 import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
 
@@ -20,28 +17,38 @@ import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { InfoCard } from "@/src/components/info-card/info-card";
-import { Input } from "@/src/components/input/input";
+import { ControlledInput } from "@/src/components/input/input.controlled";
+import { ControlledImageInput } from "@/src/components/input/input.image.controlled";
 import { Label } from "@/src/components/label/label";
-import { LocationAutocomplete } from "@/src/components/location-autocomplete/location-autocomplete";
+import { ControlledLocationAutocomplete } from "@/src/components/location-autocomplete/location-autocomplete.controlled";
 import { MainContainer } from "@/src/components/main-container/main-container";
-import { ProgressInput } from "@/src/components/progress-input/progress-input";
-import { Select } from "@/src/components/select/select";
+import { ControlledProgressInput } from "@/src/components/progress-input/progress-input.controlled";
+import { ControlledSelect } from "@/src/components/select/select.controlled";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ControlledToggle } from "@/src/components/toggle/controlled-toggle";
 import { useAuth } from "@/src/context/auth";
 import { ScrollToFocusedInputProvider } from "@/src/context/scroll-to-focused-input";
 import { useCampaignDifficultyLevelEnum } from "@/src/features/campaigns/hooks/enums/use-campaign-difficulty-level-enum";
 import { useCampaignsMutation } from "@/src/features/campaigns/hooks/use-campaigns-mutations";
-import {
-  CampaignCreateSchema,
-  ICampaignCreate,
-  ICampaignCreateInput,
-} from "@/src/features/campaigns/schemas/campaign.schema";
+import { CampaignCreateSchema } from "@/src/features/campaigns/schemas/campaign.schema";
 import { useGameSystemsSelect } from "@/src/features/game-systems/hooks/use-game-systems-select";
 import { useImagesMutation } from "@/src/features/images/hooks/use-images-mutations";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+
+const CampaignCreateFormSchema = CampaignCreateSchema.extend({
+  bannerImage: z
+    .object({
+      content: z.string(),
+      uri: z.string(),
+    })
+    .optional()
+    .refine(Boolean, "O banner é obrigatório."),
+});
+
+type ICampaignCreateFormInput = z.input<typeof CampaignCreateFormSchema>;
+type ICampaignCreateForm = z.output<typeof CampaignCreateFormSchema>;
 
 export default function CreateCampaignScreen() {
   const { user } = useAuth();
@@ -53,16 +60,13 @@ export default function CreateCampaignScreen() {
   const { gameSystemOptions, isLoadingGameSystemsSelect } =
     useGameSystemsSelect();
   const { createImageMutation, isCreatingImage } = useImagesMutation();
-  const [bannerPreview, setBannerPreview] = useState<string>();
-  const [bannerContent, setBannerContent] = useState<string>();
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<ICampaignCreateInput, unknown, ICampaignCreate>({
-    resolver: zodResolver(CampaignCreateSchema),
+  const hookForm = useForm<
+    ICampaignCreateFormInput,
+    unknown,
+    ICampaignCreateForm
+  >({
+    resolver: zodResolver(CampaignCreateFormSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -70,18 +74,26 @@ export default function CreateCampaignScreen() {
       playersLimit: 4,
       status: "Active",
       isPrivate: false,
-      chatEnabled: true,
+      isChatEnabled: true,
       creatorId: user?.id ?? 0,
-      bannerId: 0,
-      gameSystemId: 0,
       locationName: "",
       address: "",
       latitude: "",
       longitude: "",
       creationLatitude: 0,
       creationLongitude: 0,
+      blockedClasses: [],
+      blockedRaces: [],
+      bannerId: 0,
+      bannerImage: undefined,
+      gameSystemId: 0,
     },
   });
+  const {
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = hookForm;
 
   useEffect(() => {
     if (!user?.id) return;
@@ -93,46 +105,11 @@ export default function CreateCampaignScreen() {
     });
   }, [setValue, user?.id]);
 
-  const handleSelectBanner = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (!permission.granted) {
-      Toast.show({
-        type: "error",
-        text1: "Permissão necessária",
-        text2: "Permita o acesso às imagens para adicionar o banner.",
-      });
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.85,
-      base64: true,
-    });
-
-    if (result.canceled) return;
-
-    const asset = result.assets[0];
-    if (!asset?.base64) {
-      Toast.show({
-        type: "error",
-        text1: "Imagem inválida",
-        text2: "Não foi possível ler a imagem selecionada.",
-      });
-      return;
-    }
-
-    setBannerPreview(asset.uri);
-    setBannerContent(
-      `data:${asset.mimeType ?? "image/jpeg"};base64,${asset.base64}`,
-    );
-  };
-
-  const onSubmit: SubmitHandler<ICampaignCreate> = async (data) => {
-    if (!bannerContent) {
+  const onSubmit: SubmitHandler<ICampaignCreateForm> = async ({
+    bannerImage,
+    ...data
+  }) => {
+    if (!bannerImage?.content) {
       Toast.show({
         type: "error",
         text1: "Banner obrigatório",
@@ -172,7 +149,7 @@ export default function CreateCampaignScreen() {
       imageResponse = await createImageMutation.mutateAsync({
         type: "CampaignBanner",
         name: `${data.title || "campanha"}-banner`,
-        content: bannerContent,
+        content: bannerImage.content,
       });
     } catch {
       Toast.show({
@@ -246,131 +223,69 @@ export default function CreateCampaignScreen() {
             </View>
 
             <InfoCard style={styles.formCard}>
-              <Controller
-                control={control}
-                name="title"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.fieldContainer}>
-                    <Label text="Título" />
-                    <Input
-                      placeholder="ex.: A cripta dos dados perdidos"
-                      value={value}
-                      onChangeText={onChange}
-                      error={errors.title?.message}
-                    />
-                  </View>
-                )}
-              />
+              <View style={styles.fieldContainer}>
+                <Label text="Título" />
+                <ControlledInput
+                  hookForm={hookForm}
+                  name="title"
+                  placeholder="ex.: A cripta dos dados perdidos"
+                />
+              </View>
 
-              <Controller
-                control={control}
-                name="description"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.fieldContainer}>
-                    <Label text="Descrição" />
-                    <Input
-                      placeholder="Conte o gancho principal da aventura"
-                      value={value}
-                      onChangeText={onChange}
-                      multiline
-                      containerStyle={styles.multilineInputContainer}
-                      textAlignVertical="top"
-                      style={styles.multilineInput}
-                      error={errors.description?.message}
-                    />
-                  </View>
-                )}
-              />
+              <View style={styles.fieldContainer}>
+                <Label text="Descrição" />
+                <ControlledInput
+                  hookForm={hookForm}
+                  name="description"
+                  placeholder="Conte o gancho principal da aventura"
+                  multiline
+                  containerStyle={styles.multilineInputContainer}
+                  textAlignVertical="top"
+                  style={styles.multilineInput}
+                />
+              </View>
 
-              <Controller
-                control={control}
-                name="difficulty"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.fieldContainer}>
-                    <Label text="Dificuldade" />
-                    <Select
-                      value={value}
-                      onSelect={onChange}
-                      options={difficultyLevelEnum}
-                      disabled={isLoadingDifficultyLevelEnum}
-                      error={errors.difficulty?.message}
-                    />
-                  </View>
-                )}
-              />
+              <View style={styles.fieldContainer}>
+                <Label text="Dificuldade" />
+                <ControlledSelect
+                  hookForm={hookForm}
+                  name="difficulty"
+                  options={difficultyLevelEnum}
+                  disabled={isLoadingDifficultyLevelEnum}
+                />
+              </View>
 
               <View style={styles.fieldContainer}>
                 <Label text="Banner" />
-                <Pressable
-                  onPress={handleSelectBanner}
+                <ControlledImageInput
+                  hookForm={hookForm}
+                  name="bannerImage"
                   disabled={isSubmitting}
-                  style={({ pressed }) => [
-                    styles.bannerPicker,
-                    pressed && styles.bannerPickerPressed,
-                  ]}
-                >
-                  {bannerPreview ? (
-                    <Image
-                      source={{ uri: bannerPreview }}
-                      style={styles.bannerImage}
-                    />
-                  ) : (
-                    <View style={styles.bannerPlaceholder}>
-                      <Ionicons
-                        name="image-outline"
-                        size={28}
-                        color={DEFAULT_COLORS.grays._200}
-                      />
-                      <ThemedText style={styles.bannerPlaceholderText}>
-                        Toque para selecionar o banner
-                      </ThemedText>
-                    </View>
-                  )}
-
-                  <View style={styles.bannerEditBadge}>
-                    {isCreatingImage ? (
-                      <ActivityIndicator
-                        size="small"
-                        color={DEFAULT_COLORS.white}
-                      />
-                    ) : (
-                      <Ionicons
-                        name="camera"
-                        size={18}
-                        color={DEFAULT_COLORS.white}
-                      />
-                    )}
-                  </View>
-                </Pressable>
+                  isLoading={isCreatingImage}
+                  placeholder="Toque para selecionar o banner"
+                />
               </View>
 
-              <Controller
-                control={control}
-                name="playersLimit"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.fieldContainer}>
-                    <Label text="Limite de jogadores" />
-                    <ProgressInput
-                      value={Number(value) || 4}
-                      onChange={onChange}
-                      min={1}
-                      max={8}
-                      error={errors.playersLimit?.message}
-                    />
-                  </View>
-                )}
-              />
+              <View style={styles.fieldContainer}>
+                <Label text="Limite de jogadores" />
+                <ControlledProgressInput
+                  hookForm={hookForm}
+                  name="playersLimit"
+                  min={1}
+                  max={8}
+                />
+              </View>
 
               <ControlledToggle
-                control={control}
+                hookForm={hookForm}
                 name="isPrivate"
                 label="Campanha privada"
                 description="A campanha fica fora das buscas públicas."
               />
 
               <ControlledToggle
-                control={control}
-                name="chatEnabled"
+                hookForm={hookForm}
+                name="isChatEnabled"
                 label="Chat habilitado"
                 description="Permite conversa entre participantes."
               />
@@ -383,34 +298,26 @@ export default function CreateCampaignScreen() {
             </View>
 
             <InfoCard style={styles.formCard}>
-              <Controller
-                control={control}
+              <ControlledLocationAutocomplete
+                hookForm={hookForm}
                 name="locationName"
-                render={({ field: { onChange, value } }) => (
-                  <LocationAutocomplete
-                    value={value}
-                    onChangeText={onChange}
-                    error={errors.locationName?.message}
-                    hasSelectionError={!!locationSelectionError}
-                    onClearSelection={() => {
-                      setValue("address", "", { shouldValidate: false });
-                      setValue("latitude", "", { shouldValidate: false });
-                      setValue("longitude", "", { shouldValidate: false });
-                    }}
-                    onSelectLocation={(location) => {
-                      onChange(location.locationName);
-                      setValue("address", location.address, {
-                        shouldValidate: true,
-                      });
-                      setValue("latitude", location.latitude, {
-                        shouldValidate: true,
-                      });
-                      setValue("longitude", location.longitude, {
-                        shouldValidate: true,
-                      });
-                    }}
-                  />
-                )}
+                hasSelectionError={!!locationSelectionError}
+                onClearSelection={() => {
+                  setValue("address", "", { shouldValidate: false });
+                  setValue("latitude", "", { shouldValidate: false });
+                  setValue("longitude", "", { shouldValidate: false });
+                }}
+                onSelectLocation={(location) => {
+                  setValue("address", location.address, {
+                    shouldValidate: true,
+                  });
+                  setValue("latitude", location.latitude, {
+                    shouldValidate: true,
+                  });
+                  setValue("longitude", location.longitude, {
+                    shouldValidate: true,
+                  });
+                }}
               />
             </InfoCard>
 
@@ -421,22 +328,15 @@ export default function CreateCampaignScreen() {
             </View>
 
             <InfoCard style={styles.formCard}>
-              <Controller
-                control={control}
-                name="gameSystemId"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.fieldContainer}>
-                    <Label text="Sistema de jogo" />
-                    <Select
-                      value={typeof value === "number" ? value : undefined}
-                      onSelect={(selectedValue) => onChange(selectedValue ?? 0)}
-                      options={gameSystemOptions}
-                      disabled={isLoadingGameSystemsSelect}
-                      error={errors.gameSystemId?.message}
-                    />
-                  </View>
-                )}
-              />
+              <View style={styles.fieldContainer}>
+                <Label text="Sistema de jogo" />
+                <ControlledSelect
+                  hookForm={hookForm}
+                  name="gameSystemId"
+                  options={gameSystemOptions}
+                  disabled={isLoadingGameSystemsSelect}
+                />
+              </View>
             </InfoCard>
 
             <Button
@@ -498,48 +398,6 @@ const styles = StyleSheet.create({
   multilineInputContainer: {
     height: 120,
     alignItems: "flex-start",
-  },
-  bannerPicker: {
-    width: "100%",
-    height: 170,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.4)",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bannerPickerPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.99 }],
-  },
-  bannerImage: {
-    width: "100%",
-    height: "100%",
-  },
-  bannerPlaceholder: {
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingHorizontal: 20,
-  },
-  bannerPlaceholderText: {
-    color: DEFAULT_COLORS.grays._200,
-    textAlign: "center",
-  },
-  bannerEditBadge: {
-    position: "absolute",
-    right: 12,
-    bottom: 12,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: DEFAULT_COLORS.tertiary,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: DEFAULT_COLORS.primary,
   },
 });
 

@@ -1,7 +1,6 @@
 import { ICharacter } from "@/src/interfaces/character.interfaces";
-import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
 
-const campaignList: ICampaign[] = [
+const campaignList = [
   {
     id: 0,
     title: "O Cerco de Valkaria",

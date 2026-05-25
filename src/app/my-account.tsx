@@ -1,65 +1,56 @@
 import React from "react";
 import {
-  ActivityIndicator,
-  Image,
-  View,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { fonts } from "@/src/theme/fonts";
-import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
-import { useAvatarPicker } from "@/src/features/users/hooks/use-avatar-picker";
-import { useUser } from "@/src/features/users/hooks/use-user";
-import { Input } from "@/src/components/input/input";
-import { DateInput } from "@/src/components/input/input.date";
-import { Button } from "@/src/components/button/button";
-import { Label } from "@/src/components/label/label";
-import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { ActionButton } from "@/src/components/action-button/action-button";
-import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { Button } from "@/src/components/button/button";
+import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { InfoCard } from "@/src/components/info-card/info-card";
-import { useBackRouter } from "@/src/hooks/use-back-route";
+import { ControlledDateInput } from "@/src/components/input/input.date.controlled";
+import { ControlledImageInput } from "@/src/components/input/input.image.controlled";
+import { ControlledInput } from "@/src/components/input/input.controlled";
+import { Label } from "@/src/components/label/label";
+import { ControlledSelect } from "@/src/components/select/select.controlled";
+import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { GENDER_OPTIONS } from "@/src/constants/select-options";
 import { useAuth } from "@/src/context/auth";
-import { KnightHeadIcon } from "@/src/components/icons";
+import { useUser } from "@/src/features/users/hooks/use-user";
+import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
 import {
   IUserUpdateInput,
   IUserUpdateOutput,
   UserUpdateSchema,
 } from "@/src/features/users/schemas/user.schema";
-import { Select } from "@/src/components/select/select";
-import { GENDER_OPTIONS } from "@/src/constants/select-options";
+import { useBackRouter } from "@/src/hooks/use-back-route";
+import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
 
 export default function MyAccountScreen() {
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
-  const { updateUserMutation, isUpdatingUser } = useUsersMutation();
+  const {
+    updateAvatarMutation,
+    updateUserMutation,
+    isUpdatingAvatar,
+    isUpdatingUser,
+  } = useUsersMutation();
   const userId = user?.id ? Number(user.id) : undefined;
   const { data: userData, isPending: isLoadingUser } = useUser(userId);
 
-  const [avatarPreview, setAvatarPreview] = React.useState<string>();
-  const { selectAvatar, isUpdatingAvatar } = useAvatarPicker({
-    userId,
-    onPreview: setAvatarPreview,
-  });
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<IUserUpdateInput>({
+  const hookForm = useForm<IUserUpdateInput>({
     resolver: zodResolver(UserUpdateSchema),
     defaultValues: userData,
   });
+  const { handleSubmit, reset } = hookForm;
 
   React.useEffect(() => {
     if (!userData) return;
@@ -70,8 +61,6 @@ export default function MyAccountScreen() {
   const onSubmit: SubmitHandler<IUserUpdateInput> = async (data) => {
     updateUserMutation.mutate(data as IUserUpdateOutput);
   };
-
-  const currentAvatar = avatarPreview ?? userData?.avatarUrl;
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -110,140 +99,82 @@ export default function MyAccountScreen() {
           <InfoCard style={styles.formCard}>
             <View style={styles.formContent}>
               <View style={styles.avatarSection}>
-                <Pressable
-                  onPress={selectAvatar}
-                  disabled={isUpdatingAvatar}
-                  style={({ pressed }) => [
-                    styles.avatarButton,
-                    pressed && styles.avatarButtonPressed,
-                  ]}
-                >
-                  {currentAvatar ? (
-                    <Image
-                      source={{ uri: currentAvatar }}
-                      style={styles.avatarImage}
-                    />
-                  ) : (
-                    <View style={styles.avatarPlaceholder}>
-                      <KnightHeadIcon
-                        color={DEFAULT_COLORS.primary}
-                        size={62}
-                      />
-                    </View>
-                  )}
-
-                  <View style={styles.avatarEditBadge}>
-                    {isUpdatingAvatar ? (
-                      <ActivityIndicator
-                        size="small"
-                        color={DEFAULT_COLORS.white}
-                      />
-                    ) : (
-                      <Ionicons
-                        name="camera"
-                        size={18}
-                        color={DEFAULT_COLORS.white}
-                      />
-                    )}
-                  </View>
-                </Pressable>
+                <ControlledImageInput
+                  hookForm={hookForm}
+                  name="avatarUrl"
+                  aspect={[1, 1]}
+                  disabled={isLoadingUser}
+                  height={170}
+                  isLoading={isUpdatingAvatar}
+                  placeholder="Toque para selecionar sua foto"
+                  valueMode="uri"
+                  onImageChange={(image) => {
+                    if (!userId) return;
+                    updateAvatarMutation.mutate({
+                      id: userId,
+                      content: image.content,
+                    });
+                  }}
+                />
               </View>
 
-              <Controller
-                control={control}
-                name="username"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.fieldContainer}>
-                    <Label
-                      text="Nome de Usuário"
-                      infoText="Seu @único. Se mudar aqui, outros aventureiros podem ter dificuldade em te achar."
-                    />
-                    <Input
-                      placeholder="ex.: avalon_mestre"
-                      value={value}
-                      onChangeText={onChange}
-                      autoCapitalize="none"
-                      removeSpaces
-                      disabled={isLoadingUser}
-                      error={errors?.username?.message}
-                    />
-                  </View>
-                )}
-              />
+              <View style={styles.fieldContainer}>
+                <Label
+                  text="Nome de Usuário"
+                  infoText="Seu @único. Se mudar aqui, outros aventureiros podem ter dificuldade em te achar."
+                />
+                <ControlledInput
+                  hookForm={hookForm}
+                  name="username"
+                  placeholder="ex.: avalon_mestre"
+                  autoCapitalize="none"
+                  removeSpaces
+                  disabled={isLoadingUser}
+                />
+              </View>
 
-              <Controller
-                control={control}
-                name="nickname"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.fieldContainer}>
-                    <Label
-                      text="Alcunha (Nickname)"
-                      infoText="Como as tavernas devem anunciar sua chegada."
-                    />
-                    <Input
-                      placeholder="ex.: Avalon, O Mestre"
-                      value={value}
-                      onChangeText={onChange}
-                      disabled={isLoadingUser}
-                      error={errors?.nickname?.message}
-                    />
-                  </View>
-                )}
-              />
+              <View style={styles.fieldContainer}>
+                <Label
+                  text="Alcunha (Nickname)"
+                  infoText="Como as tavernas devem anunciar sua chegada."
+                />
+                <ControlledInput
+                  hookForm={hookForm}
+                  name="nickname"
+                  placeholder="ex.: Avalon, O Mestre"
+                  disabled={isLoadingUser}
+                />
+              </View>
 
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.fieldContainer}>
-                    <Label text="Endereço de Mensageiro (E-mail)" />
-                    <Input
-                      placeholder="seu@pergaminho.com"
-                      disabled
-                      value={value}
-                      onChangeText={onChange}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      removeSpaces
-                      error={errors?.email?.message}
-                    />
-                  </View>
-                )}
-              />
+              <View style={styles.fieldContainer}>
+                <Label text="Endereço de Mensageiro (E-mail)" />
+                <ControlledInput
+                  hookForm={hookForm}
+                  name="email"
+                  placeholder="seu@pergaminho.com"
+                  disabled
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  removeSpaces
+                />
+              </View>
 
-              <Controller
-                control={control}
+              <ControlledDateInput
+                hookForm={hookForm}
                 name="birthDate"
-                render={({ field: { onChange, value } }) => (
-                  <DateInput
-                    label="Ciclos de Vida"
-                    value={value}
-                    onChange={onChange}
-                    error={errors?.birthDate?.message}
-                    maxDate={new Date()}
-                  />
-                )}
+                label="Ciclos de Vida"
+                maxDate={new Date()}
               />
 
-              <Controller
-                control={control}
-                name="gender"
-                render={({
-                  field: { onChange, value },
-                  fieldState: { error },
-                }) => (
-                  <View style={styles.fieldContainer}>
-                    <Label text="Identidade de Gênero" />
-                    <Select
-                      value={value}
-                      onSelect={onChange}
-                      error={error?.message}
-                      options={GENDER_OPTIONS}
-                      disabled={isLoadingUser}
-                    />
-                  </View>
-                )}
-              />
+              <View style={styles.fieldContainer}>
+                <Label text="Identidade de Gênero" />
+                <ControlledSelect
+                  hookForm={hookForm}
+                  name="gender"
+                  options={GENDER_OPTIONS}
+                  disabled={isLoadingUser}
+                />
+              </View>
             </View>
           </InfoCard>
 
@@ -296,53 +227,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   avatarSection: {
-    alignItems: "center",
-    gap: 12,
+    width: "100%",
     marginBottom: 6,
-  },
-  avatarButton: {
-    width: 116,
-    height: 116,
-    borderRadius: 58,
-    borderWidth: 3,
-    borderColor: DEFAULT_COLORS.tertiary,
-    backgroundColor: DEFAULT_COLORS.background,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: DEFAULT_COLORS.tertiary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  avatarButtonPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
-  },
-  avatarImage: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 58,
-  },
-  avatarPlaceholder: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 58,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: DEFAULT_COLORS.background,
-  },
-  avatarEditBadge: {
-    position: "absolute",
-    right: 0,
-    bottom: 4,
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: DEFAULT_COLORS.tertiary,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: DEFAULT_COLORS.primary,
   },
 });

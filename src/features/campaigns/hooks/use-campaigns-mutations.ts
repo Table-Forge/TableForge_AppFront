@@ -49,8 +49,29 @@ export const useCampaignsMutation = () => {
     },
   });
 
+  const updateCampaignMutation = useMutation({
+    mutationFn: (payload: Partial<ICampaignCreate> & { id: number }) => CampaignService.update(payload as any),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [CAMPAIGNS] });
+      Toast.show({
+        type: "success",
+        text1: "Campanha atualizada com sucesso!",
+        position: "top",
+        visibilityTime: 4000,
+      });
+    },
+    onError: () => {
+      Toast.show({
+        type: "error",
+        text1: "Erro ao atualizar campanha",
+      });
+    },
+  });
+
   return {
     createCampaignMutation,
+    updateCampaignMutation,
     isCreatingCampaign: createCampaignMutation.isPending,
+    isUpdatingCampaign: updateCampaignMutation.isPending,
   };
 };

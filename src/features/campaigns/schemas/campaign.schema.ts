@@ -1,16 +1,5 @@
 import { z } from "zod";
 
-export const CampaignPlayerSchema = z.object({
-  id: z.union([z.string(), z.number()]),
-  name: z.string(),
-  avatar: z.string(),
-});
-
-export const SessionScheduleSchema = z.object({
-  day: z.string(),
-  time: z.string(),
-});
-
 const RequiredCoordinateSchema = (
   message: string,
   min: number,
@@ -35,21 +24,39 @@ const RequiredCoordinateSchema = (
     })
     .refine((value) => value >= min && value <= max, validMessage);
 
+const CampaignBlockedClassSchema = z.object({
+  classId: z.number(),
+});
+
+const CampaignBlockedRaceSchema = z.object({
+  raceId: z.number(),
+});
+
 export const CampaignSchema = z.object({
   id: z.number(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
   title: z.string(),
-  image: z.string(),
-  system: z.string(),
-  gameMaster: z.string(),
-  location: z.string(),
-  level: z.string(),
-  summary: z.string(),
-  fullDescription: z.string(),
-  currentPartySize: z.number(),
-  maxPartySize: z.number(),
-  players: CampaignPlayerSchema.array().optional(),
-  frequency: z.string().optional(),
-  nextSession: SessionScheduleSchema.optional(),
+  description: z.string().optional(),
+  difficulty: z.string(),
+  playersLimit: z.number(),
+  status: z.string(),
+  isPrivate: z.boolean(),
+  isChatEnabled: z.boolean().optional(),
+  creatorId: z.number(),
+  creatorUsername: z.string().optional(),
+  locationName: z.string().optional(),
+  address: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  creationLatitude: z.number().optional(),
+  creationLongitude: z.number().optional(),
+  blockedClasses: CampaignBlockedClassSchema.array().optional(),
+  blockedRaces: CampaignBlockedRaceSchema.array().optional(),
+  bannerId: z.number().optional().nullable(),
+  bannerUrl: z.string().optional(),
+  gameSystemId: z.number().optional().nullable(),
+  gameSystemName: z.string().optional().nullable(),
 });
 
 export const CampaignCreateSchema = z.object({
@@ -59,10 +66,8 @@ export const CampaignCreateSchema = z.object({
   playersLimit: z.coerce.number().min(1, "Informe pelo menos 1 jogador."),
   status: z.string().trim().min(1, "O status é obrigatório."),
   isPrivate: z.coerce.boolean(),
-  chatEnabled: z.coerce.boolean(),
+  isChatEnabled: z.coerce.boolean(),
   creatorId: z.coerce.number().min(0),
-  bannerId: z.coerce.number().min(0),
-  gameSystemId: z.coerce.number().min(0),
   locationName: z.string().trim().min(1, "O nome do local é obrigatório."),
   address: z.string().trim().min(1, "O endereço é obrigatório."),
   latitude: RequiredCoordinateSchema(
@@ -79,10 +84,12 @@ export const CampaignCreateSchema = z.object({
   ),
   creationLatitude: z.coerce.number(),
   creationLongitude: z.coerce.number(),
+  blockedClasses: CampaignBlockedClassSchema.array(),
+  blockedRaces: CampaignBlockedRaceSchema.array(),
+  bannerId: z.coerce.number().min(0),
+  gameSystemId: z.coerce.number().min(0),
 });
 
 export type ICampaign = z.infer<typeof CampaignSchema>;
 export type ICampaignCreateInput = z.input<typeof CampaignCreateSchema>;
 export type ICampaignCreate = z.infer<typeof CampaignCreateSchema>;
-export type IPlayer = z.infer<typeof CampaignPlayerSchema>;
-export type ISessionSchedule = z.infer<typeof SessionScheduleSchema>;

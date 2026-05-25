@@ -1,120 +1,49 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FlatList, View, TouchableOpacity, StyleSheet } from "react-native";
-import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { MainContainer } from "@/src/components/main-container/main-container";
-import { ThemedText } from "@/src/components/themed-text/themed-text";
-import { useBackRouter } from "@/src/hooks/use-back-route";
-import { DEFAULT_COLORS } from "@/src/theme/colors";
 import {
   FontAwesome6,
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-
-import { Mail, MailOpen } from "lucide-react-native";
-import { fonts } from "@/src/theme/fonts";
-import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
 import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
+import { Mail, MailOpen } from "lucide-react-native";
+
+import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { WizardTowerIcon } from "@/src/components/icons";
-
-interface NotificationItem {
-  id: string;
-  type:
-    | "reminder"
-    | "message"
-    | "friend_request"
-    | "campaign_request"
-    | "mage_tower";
-  title: string;
-  description: string;
-  time: string;
-  read: boolean;
-}
-
-const INITIAL_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: "5",
-    type: "mage_tower",
-    title: "Mensagem de Avalon, o Mestre",
-    description:
-      "Um sábio um dia disse: “Você pode encontrar as coisas que perdeu, mas nunca as que abandonou.”",
-    time: "1h",
-    read: false,
-  },
-  {
-    id: "1",
-    type: "reminder",
-    title: "Lembrete!",
-    description:
-      'A mesa da campanha "O Cerco de Valkaria" começará em 2 horas.',
-    time: "32min",
-    read: false,
-  },
-  {
-    id: "2",
-    type: "message",
-    title: "Nova mensagem",
-    description: "Amanda te enviou uma mensagem.",
-    time: "1h",
-    read: false,
-  },
-  {
-    id: "3",
-    type: "friend_request",
-    title: "Pedido de Amizade",
-    description: "Luciano quer ser seu amigo!",
-    time: "1h",
-    read: false,
-  },
-  {
-    id: "4",
-    type: "campaign_request",
-    title: "Pedido de Entrada",
-    description:
-      'Luciano pediu para entrar na sua campanha "O Cerco de Valkaria"!',
-    time: "1h",
-    read: true,
-  },
-  {
-    id: "7",
-    type: "friend_request",
-    title: "Pedido de Amizade",
-    description: "Rarik quer ser seu amigo!",
-    time: "1h",
-    read: true,
-  },
-  {
-    id: "6",
-    type: "mage_tower",
-    title: "Mensagem de Avalon, o Mestre",
-    description:
-      "Citando outro famoso bruxo: “Não tenha pena dos mortos. Tenha pena dos vivos, e acima de tudo, daqueles que vivem sem amor.”",
-    time: "1h",
-    read: true,
-  },
-];
+import { MainContainer } from "@/src/components/main-container/main-container";
+import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
+import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { useAuth } from "@/src/context/auth";
+import { useNotifications } from "@/src/features/notifications/hooks/use-notifications";
+import { useNotificationsMutation } from "@/src/features/notifications/hooks/use-notifications-mutations";
+import { INotification } from "@/src/features/notifications/schemas/notification.schema";
+import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
 
 export default function Notifications() {
-  const { handleBack } = useBackRouter();
+  const { user } = useAuth();
+  const userId = user?.id ? Number(user.id) : undefined;
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  const [notifications, setNotifications] = useState<NotificationItem[]>(
-    INITIAL_NOTIFICATIONS,
+  const notificationsQuery = useNotifications({
+    page: 1,
+    size: 50,
+    userId,
+    enabled: Boolean(userId),
+  });
+  const {
+    deleteNotificationMutation,
+    markNotificationAsReadMutation,
+    updateNotificationMutation,
+  } = useNotificationsMutation();
+
+  const notifications = useMemo(
+    () => notificationsQuery.data?.items ?? [],
+    [notificationsQuery.data?.items],
   );
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
-
   const isSelectionMode = selectedIds.length > 0;
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-
-    setTimeout(() => {
-      setNotifications(INITIAL_NOTIFICATIONS);
-      setRefreshing(false);
-    }, 2000);
-  }, []);
-
-  const toggleSelection = (id: string) => {
+  const toggleSelection = (id: number) => {
     setSelectedIds((prev) =>
       prev.includes(id)
         ? prev.filter((itemId) => itemId !== id)
@@ -123,36 +52,48 @@ export default function Notifications() {
   };
 
   const handleDelete = () => {
-    setNotifications((prev) => prev.filter((n) => !selectedIds.includes(n.id)));
+    selectedIds.forEach((id) => deleteNotificationMutation.mutate(id));
     setSelectedIds([]);
   };
 
   const handleMarkReadStatus = (isRead: boolean) => {
-    setNotifications((prev) =>
-      prev.map((m) =>
-        selectedIds.includes(m.id) ? { ...m, read: isRead } : m,
-      ),
-    );
+    selectedIds.forEach((id) => {
+      if (isRead) {
+        markNotificationAsReadMutation.mutate(id);
+        return;
+      }
+
+      updateNotificationMutation.mutate({ id, read: false });
+    });
     setSelectedIds([]);
   };
 
-  const renderIcon = (
-    type: NotificationItem["type"],
-    color: string,
-    isRead: boolean,
-  ) => {
-    const iconProps = { size: 22, color: color };
-    const icons = {
-      reminder: <Ionicons name="notifications-outline" {...iconProps} />,
-      message: isRead ? <MailOpen {...iconProps} /> : <Mail {...iconProps} />,
-      friend_request: <Ionicons name="person-add-outline" {...iconProps} />,
-      campaign_request: <FontAwesome6 name="dungeon" {...iconProps} />,
-      mage_tower: <WizardTowerIcon {...iconProps} />,
+  const renderIcon = (type: string, color: string, isRead: boolean) => {
+    const iconProps = { size: 22, color };
+
+    const icons: Record<string, React.ReactNode> = {
+      CampaignInvite: <FontAwesome6 name="dungeon" {...iconProps} />,
+      JoinRequestApproved: (
+        <Ionicons name="checkmark-circle-outline" {...iconProps} />
+      ),
+      JoinRequestRejected: <Ionicons name="close-circle-outline" {...iconProps} />,
+      NewChatMessage: isRead ? (
+        <MailOpen {...iconProps} />
+      ) : (
+        <Mail {...iconProps} />
+      ),
+      NewAnnouncement: (
+        <Ionicons name="notifications-outline" {...iconProps} />
+      ),
+      FriendshipRequest: <Ionicons name="person-add-outline" {...iconProps} />,
+      FriendshipAccepted: <Ionicons name="people-outline" {...iconProps} />,
+      System: <WizardTowerIcon {...iconProps} />,
     };
-    return icons[type] || icons.reminder;
+
+    return icons[type] || icons.System;
   };
 
-  const renderItem = ({ item }: { item: NotificationItem }) => {
+  const renderItem = ({ item }: { item: INotification }) => {
     const isSelected = selectedIds.includes(item.id);
 
     return (
@@ -192,40 +133,15 @@ export default function Notifications() {
 
           <View style={styles.content}>
             <View style={styles.headerRow}>
-              <ThemedText style={styles.title}>{item.title}</ThemedText>
-              <ThemedText style={styles.time}>{item.time}</ThemedText>
+              <ThemedText style={styles.title}>
+                {getNotificationTitle(item.type)}
+              </ThemedText>
+              <ThemedText style={styles.time}>
+                {formatNotificationDate(item.createdAt)}
+              </ThemedText>
             </View>
 
-            <ThemedText style={styles.description}>
-              {item.description}
-            </ThemedText>
-
-            {!isSelectionMode && (
-              <View style={styles.actionsRow}>
-                {item.type === "campaign_request" && (
-                  <TouchableOpacity
-                    style={[styles.btnAction, styles.btnActionHighlight]}
-                  >
-                    <ThemedText style={styles.actionText}>
-                      Ver Pedido
-                    </ThemedText>
-                  </TouchableOpacity>
-                )}
-                {(item.type === "friend_request" ||
-                  item.type === "campaign_request") && (
-                  <>
-                    <TouchableOpacity
-                      style={[styles.btnAction, styles.btnActionHighlight]}
-                    >
-                      <ThemedText style={styles.actionText}>Aceitar</ThemedText>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.btnAction}>
-                      <ThemedText style={styles.actionText}>Recusar</ThemedText>
-                    </TouchableOpacity>
-                  </>
-                )}
-              </View>
-            )}
+            <ThemedText style={styles.description}>{item.message}</ThemedText>
           </View>
         </View>
       </TouchableOpacity>
@@ -234,17 +150,16 @@ export default function Notifications() {
 
   const menuOptions = () => {
     const hasSelection = selectedIds.length > 0;
-
-    const selectedNotifications = notifications.filter((m) =>
-      selectedIds.includes(m.id),
+    const selectedNotifications = notifications.filter((notification) =>
+      selectedIds.includes(notification.id),
     );
     const allSelectedAreRead =
       selectedNotifications.length > 0 &&
-      selectedNotifications.every((m) => m.read);
+      selectedNotifications.every((notification) => notification.read);
 
     return [
       {
-        label: hasSelection ? "Limpar Seleção" : "Selecionar Tudo",
+        label: hasSelection ? "Limpar seleção" : "Selecionar tudo",
         icon: (
           <Ionicons
             name={
@@ -257,7 +172,7 @@ export default function Notifications() {
         onPress: () =>
           hasSelection
             ? setSelectedIds([])
-            : setSelectedIds(notifications.map((n) => n.id)),
+            : setSelectedIds(notifications.map((notification) => notification.id)),
       },
       {
         label: allSelectedAreRead ? "Marcar como não lida" : "Marcar como lida",
@@ -309,7 +224,7 @@ export default function Notifications() {
         showsVerticalScrollIndicator={false}
         style={{ width: "100%" }}
         data={notifications}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         contentContainerStyle={[styles.listContent, { flexGrow: 1 }]}
@@ -321,31 +236,46 @@ export default function Notifications() {
               color: DEFAULT_COLORS.grays._300,
             }}
           >
-            Nenhuma notificação por aqui.
+            {notificationsQuery.isError
+              ? "Não foi possível carregar as notificações."
+              : "Nenhuma notificação por aqui."}
           </ThemedText>
         }
-        refreshing={refreshing}
-        onRefresh={onRefresh}
+        refreshing={notificationsQuery.isRefetching}
+        onRefresh={notificationsQuery.refetch}
       />
     </MainContainer>
   );
 }
 
+function getNotificationTitle(type: string) {
+  const titles: Record<string, string> = {
+    CampaignInvite: "Convite de campanha",
+    JoinRequestApproved: "Entrada aprovada",
+    JoinRequestRejected: "Entrada recusada",
+    NewChatMessage: "Nova mensagem",
+    NewAnnouncement: "Novo comunicado",
+    FriendshipRequest: "Pedido de amizade",
+    FriendshipAccepted: "Amizade aceita",
+    System: "Mensagem do sistema",
+  };
+
+  return titles[type] || "Notificação";
+}
+
+function formatNotificationDate(date?: string) {
+  if (!date) return "";
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date));
+}
+
 const styles = StyleSheet.create({
   headerTitle: { fontSize: 20, ...fonts.bold, color: DEFAULT_COLORS.white },
-  clearAll: {
-    alignSelf: "flex-end",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    flexDirection: "row",
-    gap: 4,
-    alignItems: "center",
-  },
-  clearAllText: {
-    color: DEFAULT_COLORS.tertiary,
-    fontSize: 14,
-    ...fonts.medium,
-  },
   listContent: { paddingBottom: 20 },
   notificationCard: {
     width: "100%",
@@ -359,7 +289,7 @@ const styles = StyleSheet.create({
     borderLeftColor: DEFAULT_COLORS.tertiary,
   },
   selectedCard: {
-    backgroundColor: "rgba(your-color, 0.1)",
+    backgroundColor: "rgba(126, 135, 226, 0.1)",
   },
   row: { flexDirection: "row" },
   iconContainer: {
@@ -386,27 +316,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: DEFAULT_COLORS.grays._300,
     lineHeight: 18,
-  },
-  actionsRow: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 12,
-    gap: 12,
-  },
-  btnAction: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: DEFAULT_COLORS.grays._500,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  btnActionHighlight: { backgroundColor: DEFAULT_COLORS.tertiary },
-  actionText: {
-    fontSize: 11,
-    ...fonts.bold,
-    color: DEFAULT_COLORS.white,
-    textTransform: "uppercase",
   },
   separator: {
     height: 1,

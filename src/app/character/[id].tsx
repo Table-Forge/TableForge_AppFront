@@ -1,11 +1,3 @@
-import { ActionButton } from "@/src/components/action-button/action-button";
-import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { MainContainer } from "@/src/components/main-container/main-container";
-import { ThemedText } from "@/src/components/themed-text/themed-text";
-import { charactersList } from "@/src/data/mock";
-import { useBackRouter } from "@/src/hooks/use-back-route";
-import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { fonts } from "@/src/theme/fonts";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import {
@@ -16,20 +8,39 @@ import {
   Dimensions,
 } from "react-native";
 
+import { ActionButton } from "@/src/components/action-button/action-button";
+import { HeaderActions } from "@/src/components/header-actions/header-actions";
+import { MainContainer } from "@/src/components/main-container/main-container";
+import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { useCharacter } from "@/src/features/characters/hooks/use-character";
+import { useBackRouter } from "@/src/hooks/use-back-route";
+import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
+
 const { width } = Dimensions.get("window");
 
 export default function CharacterScreen() {
   const { id } = useLocalSearchParams();
   const { handleBack } = useBackRouter();
+  const characterId = Number(id);
+  const { data, isLoading, isError } = useCharacter(characterId);
 
-  const data = charactersList.find((item) => item.id === Number(id));
+  if (isLoading) return <ThemedText>Carregando personagem...</ThemedText>;
 
-  if (!data) return <ThemedText>Personagem não encontrado...</ThemedText>;
+  if (isError || !data) {
+    return <ThemedText>Personagem não encontrado...</ThemedText>;
+  }
+
+  const className = data.className || "Classe não informada";
+  const raceName = data.raceName || "Raça não informada";
 
   return (
     <MainContainer style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <ImageBackground source={{ uri: data.image }} style={styles.banner}>
+        <ImageBackground
+          source={data.imageUrl ? { uri: data.imageUrl } : undefined}
+          style={styles.banner}
+        >
           <HeaderActions padding={10}>
             <ActionButton
               variant="circle"
@@ -51,23 +62,21 @@ export default function CharacterScreen() {
             </ThemedText>
             <View style={styles.classTag}>
               <ThemedText style={styles.classTagText}>
-                {data.class.toUpperCase()}
+                {className.toUpperCase()}
               </ThemedText>
             </View>
           </View>
         </ImageBackground>
 
-        {/* ATRIBUTOS RÁPIDOS (GRID) */}
         <View style={styles.statsGrid}>
-          <StatCard label="RAÇA" value={data.race} icon="dna" />
+          <StatCard label="RAÇA" value={raceName} icon="dna" />
           <StatCard
             label="ALINHAMENTO"
-            value={data.alignment}
+            value={data.alignment || "-"}
             icon="scale-balance"
           />
         </View>
 
-        {/* HISTÓRIA / BIO */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <MaterialCommunityIcons
@@ -81,7 +90,9 @@ export default function CharacterScreen() {
           </View>
 
           <View style={styles.historyCard}>
-            <ThemedText style={styles.historyText}>{data.history}</ThemedText>
+            <ThemedText style={styles.historyText}>
+              {data.bio || "Sem história cadastrada."}
+            </ThemedText>
           </View>
         </View>
       </ScrollView>
@@ -89,8 +100,15 @@ export default function CharacterScreen() {
   );
 }
 
-// Sub-componente para os cards de atributos
-const StatCard = ({ label, value, icon }: any) => (
+const StatCard = ({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string;
+  icon: any;
+}) => (
   <View style={styles.statCard}>
     <MaterialCommunityIcons
       name={icon}
@@ -110,8 +128,9 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   banner: {
     width: "100%",
-    height: width * 1.1, // Personagem ganha mais altura que a campanha
+    height: width * 1.1,
     justifyContent: "space-between",
+    backgroundColor: DEFAULT_COLORS.primary,
   },
   backButton: {
     backgroundColor: "rgba(26, 26, 46, 0.7)",

@@ -2,32 +2,49 @@ import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { Image, Pressable, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ThemedText } from "../themed-text/themed-text";
-import { ICharacter } from "@/src/interfaces/character.interfaces";
+import { ICharacter } from "@/src/features/characters/schemas/character.schema";
 import { fonts } from "@/src/theme/fonts";
 
 interface IProps {
   data: ICharacter;
   cardColor?: string;
+  disabled?: boolean;
+  onPress?: () => void;
 }
-export const CharacterItem = ({ data, cardColor = "#666666" }: IProps) => {
+export const CharacterItem = ({
+  data,
+  cardColor = "#666666",
+  disabled = false,
+  onPress,
+}: IProps) => {
   const router = useRouter();
+
+  const handlePress = () => {
+    if (disabled) return;
+
+    if (onPress) {
+      onPress();
+      return;
+    }
+
+    router.push({
+      pathname: "/character/[id]",
+      params: { id: data.id.toString() },
+    });
+  };
 
   return (
     <Pressable
-      onPress={() =>
-        router.push({
-          pathname: "/character/[id]",
-          params: { id: data.id.toString() },
-        })
-      }
+      onPress={handlePress}
       style={({ pressed }) => [
         styles.wrapper,
-        pressed && { transform: [{ scale: 0.97 }], opacity: 0.9 },
+        disabled && styles.disabled,
+        pressed && !disabled && { transform: [{ scale: 0.97 }], opacity: 0.9 },
       ]}
     >
       <View style={[styles.imageContainer, { backgroundColor: cardColor }]}>
-        {data.image && (
-          <Image style={styles.image} source={{ uri: data.image }} />
+        {data.imageUrl && (
+          <Image style={styles.image} source={{ uri: data.imageUrl }} />
         )}
 
         <View style={styles.classBadge}>
@@ -38,7 +55,7 @@ export const CharacterItem = ({ data, cardColor = "#666666" }: IProps) => {
               ...fonts.bold,
             }}
           >
-            {data.class?.toUpperCase() || "-"}
+            {data.className?.toUpperCase() || "-"}
           </ThemedText>
         </View>
       </View>
@@ -48,7 +65,7 @@ export const CharacterItem = ({ data, cardColor = "#666666" }: IProps) => {
           {data.name}
         </ThemedText>
 
-        <ThemedText style={styles.subtitle}>{data.race || "-"}</ThemedText>
+        <ThemedText style={styles.subtitle}>{data.raceName || "-"}</ThemedText>
       </View>
     </Pressable>
   );
@@ -68,6 +85,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
+  },
+  disabled: {
+    opacity: 0.9,
   },
   imageContainer: {
     width: "100%",

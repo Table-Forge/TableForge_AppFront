@@ -44,6 +44,41 @@ export default function RootLayout() {
             />
 
             <Stack.Screen
+              name="campaign-chat/[campaignId]"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
+              name="campaign-announcement/create"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
+              name="campaign-session/create"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
+              name="character/create"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
+              name="character/[id]"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
               name="settings"
               options={{
                 presentation: "card",

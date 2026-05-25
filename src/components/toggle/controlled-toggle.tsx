@@ -6,16 +6,21 @@ import Animated, {
   withSpring,
   interpolateColor,
 } from "react-native-reanimated";
-import { Control, useController } from "react-hook-form";
+import {
+  Control,
+  UseFormReturn,
+  useController,
+} from "react-hook-form";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { ThemedText } from "../themed-text/themed-text";
 import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
 
 interface IProps {
-  name: string;
-  control: Control<any>;
+  control?: Control<any>;
   label: string;
   description?: string;
+  hookForm?: UseFormReturn<any>;
+  name: string;
 }
 
 export const ControlledToggle = ({
@@ -23,8 +28,13 @@ export const ControlledToggle = ({
   control,
   label,
   description,
+  hookForm,
 }: IProps) => {
-  const { field } = useController({ name, control, defaultValue: false });
+  const { field } = useController({
+    name,
+    control: hookForm?.control ?? control,
+    defaultValue: false,
+  });
   const containerRef = useRef<View>(null);
   const { scrollToFocusedInput } = useScrollToFocusedInput();
 

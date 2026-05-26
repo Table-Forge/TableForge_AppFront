@@ -12,7 +12,6 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
-  TouchableOpacity,
   View,
   StyleSheet,
   RefreshControl,
@@ -23,6 +22,7 @@ import {
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useAvatarPicker } from "@/src/features/users/hooks/use-avatar-picker";
 import { LoadingOverlay } from "@/src/components/loading-overlay/loading-overlay";
+import { Tabs } from "@/src/components/tabs/tabs";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "expo-router";
 import { ParamListBase } from "@react-navigation/native";
@@ -34,8 +34,7 @@ import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
 import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
 import { Mail } from "lucide-react-native";
 
-const TABS = ["Perfil", "Personagens", "Campanhas"] as const;
-type ITabs = (typeof TABS)[number];
+type ITabs = "Perfil" | "Personagens" | "Campanhas";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -197,32 +196,27 @@ export default function Profile() {
               <ThemedText style={{ opacity: 0.7 }}>{data?.username}</ThemedText>
             </View>
 
-            <View style={styles.tabBar}>
-              {TABS.map((tab) => (
-                <TouchableOpacity
-                  key={tab}
-                  style={[
-                    styles.tabItem,
-                    activeTab === tab && styles.tabItemActive,
-                  ]}
-                  onPress={() => setActiveTab(tab)}
-                >
-                  <ThemedText
-                    style={{
-                      color: DEFAULT_COLORS.white,
-                    }}
-                  >
-                    {tab}
-                  </ThemedText>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {activeTab === "Perfil" && <ProfileTab data={data} />}
-
-            {activeTab === "Personagens" && <CharactersTab />}
-
-            {activeTab === "Campanhas" && <CampaignsTab />}
+            <Tabs<ITabs>
+              activeTab={activeTab}
+              onChange={setActiveTab}
+              tabs={[
+                {
+                  label: "Perfil",
+                  value: "Perfil",
+                  component: <ProfileTab data={data} />,
+                },
+                {
+                  label: "Personagens",
+                  value: "Personagens",
+                  component: <CharactersTab />,
+                },
+                {
+                  label: "Campanhas",
+                  value: "Campanhas",
+                  component: <CampaignsTab />,
+                },
+              ]}
+            />
           </View>
         </ScrollView>
       </MainContainer>
@@ -305,24 +299,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
     marginBottom: 20,
-  },
-  tabBar: {
-    flexDirection: "row",
-    backgroundColor: DEFAULT_COLORS.background,
-    borderRadius: 25,
-    padding: 5,
-    marginBottom: 20,
-  },
-  tabItem: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderRadius: 20,
-  },
-  tabItemActive: {
-    backgroundColor: DEFAULT_COLORS.primary,
-    borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary,
   },
   groupedIcons: {
     flexDirection: "row",

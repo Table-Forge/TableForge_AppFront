@@ -79,7 +79,7 @@ export const CampaignsTab = () => {
             <Button
               variant="tertiary"
               size="sm"
-              text="CARREGAR MAIS"
+              text="Carregar mais"
               onPress={() => fetchNextPage()}
               isLoading={isFetchingNextPage}
             />

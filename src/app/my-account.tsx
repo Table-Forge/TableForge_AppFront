@@ -21,8 +21,8 @@ import { ControlledInput } from "@/src/components/input/input.controlled";
 import { Label } from "@/src/components/label/label";
 import { ControlledSelect } from "@/src/components/select/select.controlled";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
-import { GENDER_OPTIONS } from "@/src/constants/select-options";
 import { useAuth } from "@/src/context/auth";
+import { useUserGenderEnum } from "@/src/features/users/hooks/enums/use-user-gender-enum";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
 import {
@@ -45,6 +45,7 @@ export default function MyAccountScreen() {
   } = useUsersMutation();
   const userId = user?.id ? Number(user.id) : undefined;
   const { data: userData, isPending: isLoadingUser } = useUser(userId);
+  const { userGenderEnum, isLoadingUserGenderEnum } = useUserGenderEnum();
 
   const hookForm = useForm<IUserUpdateInput>({
     resolver: zodResolver(UserUpdateSchema),
@@ -92,7 +93,7 @@ export default function MyAccountScreen() {
         >
           <View style={styles.sectionHeader}>
             <ThemedText style={styles.sectionTitle}>
-              ALTERAR IDENTIDADE NO REINO
+              Alterar identidade no reino
             </ThemedText>
           </View>
 
@@ -171,8 +172,8 @@ export default function MyAccountScreen() {
                 <ControlledSelect
                   hookForm={hookForm}
                   name="gender"
-                  options={GENDER_OPTIONS}
-                  disabled={isLoadingUser}
+                  options={userGenderEnum}
+                  disabled={isLoadingUser || isLoadingUserGenderEnum}
                 />
               </View>
             </View>
@@ -183,7 +184,7 @@ export default function MyAccountScreen() {
             onPress={handleSubmit(onSubmit)}
             isLoading={isUpdatingUser || isLoadingUser}
             disabled={isLoadingUser}
-            text="ATUALIZAR PERGAMINHO"
+            text="Atualizar pergaminho"
           />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -213,6 +214,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     ...fonts.bold,
     color: DEFAULT_COLORS.secondary,
+    textTransform: "uppercase",
   },
   formCard: {
     backgroundColor: "rgba(26, 26, 46, 0.95)",

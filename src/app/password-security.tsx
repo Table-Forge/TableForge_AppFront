@@ -154,7 +154,7 @@ export default function PasswordAndSecurityScreen() {
             variant="tertiary"
             onPress={handleSubmit(onSubmit)}
             isLoading={isUpdatingPassword}
-            text="FORJAR NOVA SENHA"
+            text="Forjar nova senha"
           />
         </ScrollView>
       </KeyboardAvoidingView>

@@ -109,7 +109,7 @@ export default function LoginScreen() {
               variant="tertiary"
               onPress={handleSubmit(onSubmit)}
               isLoading={isLoadingLoginMutation}
-              text="INICIAR JORNADA"
+              text="Iniciar jornada"
             />
           </View>
 

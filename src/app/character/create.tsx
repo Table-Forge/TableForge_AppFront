@@ -101,7 +101,7 @@ export default function CreateCharacterScreen() {
           >
             <View style={styles.sectionHeader}>
               <ThemedText style={styles.sectionTitle}>
-                DADOS DO PERSONAGEM
+                Dados do personagem
               </ThemedText>
             </View>
 
@@ -167,6 +167,7 @@ export default function CreateCharacterScreen() {
                   name="bio"
                   placeholder="Conte a história do personagem"
                   multiline
+                  maxLength={200}
                   textAlignVertical="top"
                   containerStyle={styles.multilineInputContainer}
                   style={styles.multilineInput}
@@ -178,7 +179,7 @@ export default function CreateCharacterScreen() {
               variant="tertiary"
               onPress={handleSubmit(onSubmit)}
               isLoading={isCreatingCharacter}
-              text="CRIAR PERSONAGEM"
+              text="Criar personagem"
             />
           </ScrollView>
         </ScrollToFocusedInputProvider>
@@ -217,6 +218,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     ...fonts.bold,
     color: DEFAULT_COLORS.secondary,
+    textTransform: "uppercase",
   },
   formCard: {
     backgroundColor: "rgba(26, 26, 46, 0.95)",

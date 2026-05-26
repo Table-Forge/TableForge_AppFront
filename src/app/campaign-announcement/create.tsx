@@ -123,6 +123,7 @@ export default function CreateCampaignAnnouncementScreen() {
                   name="content"
                   placeholder="Escreva o anúncio da mesa"
                   multiline
+                  maxLength={200}
                   textAlignVertical="top"
                   containerStyle={styles.multilineInputContainer}
                   style={styles.multilineInput}
@@ -132,7 +133,7 @@ export default function CreateCampaignAnnouncementScreen() {
 
             <Button
               variant="tertiary"
-              text="CRIAR ANÚNCIO"
+              text="Criar anúncio"
               isLoading={isCreatingCampaignAnnouncement}
               onPress={handleSubmit(onSubmit)}
             />

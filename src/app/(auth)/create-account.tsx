@@ -74,7 +74,7 @@ export default function CreateAccountScreen() {
 
           <View style={styles.formCard}>
             <ThemedText weight="bold" style={styles.sectionTitle}>
-              DADOS DO AVENTUREIRO
+              Dados do aventureiro
             </ThemedText>
 
             <Controller
@@ -153,7 +153,7 @@ export default function CreateAccountScreen() {
             <View style={styles.divider} />
 
             <ThemedText weight="bold" style={styles.sectionTitle}>
-              SEGREDOS DA CONTA
+              Segredos da conta
             </ThemedText>
 
             <Controller
@@ -198,7 +198,7 @@ export default function CreateAccountScreen() {
               variant="tertiary"
               onPress={handleSubmit(onSubmit)}
               isLoading={isLoadingNewUserMutation}
-              text="REGISTRAR HERÓI"
+              text="Registrar herói"
             />
           </View>
 
@@ -263,6 +263,7 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.secondary,
     letterSpacing: 1.5,
     marginBottom: 5,
+    textTransform: "uppercase",
   },
   fieldContainer: { width: "100%" },
   divider: {

@@ -62,16 +62,16 @@ export default function CharacterScreen() {
             </ThemedText>
             <View style={styles.classTag}>
               <ThemedText style={styles.classTagText}>
-                {className.toUpperCase()}
+                {className}
               </ThemedText>
             </View>
           </View>
         </ImageBackground>
 
         <View style={styles.statsGrid}>
-          <StatCard label="RAÇA" value={raceName} icon="dna" />
+          <StatCard label="Raça" value={raceName} icon="dna" />
           <StatCard
-            label="ALINHAMENTO"
+            label="Alinhamento"
             value={data.alignment || "-"}
             icon="scale-balance"
           />
@@ -85,7 +85,7 @@ export default function CharacterScreen() {
               color={DEFAULT_COLORS.tertiary}
             />
             <ThemedText weight="bold" style={styles.sectionTitle}>
-              HISTÓRIA DO PERSONAGEM
+              História do personagem
             </ThemedText>
           </View>
 
@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: DEFAULT_COLORS.tertiary,
     ...fonts.bold,
+    textTransform: "uppercase",
   },
   statsGrid: {
     flexDirection: "row",
@@ -182,6 +183,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "rgba(255,255,255,0.4)",
     letterSpacing: 1,
+    textTransform: "uppercase",
   },
   statValue: {
     fontSize: 14,
@@ -201,6 +203,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: DEFAULT_COLORS.tertiary,
     letterSpacing: 1,
+    textTransform: "uppercase",
   },
   historyCard: {
     backgroundColor: "rgba(255, 255, 255, 0.03)",

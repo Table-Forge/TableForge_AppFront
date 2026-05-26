@@ -341,7 +341,7 @@ export default function RecoverPasswordScreen() {
                   variant="tertiary"
                   onPress={onSendCode}
                   isLoading={sendRecoveryCodeMutation.isPending}
-                  text="ENVIAR CÓDIGO"
+                  text="Enviar código"
                 />
               </>
             ) : null}
@@ -463,7 +463,7 @@ export default function RecoverPasswordScreen() {
                   variant="tertiary"
                   onPress={onSavePassword}
                   isLoading={updateRecoveryPasswordMutation.isPending}
-                  text="SALVAR NOVA SENHA"
+                  text="Salvar nova senha"
                 />
               </>
             ) : null}

@@ -135,7 +135,7 @@ export default function CreateCampaignSessionScreen() {
 
             <Button
               variant="tertiary"
-              text="MARCAR SESSÃO"
+              text="Marcar sessão"
               isLoading={isCreatingCampaignSession}
               onPress={handleSubmit(onSubmit)}
             />

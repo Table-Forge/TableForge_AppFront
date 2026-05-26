@@ -53,9 +53,10 @@ export const CharacterItem = ({
               fontSize: 10,
               color: DEFAULT_COLORS.tertiary,
               ...fonts.bold,
+              textTransform: "uppercase",
             }}
           >
-            {data.className?.toUpperCase() || "-"}
+            {data.className || "-"}
           </ThemedText>
         </View>
       </View>

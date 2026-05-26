@@ -71,7 +71,7 @@ export default function Campaigns() {
       <View style={styles.topWrapper}>
         <View style={styles.locationWrapper}>
           <ThemedText weight="bold" style={styles.locationLabel}>
-            REGIÃO RASTREADA
+            Região rastreada
           </ThemedText>
           <View style={styles.locationTextContainer}>
             {loading ? (
@@ -110,7 +110,7 @@ export default function Campaigns() {
 
       <View style={styles.listHeader}>
         <ThemedText weight="bold" style={styles.listTitle}>
-          MESAS DISPONÍVEIS
+          Mesas disponíveis
         </ThemedText>
         <View style={styles.listTitleLine} />
       </View>
@@ -198,6 +198,7 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.grays?._200 || "rgba(255,255,255,0.5)",
     letterSpacing: 1.5,
     marginBottom: 4,
+    textTransform: "uppercase",
   },
   locationTextContainer: {
     flexDirection: "row",
@@ -234,6 +235,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: DEFAULT_COLORS.tertiary,
     letterSpacing: 2,
+    textTransform: "uppercase",
   },
   listTitleLine: {
     flex: 1,

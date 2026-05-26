@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   FlatList,
   StyleSheet,
   TouchableWithoutFeedback,
+  TextInput,
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -16,6 +17,7 @@ import { fonts } from "@/src/theme/fonts";
 import { ThemedText } from "../themed-text/themed-text";
 import { ErrorMessage } from "@/src/components/error-message/error-message";
 import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
+import { normalizeString } from "@/src/utils/format";
 
 interface IProps {
   options: TOptions[];
@@ -35,15 +37,42 @@ export const Select: React.FC<IProps> = ({
   disabled = false,
 }) => {
   const [visible, setVisible] = useState(false);
+  const [search, setSearch] = useState("");
   const containerRef = useRef<View>(null);
   const { scrollToFocusedInput } = useScrollToFocusedInput();
 
   const selectedOption = options.find((opt) => opt.value === value);
   const hasValue = Boolean(selectedOption);
+  const filteredOptions = useMemo(() => {
+    const normalizedSearch = normalizeString(search);
+
+    if (!normalizedSearch) return options;
+
+    const filtered = options.filter((option) =>
+      normalizeString(option.name).includes(normalizedSearch),
+    );
+
+    if (
+      selectedOption &&
+      !filtered.some((option) => option.value === selectedOption.value)
+    ) {
+      return [selectedOption, ...filtered];
+    }
+
+    return filtered;
+  }, [options, search, selectedOption]);
+
+  const handleVisibleChange = (nextVisible: boolean) => {
+    setVisible(nextVisible);
+
+    if (!nextVisible) {
+      setSearch("");
+    }
+  };
 
   const handlePressOption = (item: TOptions) => {
     onSelect(item.value);
-    setVisible(false);
+    handleVisibleChange(false);
   };
 
   return (
@@ -59,7 +88,7 @@ export const Select: React.FC<IProps> = ({
         onPress={() => {
           if (disabled) return;
           scrollToFocusedInput(containerRef);
-          setVisible(true);
+          handleVisibleChange(true);
         }}
         activeOpacity={0.8}
       >
@@ -109,22 +138,54 @@ export const Select: React.FC<IProps> = ({
         transparent
         visible={visible}
         animationType="fade"
-        onRequestClose={() => setVisible(false)}
+        onRequestClose={() => handleVisibleChange(false)}
       >
-        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => handleVisibleChange(false)}>
           <View style={styles.overlay}>
             <TouchableWithoutFeedback>
               <View style={styles.sheet}>
                 <View style={styles.handle} />
 
                 <ThemedText weight="bold" style={styles.sheetTitle}>
-                  SELECIONE UMA OPÇÃO
+                  Selecione uma opção
                 </ThemedText>
 
+                <View style={styles.searchContainer}>
+                  <MaterialCommunityIcons
+                    name="magnify"
+                    size={20}
+                    color="rgba(255, 255, 255, 0.52)"
+                  />
+                  <TextInput
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder="Pesquisar"
+                    placeholderTextColor="rgba(255, 255, 255, 0.42)"
+                    style={styles.searchInput}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  {!!search && (
+                    <TouchableOpacity onPress={() => setSearch("")}>
+                      <MaterialCommunityIcons
+                        name="close-circle"
+                        size={20}
+                        color="rgba(255, 255, 255, 0.52)"
+                      />
+                    </TouchableOpacity>
+                  )}
+                </View>
+
                 <FlatList
-                  data={options}
+                  data={filteredOptions}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={{ paddingBottom: 20 }}
+                  keyboardShouldPersistTaps="handled"
+                  ListEmptyComponent={
+                    <ThemedText style={styles.emptyText}>
+                      Nenhum item encontrado.
+                    </ThemedText>
+                  }
                   renderItem={({ item }) => {
                     const isSelected = item.value === value;
                     return (
@@ -276,6 +337,26 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.tertiary,
     letterSpacing: 2,
     marginBottom: 20,
+    textTransform: "uppercase",
+  },
+  searchContainer: {
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(126, 135, 226, 0.35)",
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  searchInput: {
+    flex: 1,
+    height: "100%",
+    color: DEFAULT_COLORS.white,
+    fontSize: 15,
+    ...fonts.regular,
   },
   option: {
     flexDirection: "row",
@@ -298,5 +379,11 @@ const styles = StyleSheet.create({
   selectedOptionText: {
     color: DEFAULT_COLORS.white,
     ...fonts.bold,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.48)",
+    textAlign: "center",
+    paddingVertical: 24,
   },
 });

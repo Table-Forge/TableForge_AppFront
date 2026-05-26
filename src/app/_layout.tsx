@@ -44,6 +44,13 @@ export default function RootLayout() {
             />
 
             <Stack.Screen
+              name="campaign/[id]/blocked-options"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
               name="campaign-chat/[campaignId]"
               options={{
                 presentation: "card",

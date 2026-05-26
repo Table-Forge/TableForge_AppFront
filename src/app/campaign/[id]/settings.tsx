@@ -1,72 +1,121 @@
-import React from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity, Switch } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import React, { useMemo, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { MainContainer } from "@/src/components/main-container/main-container";
+import { ModalConfirmation } from "@/src/components/modals/modal-confirmation/modal-confirmation";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { Toggle } from "@/src/components/toggle/toggle";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
 import { useCampaignsMutation } from "@/src/features/campaigns/hooks/use-campaigns-mutations";
+import { useClassesSelect } from "@/src/features/classes/hooks/use-classes-select";
+import { useRacesSelect } from "@/src/features/races/hooks/use-races-select";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 
+type ToggleConfirmation = {
+  field: "isChatEnabled" | "isPrivate";
+  nextValue: boolean;
+  title: string;
+  description: string;
+};
+
 export default function CampaignSettings() {
   const { handleBack } = useBackRouter();
+  const router = useRouter();
   const { id } = useLocalSearchParams();
   const campaignId = Number(id);
   const { data: campaign, isLoading } = useCampaign(campaignId);
   const { updateCampaignMutation, isUpdatingCampaign } = useCampaignsMutation();
+  const { classOptions } = useClassesSelect({ enabled: !!campaign });
+  const { raceOptions } = useRacesSelect({ enabled: !!campaign });
+  const [toggleConfirmation, setToggleConfirmation] =
+    useState<ToggleConfirmation | null>(null);
 
-  const handleToggleChat = () => {
-    if (campaign) {
-      updateCampaignMutation.mutate({
-        id: campaign.id,
-        isChatEnabled: !campaign.isChatEnabled,
-      });
-    }
-  };
+  const blockedClassNames = useMemo(() => {
+    const blockedClassIds =
+      campaign?.blockedClasses?.map((item) => item.classId) ?? [];
 
-  const handleTogglePrivate = () => {
-    if (campaign) {
-      updateCampaignMutation.mutate({
-        id: campaign.id,
-        isPrivate: !campaign.isPrivate,
-      });
-    }
+    return classOptions
+      .filter((option) => blockedClassIds.includes(Number(option.value)))
+      .map((option) => option.name)
+      .join(", ");
+  }, [campaign?.blockedClasses, classOptions]);
+
+  const blockedRaceNames = useMemo(() => {
+    const blockedRaceIds =
+      campaign?.blockedRaces?.map((item) => item.raceId) ?? [];
+
+    return raceOptions
+      .filter((option) => blockedRaceIds.includes(Number(option.value)))
+      .map((option) => option.name)
+      .join(", ");
+  }, [campaign?.blockedRaces, raceOptions]);
+
+  const handleToggleConfirm = () => {
+    if (!campaign || !toggleConfirmation) return;
+
+    updateCampaignMutation.mutate({
+      id: campaign.id,
+      [toggleConfirmation.field]: toggleConfirmation.nextValue,
+    });
+    setToggleConfirmation(null);
   };
 
   if (isLoading || !campaign) return <ThemedText>Carregando...</ThemedText>;
 
   return (
     <MainContainer style={styles.container}>
-      <HeaderActions padding={20}>
+      <HeaderActions>
         <ActionButton
           variant="circle"
-          icon={<Ionicons name="arrow-back" size={22} color={DEFAULT_COLORS.white} />}
+          icon={
+            <Ionicons
+              name="arrow-back"
+              size={22}
+              color={DEFAULT_COLORS.white}
+            />
+          }
           onPress={handleBack}
         />
-        <ThemedText weight="bold" style={styles.headerTitle}>Configurações</ThemedText>
-        <ActionButton
-          variant="circle"
-          icon={<Ionicons name="settings-sharp" size={22} color={DEFAULT_COLORS.white} />}
-          onPress={() => {}}
-        />
+        <ThemedText weight="bold" style={styles.headerTitle}>
+          Configurações
+        </ThemedText>
+        <View style={{ width: 45 }} />
       </HeaderActions>
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.module}>
           <View style={styles.moduleHeader}>
-            <ThemedText style={styles.moduleTitle}>DADOS DA CAMPANHA</ThemedText>
-            <TouchableOpacity>
+            <ThemedText style={styles.moduleTitle}>
+              Dados da campanha
+            </ThemedText>
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/campaign/create",
+                  params: { id: campaign.id.toString() },
+                })
+              }
+            >
               <FontAwesome5 name="pen" size={14} color={DEFAULT_COLORS.white} />
             </TouchableOpacity>
           </View>
 
           <SettingItem label="Nome da Campanha" value={campaign.title} />
-          <SettingItem label="Local" value={campaign.locationName || campaign.address || "Online"} />
+          <SettingItem
+            label="Local"
+            value={campaign.locationName || campaign.address || "Online"}
+          />
           <SettingItem label="Sistema" value={campaign.gameSystemName || "-"} />
           <SettingItem label="Dificuldade" value={campaign.difficulty || "-"} />
           <SettingItem label="Sinopse" value={campaign.description || "-"} />
@@ -74,47 +123,107 @@ export default function CampaignSettings() {
 
         <View style={styles.module}>
           <View style={styles.moduleHeader}>
-            <ThemedText style={styles.moduleTitle}>PREFERÊNCIAS DA CAMPANHA</ThemedText>
-            <TouchableOpacity>
-              <FontAwesome5 name="pen" size={14} color={DEFAULT_COLORS.white} />
-            </TouchableOpacity>
+            <ThemedText style={styles.moduleTitle}>
+              Preferências da campanha
+            </ThemedText>
           </View>
 
-          <SettingItem label="Classes e Raças bloqueadas" value="Nenhuma" />
-          <SettingItem label="Máximo de Jogadores" value={`${campaign.playersLimit || 5}`} />
-          
+          <SettingItem
+            label="Classes bloqueadas"
+            value={blockedClassNames || "Nenhuma"}
+            onEdit={() =>
+              router.push({
+                pathname: "/campaign/[id]/blocked-options",
+                params: { id: campaign.id.toString(), type: "classes" },
+              })
+            }
+          />
+          <SettingItem
+            label="Raças bloqueadas"
+            value={blockedRaceNames || "Nenhuma"}
+            onEdit={() =>
+              router.push({
+                pathname: "/campaign/[id]/blocked-options",
+                params: { id: campaign.id.toString(), type: "races" },
+              })
+            }
+          />
+          <SettingItem
+            label="Máximo de Jogadores"
+            value={`${campaign.playersLimit || 5}`}
+          />
+
           <View style={styles.switchItem}>
-             <ThemedText style={styles.settingLabel}>Chat habilitado?</ThemedText>
-             <Switch 
-                value={campaign.isChatEnabled} 
-                onValueChange={handleToggleChat} 
-                disabled={isUpdatingCampaign}
-                thumbColor={campaign.isChatEnabled ? DEFAULT_COLORS.primary : DEFAULT_COLORS.grays._300}
-                trackColor={{ false: DEFAULT_COLORS.grays._500, true: DEFAULT_COLORS.tertiary }}
-             />
+            <ThemedText style={styles.settingLabel}>
+              Chat habilitado?
+            </ThemedText>
+            <Toggle
+              value={!!campaign.isChatEnabled}
+              disabled={isUpdatingCampaign}
+              onValueChange={(nextValue) => {
+                setToggleConfirmation({
+                  field: "isChatEnabled",
+                  nextValue,
+                  title: "Alterar chat da campanha?",
+                  description: nextValue
+                    ? "O chat ficará disponível para os participantes."
+                    : "O chat deixará de aparecer para os participantes.",
+                });
+              }}
+            />
           </View>
 
           <View style={styles.switchItem}>
-             <ThemedText style={styles.settingLabel}>Mesa privada?</ThemedText>
-             <Switch 
-                value={campaign.isPrivate} 
-                onValueChange={handleTogglePrivate} 
-                disabled={isUpdatingCampaign}
-                thumbColor={campaign.isPrivate ? DEFAULT_COLORS.primary : DEFAULT_COLORS.grays._300}
-                trackColor={{ false: DEFAULT_COLORS.grays._500, true: DEFAULT_COLORS.tertiary }}
-             />
+            <ThemedText style={styles.settingLabel}>Mesa privada?</ThemedText>
+            <Toggle
+              value={campaign.isPrivate}
+              disabled={isUpdatingCampaign}
+              onValueChange={(nextValue) => {
+                setToggleConfirmation({
+                  field: "isPrivate",
+                  nextValue,
+                  title: "Alterar privacidade da mesa?",
+                  description: nextValue
+                    ? "A campanha ficará fora das buscas públicas."
+                    : "A campanha voltará a aparecer nas buscas públicas.",
+                });
+              }}
+            />
           </View>
-
         </View>
-
       </ScrollView>
+
+      <ModalConfirmation
+        visible={!!toggleConfirmation}
+        title={toggleConfirmation?.title ?? ""}
+        description={toggleConfirmation?.description}
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+        onClose={() => setToggleConfirmation(null)}
+        onConfirm={handleToggleConfirm}
+      />
     </MainContainer>
   );
 }
 
-const SettingItem = ({ label, value }: { label: string, value: string }) => (
+const SettingItem = ({
+  label,
+  value,
+  onEdit,
+}: {
+  label: string;
+  value: string;
+  onEdit?: () => void;
+}) => (
   <View style={styles.settingItem}>
-    <ThemedText style={styles.settingLabel}>{label}</ThemedText>
+    <View style={styles.settingHeader}>
+      <ThemedText style={styles.settingLabel}>{label}</ThemedText>
+      {onEdit && (
+        <TouchableOpacity onPress={onEdit}>
+          <FontAwesome5 name="pen" size={12} color={DEFAULT_COLORS.white} />
+        </TouchableOpacity>
+      )}
+    </View>
     <ThemedText style={styles.settingValue}>{value}</ThemedText>
   </View>
 );
@@ -129,12 +238,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "rgba(126, 135, 226, 0.1)",
-    gap: 16
+    gap: 16,
   },
-  moduleHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  moduleTitle: { fontSize: 12, color: DEFAULT_COLORS.tertiary, letterSpacing: 1 },
+  moduleHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  moduleTitle: {
+    fontSize: 12,
+    color: DEFAULT_COLORS.tertiary,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
   settingItem: { gap: 4 },
+  settingHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  },
   settingLabel: { fontSize: 12, color: "rgba(255,255,255,0.5)" },
   settingValue: { fontSize: 15, color: DEFAULT_COLORS.white },
-  switchItem: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }
+  switchItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
 });

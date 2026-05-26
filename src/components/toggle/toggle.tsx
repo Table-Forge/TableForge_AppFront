@@ -14,9 +14,10 @@ interface IProps {
   error?: string;
   value: boolean;
   onValueChange: (val: boolean) => void;
+  disabled?: boolean;
 }
 
-export const Toggle = ({ value, onValueChange, error }: IProps) => {
+export const Toggle = ({ value, onValueChange, error, disabled }: IProps) => {
   const translateX = useSharedValue(value ? 1 : 0);
 
   useEffect(() => {
@@ -27,6 +28,8 @@ export const Toggle = ({ value, onValueChange, error }: IProps) => {
   }, [value]);
 
   const toggleHandle = () => {
+    if (disabled) return;
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onValueChange(!value);
   };
@@ -50,7 +53,11 @@ export const Toggle = ({ value, onValueChange, error }: IProps) => {
 
   return (
     <>
-      <Pressable onPress={toggleHandle} style={styles.trackContainer}>
+      <Pressable
+        onPress={toggleHandle}
+        style={[styles.trackContainer, disabled && styles.disabled]}
+        disabled={disabled}
+      >
         <Animated.View style={[styles.track, animatedTrackStyle]}>
           <Animated.View
             style={[
@@ -70,6 +77,9 @@ export const Toggle = ({ value, onValueChange, error }: IProps) => {
 const styles = StyleSheet.create({
   trackContainer: {
     paddingVertical: 4,
+  },
+  disabled: {
+    opacity: 0.55,
   },
   track: {
     width: 50,

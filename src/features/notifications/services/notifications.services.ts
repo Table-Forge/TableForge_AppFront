@@ -3,7 +3,11 @@ import {
   INotificationCreate,
   INotificationUpdate,
 } from "@/src/features/notifications/schemas/notification.schema";
-import { IGetPaginatedParams, IPaginatedApiResponse } from "@/src/interfaces";
+import {
+  IGetPaginatedParams,
+  IPaginatedApiResponse,
+  TOptions,
+} from "@/src/interfaces";
 import { api } from "@/src/features/api";
 
 const ENDPOINT = "/api/notifications";
@@ -54,6 +58,11 @@ export const NotificationService = {
   },
   delete: async (id: number) => {
     const { data } = await api.delete(`${ENDPOINT}/${id}`);
+
+    return data;
+  },
+  getTypeEnum: async (): Promise<TOptions[]> => {
+    const { data } = await api.get(`${ENDPOINT}/enums/notification-type`);
 
     return data;
   },

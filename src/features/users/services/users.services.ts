@@ -6,6 +6,7 @@ import {
   IUserUpdateOutput,
   UserSchema,
 } from "@/src/features/users/schemas/user.schema";
+import { TOptions } from "@/src/interfaces";
 
 const ENDPOINT = "/users";
 
@@ -54,6 +55,26 @@ export const UserService = {
         },
       },
     );
+    return data;
+  },
+
+  getGenderEnum: async (): Promise<TOptions[]> => {
+    const { data } = await api.get(`${ENDPOINT}/enums/user-gender`);
+    return data;
+  },
+
+  getStatusEnum: async (): Promise<TOptions[]> => {
+    const { data } = await api.get(`${ENDPOINT}/enums/user-status`);
+    return data;
+  },
+
+  getDeliveryMethodEnum: async (): Promise<TOptions[]> => {
+    const { data } = await api.get(`${ENDPOINT}/enums/delivery-method`);
+    return data;
+  },
+
+  getTypeEnum: async (): Promise<TOptions[]> => {
+    const { data } = await api.get(`${ENDPOINT}/enums/user-type`);
     return data;
   },
 };

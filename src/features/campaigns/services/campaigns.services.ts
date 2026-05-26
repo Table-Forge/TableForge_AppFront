@@ -43,6 +43,10 @@ export const CampaignService = {
     const { data } = await api.get(`${ENDPOINT}/enums/difficulty-level`);
     return data;
   },
+  getStatusEnum: async (): Promise<TOptions[]> => {
+    const { data } = await api.get(`${ENDPOINT}/enums/campaign-status`);
+    return data;
+  },
   update: async (payload: Partial<ICampaign> & { id: number }): Promise<ICampaign> => {
     const { data } = await api.put(ENDPOINT, payload);
     return data;

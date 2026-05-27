@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import { useSegments } from "expo-router";
 import {
-  ImageBackground,
+  Image,
   ImageSourcePropType,
   KeyboardAvoidingView,
   Platform,
@@ -124,8 +124,7 @@ function ScreenHeaderBanner({
   const insets = useSafeAreaInsets();
 
   return (
-    <ImageBackground
-      source={source}
+    <View
       style={[
         styles.banner,
         height !== undefined && { height },
@@ -133,6 +132,13 @@ function ScreenHeaderBanner({
         style,
       ]}
     >
+      {source && (
+        <Image
+          source={source}
+          style={styles.bannerImage}
+          resizeMode="cover"
+        />
+      )}
       {scrim && <View style={styles.bannerScrim} />}
       {actions && (
         <View style={[styles.bannerActions, { paddingTop: insets.top }]}>
@@ -140,7 +146,7 @@ function ScreenHeaderBanner({
         </View>
       )}
       {children}
-    </ImageBackground>
+    </View>
   );
 }
 
@@ -249,6 +255,12 @@ const styles = StyleSheet.create({
   banner: {
     width: "100%",
     justifyContent: "space-between",
+    overflow: "hidden",
+  },
+  bannerImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
   },
   bannerScrim: {
     ...StyleSheet.absoluteFillObject,

@@ -12,6 +12,7 @@ import { ActionButton } from "@/src/components/action-button/action-button";
 import { NavigationProp, ParamListBase, useNavigation } from "@react-navigation/native";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { useAuth } from "@/src/context/auth";
+import { useNotifications } from "@/src/features/notifications/hooks/use-notifications";
 import { Entypo } from "@expo/vector-icons";
 import { KnightHeadIcon } from "@/src/components/icons";
 import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
@@ -20,6 +21,14 @@ import { LinearGradient } from "expo-linear-gradient";
 export default function Home() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { user } = useAuth();
+  const userId = user?.id ? Number(user.id) : undefined;
+  const { data: unreadNotifications } = useNotifications({
+    userId,
+    read: false,
+    size: 1,
+    enabled: Boolean(userId),
+  });
+  const hasUnreadNotifications = (unreadNotifications?.items?.length ?? 0) > 0;
 
   return (
     <Screen style={styles.screen}>
@@ -48,7 +57,9 @@ export default function Home() {
             icon={
               <View style={styles.notificationWrapper}>
                 <Entypo name="bell" size={22} color={DEFAULT_COLORS.white} />
-                <View style={styles.notificationDot} />
+                {hasUnreadNotifications && (
+                  <View style={styles.notificationDot} />
+                )}
               </View>
             }
             onPress={() => navigation.navigate("notifications")}

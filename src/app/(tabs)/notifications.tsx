@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, View, TouchableOpacity, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 import {
   FontAwesome6,
   Ionicons,
@@ -23,6 +24,7 @@ import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 export default function Notifications() {
   const { user } = useAuth();
+  const router = useRouter();
   const userId = user?.id ? Number(user.id) : undefined;
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
@@ -35,8 +37,29 @@ export default function Notifications() {
   const {
     deleteNotificationMutation,
     markNotificationAsReadMutation,
+    markAllNotificationsAsReadMutation,
     updateNotificationMutation,
   } = useNotificationsMutation();
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const timer = setTimeout(() => {
+      markAllNotificationsAsReadMutation.mutate(userId);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  const handleNotificationPress = (item: INotification) => {
+    if (!item.read) {
+      markNotificationAsReadMutation.mutate(item.id);
+    }
+    if (item.relatedLink) {
+      router.push(item.relatedLink as any);
+    }
+  };
 
   const notifications = useMemo(
     () => notificationsQuery.data?.items ?? [],
@@ -108,7 +131,9 @@ export default function Notifications() {
         ]}
         activeOpacity={0.7}
         onLongPress={() => toggleSelection(item.id)}
-        onPress={() => (isSelectionMode ? toggleSelection(item.id) : null)}
+        onPress={() =>
+          isSelectionMode ? toggleSelection(item.id) : handleNotificationPress(item)
+        }
       >
         <View style={styles.row}>
           <View

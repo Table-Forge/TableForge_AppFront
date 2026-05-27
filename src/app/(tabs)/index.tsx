@@ -149,7 +149,7 @@ export default function Home() {
                 >
                   <MaterialDesignIcons
                     name="crown"
-                    size={54}
+                    size={32}
                     color={DEFAULT_COLORS.crown}
                   />
                 </LinearGradient>
@@ -371,9 +371,9 @@ export const styles = StyleSheet.create({
   },
 
   crownCircle: {
-    width: 112,
-    height: 112,
-    borderRadius: 70,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: DEFAULT_COLORS.orangeGlow_07,
@@ -382,9 +382,9 @@ export const styles = StyleSheet.create({
   },
 
   crownGlow: {
-    width: 96,
-    height: 96,
-    borderRadius: 60,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
   },

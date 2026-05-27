@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   contentBody: {
-    marginTop: 50,
+    marginTop: 60,
     marginHorizontal: 14,
     backgroundColor: SURFACES.card,
     borderRadius: RADII.xxl,

@@ -193,6 +193,7 @@ export default function Profile() {
 const styles = StyleSheet.create({
   contentBody: {
     marginTop: 60,
+    marginHorizontal: 14,
     backgroundColor: SURFACES.card,
     borderRadius: RADII.xxl,
     borderWidth: 1,

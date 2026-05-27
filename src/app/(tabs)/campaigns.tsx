@@ -90,10 +90,7 @@ export default function Campaigns() {
           </ThemedText>
           <View style={styles.locationTextContainer}>
             {loading ? (
-              <ActivityIndicator
-                color={DEFAULT_COLORS.tertiary}
-                size="small"
-              />
+              <ActivityIndicator color={DEFAULT_COLORS.tertiary} size="small" />
             ) : (
               <>
                 <FontAwesome6

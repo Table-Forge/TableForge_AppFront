@@ -16,7 +16,6 @@ import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { KnightHeadIcon } from "@/src/components/icons";
 import { LoadingOverlay } from "@/src/components/loading-overlay/loading-overlay";
 import { MainContainer } from "@/src/components/main-container/main-container";
-import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
 import { Tabs } from "@/src/components/tabs/tabs";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
@@ -99,40 +98,6 @@ export default function PublicUserProfileScreen() {
               )}
             </View>
 
-            {!isSelf && (
-              <View style={styles.menuPopupWrapper}>
-                <MenuPopup
-                  trigger={
-                    <MaterialDesignIcons
-                      name="dots-horizontal-circle-outline"
-                      size={32}
-                      color={DEFAULT_COLORS.white}
-                    />
-                  }
-                  options={[
-                    {
-                      label: "Enviar mensagem",
-                      icon: (
-                        <Mail size={18} color={DEFAULT_COLORS.purpleBright} />
-                      ),
-                      onPress: () => {},
-                    },
-                    {
-                      label: "Bloquear",
-                      icon: (
-                        <MaterialDesignIcons
-                          name="block-helper"
-                          size={18}
-                          color={DEFAULT_COLORS.danger}
-                        />
-                      ),
-                      onPress: () => {},
-                    },
-                  ]}
-                />
-              </View>
-            )}
-
             <View style={styles.profileInfo}>
               <ThemedText style={styles.profileEyebrow}>Aventureiro</ThemedText>
               <ThemedText style={styles.profileNickname}>
@@ -146,23 +111,30 @@ export default function PublicUserProfileScreen() {
             {!isSelf && (
               <View style={styles.actionsRow}>
                 <ActionButton
-                  variant="pill"
-                  label={isFriend ? "Remover amigo" : "Adicionar amigo"}
+                  variant="circle"
                   active={!isFriend}
                   icon={
                     <Ionicons
                       name={isFriend ? "person-remove" : "person-add"}
-                      size={18}
+                      size={20}
                       color={DEFAULT_COLORS.white}
                     />
                   }
                   onPress={() => {}}
-                  style={styles.actionPill}
+                />
+                <ActionButton
+                  variant="circle"
+                  icon={<Mail size={20} color={DEFAULT_COLORS.purpleBright} />}
+                  onPress={() => {}}
                 />
                 <ActionButton
                   variant="circle"
                   icon={
-                    <Mail size={20} color={DEFAULT_COLORS.purpleBright} />
+                    <MaterialDesignIcons
+                      name="block-helper"
+                      size={20}
+                      color={DEFAULT_COLORS.danger}
+                    />
                   }
                   onPress={() => {}}
                 />
@@ -262,11 +234,6 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 12,
   },
-  menuPopupWrapper: {
-    position: "absolute",
-    right: 15,
-    top: 15,
-  },
   profileInfo: {
     alignItems: "center",
     marginTop: 10,
@@ -294,10 +261,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 10,
+    gap: 12,
     marginBottom: 22,
-  },
-  actionPill: {
-    flexShrink: 1,
   },
 });

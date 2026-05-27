@@ -19,6 +19,7 @@ import { MainContainer } from "@/src/components/main-container/main-container";
 import { Tabs } from "@/src/components/tabs/tabs";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
+import { notify } from "@/src/features/notifications/helpers/notify";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
@@ -40,6 +41,16 @@ export default function PublicUserProfileScreen() {
   const [isFriend] = useState(false);
 
   const isSelf = currentUser?.id === userId;
+
+  const handleFriendshipRequest = () => {
+    if (!currentUser?.id || !user) return;
+    notify.friendshipRequest({
+      receiverId: userId,
+      requesterId: Number(currentUser.id),
+      requesterName:
+        currentUser.nickname || currentUser.username || "Aventureiro",
+    });
+  };
 
   if (isPending) {
     return (
@@ -120,7 +131,7 @@ export default function PublicUserProfileScreen() {
                       color={DEFAULT_COLORS.white}
                     />
                   }
-                  onPress={() => {}}
+                  onPress={handleFriendshipRequest}
                 />
                 <ActionButton
                   variant="circle"

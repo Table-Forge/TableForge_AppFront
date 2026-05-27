@@ -15,8 +15,10 @@ import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { MainContainer } from "@/src/components/main-container/main-container";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
-import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
-import { useCampaignsMutation } from "@/src/features/campaigns/hooks/use-campaigns-mutations";
+import { useCampaignBlockedClasses } from "@/src/features/campaign-blocked-classes/hooks/use-campaign-blocked-classes";
+import { useCampaignBlockedClassesMutation } from "@/src/features/campaign-blocked-classes/hooks/use-campaign-blocked-classes-mutations";
+import { useCampaignBlockedRaces } from "@/src/features/campaign-blocked-races/hooks/use-campaign-blocked-races";
+import { useCampaignBlockedRacesMutation } from "@/src/features/campaign-blocked-races/hooks/use-campaign-blocked-races-mutations";
 import { useClassesSelect } from "@/src/features/classes/hooks/use-classes-select";
 import { useRacesSelect } from "@/src/features/races/hooks/use-races-select";
 import { useBackRouter } from "@/src/hooks/use-back-route";
@@ -32,9 +34,30 @@ export default function CampaignBlockedOptionsScreen() {
   const campaignId = Number(id);
   const blockedOptionsType: BlockedOptionsType =
     type === "races" ? "races" : "classes";
-  const { data: campaign, isLoading: isLoadingCampaign } =
-    useCampaign(campaignId);
-  const { updateCampaignMutation, isUpdatingCampaign } = useCampaignsMutation();
+  const {
+    data: blockedClasses = [],
+    isLoading: isLoadingBlockedClasses,
+  } = useCampaignBlockedClasses({
+    campaignId,
+    enabled: blockedOptionsType === "classes",
+  });
+  const { data: blockedRaces = [], isLoading: isLoadingBlockedRaces } =
+    useCampaignBlockedRaces({
+      campaignId,
+      enabled: blockedOptionsType === "races",
+    });
+  const {
+    createCampaignBlockedClassesMutation,
+    deleteCampaignBlockedClassMutation,
+    isCreatingCampaignBlockedClasses,
+    isDeletingCampaignBlockedClass,
+  } = useCampaignBlockedClassesMutation(campaignId);
+  const {
+    createCampaignBlockedRacesMutation,
+    deleteCampaignBlockedRaceMutation,
+    isCreatingCampaignBlockedRaces,
+    isDeletingCampaignBlockedRace,
+  } = useCampaignBlockedRacesMutation(campaignId);
   const { classOptions, isLoadingClassesSelect } = useClassesSelect({
     enabled: blockedOptionsType === "classes",
   });
@@ -52,20 +75,25 @@ export default function CampaignBlockedOptionsScreen() {
       ? "Classes bloqueadas"
       : "Raças bloqueadas";
   const isLoading =
-    isLoadingCampaign ||
+    (blockedOptionsType === "classes"
+      ? isLoadingBlockedClasses
+      : isLoadingBlockedRaces) ||
     (blockedOptionsType === "classes"
       ? isLoadingClassesSelect
       : isLoadingRacesSelect);
+  const isSaving =
+    isCreatingCampaignBlockedClasses ||
+    isDeletingCampaignBlockedClass ||
+    isCreatingCampaignBlockedRaces ||
+    isDeletingCampaignBlockedRace;
 
   useEffect(() => {
-    if (!campaign) return;
-
     setSelectedIds(
       blockedOptionsType === "classes"
-        ? (campaign.blockedClasses ?? []).map((item) => item.classId)
-        : (campaign.blockedRaces ?? []).map((item) => item.raceId),
+        ? blockedClasses.map((item) => item.classId)
+        : blockedRaces.map((item) => item.raceId),
     );
-  }, [blockedOptionsType, campaign]);
+  }, [blockedClasses, blockedOptionsType, blockedRaces]);
 
   const handleToggleOption = (optionId: number) => {
     setSelectedIds((currentSelectedIds) =>
@@ -75,23 +103,52 @@ export default function CampaignBlockedOptionsScreen() {
     );
   };
 
-  const handleSubmit = () => {
-    if (!campaign) return;
+  const handleSubmit = async () => {
+    if (!campaignId) return;
 
-    updateCampaignMutation.mutate(
-      blockedOptionsType === "classes"
-        ? {
-            id: campaign.id,
-            blockedClasses: selectedIds.map((classId) => ({ classId })),
-          }
-        : {
-            id: campaign.id,
-            blockedRaces: selectedIds.map((raceId) => ({ raceId })),
-          },
-      {
-        onSuccess: () => handleBack(),
-      },
-    );
+    if (blockedOptionsType === "classes") {
+      const blockedClassIds = blockedClasses.map((item) => item.classId);
+      const classIdsToCreate = selectedIds.filter(
+        (classId) => !blockedClassIds.includes(classId),
+      );
+      const blockedClassesToDelete = blockedClasses.filter(
+        (item) => !selectedIds.includes(item.classId),
+      );
+
+      await Promise.all([
+        ...blockedClassesToDelete.map((item) =>
+          deleteCampaignBlockedClassMutation.mutateAsync(item.id),
+        ),
+        classIdsToCreate.length
+          ? createCampaignBlockedClassesMutation.mutateAsync({
+              campaignId,
+              classIds: classIdsToCreate,
+            })
+          : Promise.resolve(),
+      ]);
+    } else {
+      const blockedRaceIds = blockedRaces.map((item) => item.raceId);
+      const raceIdsToCreate = selectedIds.filter(
+        (raceId) => !blockedRaceIds.includes(raceId),
+      );
+      const blockedRacesToDelete = blockedRaces.filter(
+        (item) => !selectedIds.includes(item.raceId),
+      );
+
+      await Promise.all([
+        ...blockedRacesToDelete.map((item) =>
+          deleteCampaignBlockedRaceMutation.mutateAsync(item.id),
+        ),
+        raceIdsToCreate.length
+          ? createCampaignBlockedRacesMutation.mutateAsync({
+              campaignId,
+              raceIds: raceIdsToCreate,
+            })
+          : Promise.resolve(),
+      ]);
+    }
+
+    handleBack();
   };
 
   return (
@@ -157,8 +214,8 @@ export default function CampaignBlockedOptionsScreen() {
           variant="tertiary"
           text="Salvar bloqueios"
           onPress={handleSubmit}
-          disabled={isLoading || isUpdatingCampaign}
-          isLoading={isUpdatingCampaign}
+          disabled={isLoading || isSaving}
+          isLoading={isSaving}
         />
       </View>
     </MainContainer>

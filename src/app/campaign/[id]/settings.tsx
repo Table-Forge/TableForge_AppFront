@@ -1,10 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
@@ -14,6 +9,8 @@ import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { MainContainer } from "@/src/components/main-container/main-container";
 import { ModalConfirmation } from "@/src/components/modals/modal-confirmation/modal-confirmation";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { useCampaignBlockedClasses } from "@/src/features/campaign-blocked-classes/hooks/use-campaign-blocked-classes";
+import { useCampaignBlockedRaces } from "@/src/features/campaign-blocked-races/hooks/use-campaign-blocked-races";
 import { Toggle } from "@/src/components/toggle/toggle";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
 import { useCampaignsMutation } from "@/src/features/campaigns/hooks/use-campaigns-mutations";
@@ -36,36 +33,40 @@ export default function CampaignSettings() {
   const campaignId = Number(id);
   const { data: campaign, isLoading } = useCampaign(campaignId);
   const { updateCampaignMutation, isUpdatingCampaign } = useCampaignsMutation();
+  const { data: blockedClasses = [] } = useCampaignBlockedClasses({
+    campaignId,
+  });
+  const { data: blockedRaces = [] } = useCampaignBlockedRaces({
+    campaignId,
+  });
   const { classOptions } = useClassesSelect({ enabled: !!campaign });
   const { raceOptions } = useRacesSelect({ enabled: !!campaign });
   const [toggleConfirmation, setToggleConfirmation] =
     useState<ToggleConfirmation | null>(null);
 
   const blockedClassNames = useMemo(() => {
-    const blockedClassIds =
-      campaign?.blockedClasses?.map((item) => item.classId) ?? [];
+    const blockedClassIds = blockedClasses.map((item) => item.classId);
 
     return classOptions
       .filter((option) => blockedClassIds.includes(Number(option.value)))
       .map((option) => option.name)
       .join(", ");
-  }, [campaign?.blockedClasses, classOptions]);
+  }, [blockedClasses, classOptions]);
 
   const blockedRaceNames = useMemo(() => {
-    const blockedRaceIds =
-      campaign?.blockedRaces?.map((item) => item.raceId) ?? [];
+    const blockedRaceIds = blockedRaces.map((item) => item.raceId);
 
     return raceOptions
       .filter((option) => blockedRaceIds.includes(Number(option.value)))
       .map((option) => option.name)
       .join(", ");
-  }, [campaign?.blockedRaces, raceOptions]);
+  }, [blockedRaces, raceOptions]);
 
   const handleToggleConfirm = () => {
     if (!campaign || !toggleConfirmation) return;
 
     updateCampaignMutation.mutate({
-      id: campaign.id,
+      ...campaign,
       [toggleConfirmation.field]: toggleConfirmation.nextValue,
     });
     setToggleConfirmation(null);
@@ -154,9 +155,7 @@ export default function CampaignSettings() {
           />
 
           <View style={styles.switchItem}>
-            <ThemedText style={styles.settingLabel}>
-              Chat habilitado?
-            </ThemedText>
+            <ThemedText style={styles.settingLabel}>Chat habilitado</ThemedText>
             <Toggle
               value={!!campaign.isChatEnabled}
               disabled={isUpdatingCampaign}
@@ -164,7 +163,7 @@ export default function CampaignSettings() {
                 setToggleConfirmation({
                   field: "isChatEnabled",
                   nextValue,
-                  title: "Alterar chat da campanha?",
+                  title: `${nextValue ? "Habilitar" : "Desabilitar"} chat da campanha?`,
                   description: nextValue
                     ? "O chat ficará disponível para os participantes."
                     : "O chat deixará de aparecer para os participantes.",
@@ -174,7 +173,7 @@ export default function CampaignSettings() {
           </View>
 
           <View style={styles.switchItem}>
-            <ThemedText style={styles.settingLabel}>Mesa privada?</ThemedText>
+            <ThemedText style={styles.settingLabel}>Mesa privada</ThemedText>
             <Toggle
               value={campaign.isPrivate}
               disabled={isUpdatingCampaign}
@@ -182,7 +181,7 @@ export default function CampaignSettings() {
                 setToggleConfirmation({
                   field: "isPrivate",
                   nextValue,
-                  title: "Alterar privacidade da mesa?",
+                  title: `${nextValue ? "Tornar" : "Remover"} mesa privada?`,
                   description: nextValue
                     ? "A campanha ficará fora das buscas públicas."
                     : "A campanha voltará a aparecer nas buscas públicas.",

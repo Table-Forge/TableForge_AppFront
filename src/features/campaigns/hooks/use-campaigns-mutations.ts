@@ -2,7 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 
-import { ICampaignCreate } from "@/src/features/campaigns/schemas/campaign.schema";
+import {
+  ICampaign,
+  ICampaignCreate,
+} from "@/src/features/campaigns/schemas/campaign.schema";
 import { CampaignService } from "@/src/features/campaigns/services/campaigns.services";
 
 import { CAMPAIGNS } from "./query-key";
@@ -50,7 +53,8 @@ export const useCampaignsMutation = () => {
   });
 
   const updateCampaignMutation = useMutation({
-    mutationFn: (payload: Partial<ICampaignCreate> & { id: number }) => CampaignService.update(payload as any),
+    mutationFn: (payload: Partial<ICampaign> & { id: number }) =>
+      CampaignService.update(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CAMPAIGNS] });
       Toast.show({

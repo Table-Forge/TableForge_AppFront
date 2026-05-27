@@ -1,7 +1,10 @@
 import { PropsWithChildren } from "react";
 import { useSegments } from "expo-router";
-import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
+import { Platform, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const BOTTOM_TAB_BAR_HEIGHT = Platform.OS === "ios" ? 88 : 74;
+const BOTTOM_TAB_BAR_OFFSET = 12;
 
 interface IProps extends PropsWithChildren {
   style?: StyleProp<ViewStyle>;
@@ -12,12 +15,11 @@ export const MainContainer = ({ children, style }: IProps) => {
   const hasBottomTabs = segments[0] === "(tabs)";
 
   return (
-    <SafeAreaView style={[{ flex: 1 }, style]}>
+    <SafeAreaView style={[styles.safe, style]}>
       <View
         style={[
           styles.container,
-          hasBottomTabs && styles.containerWithBottomMargin,
-          { flex: 1 },
+          hasBottomTabs && styles.containerWithBottomTabs,
         ]}
       >
         {children}
@@ -27,11 +29,14 @@ export const MainContainer = ({ children, style }: IProps) => {
 };
 
 export const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     gap: 20,
   },
-  containerWithBottomMargin: {
-    marginBottom: 40,
+  containerWithBottomTabs: {
+    paddingBottom: BOTTOM_TAB_BAR_HEIGHT + BOTTOM_TAB_BAR_OFFSET,
   },
 });

@@ -11,7 +11,11 @@ import { useLocation } from "@/src/hooks/use-location";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { Entypo } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { NavigationProp, ParamListBase, useNavigation } from "@react-navigation/native";
+import {
+  NavigationProp,
+  ParamListBase,
+  useNavigation,
+} from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -80,6 +84,49 @@ export default function Campaigns() {
 
   return (
     <MainContainer style={styles.container}>
+      <View style={styles.topWrapper}>
+        <View style={styles.locationWrapper}>
+          <ThemedText weight="bold" style={styles.locationLabel}>
+            Região rastreada
+          </ThemedText>
+          <View style={styles.locationTextContainer}>
+            {loading ? (
+              <ActivityIndicator
+                color={DEFAULT_COLORS.tertiary}
+                size="small"
+              />
+            ) : (
+              <>
+                <FontAwesome6
+                  name="location-dot"
+                  color={DEFAULT_COLORS.secondary}
+                  size={16}
+                  style={styles.locationIcon}
+                />
+                <ThemedText style={styles.locationValue} weight="bold">
+                  {locationString || "Desconhecida"}
+                </ThemedText>
+              </>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.headerActions}>
+          <ActionButton
+            variant="circle"
+            icon={<Entypo name="plus" size={22} color={DEFAULT_COLORS.white} />}
+            onPress={() => router.push("/campaign/create")}
+            style={styles.headerButton}
+          />
+          <ActionButton
+            variant="circle"
+            icon={<Entypo name="bell" size={20} color={DEFAULT_COLORS.white} />}
+            onPress={() => navigation.navigate("notifications")}
+            style={styles.headerButton}
+          />
+        </View>
+      </View>
+
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -92,53 +139,6 @@ export default function Campaigns() {
           />
         }
       >
-        <View style={styles.topWrapper}>
-          <View style={styles.locationWrapper}>
-            <ThemedText weight="bold" style={styles.locationLabel}>
-              Região rastreada
-            </ThemedText>
-            <View style={styles.locationTextContainer}>
-              {loading ? (
-                <ActivityIndicator
-                  color={DEFAULT_COLORS.tertiary}
-                  size="small"
-                />
-              ) : (
-                <>
-                  <FontAwesome6
-                    name="location-dot"
-                    color={DEFAULT_COLORS.secondary}
-                    size={16}
-                    style={styles.locationIcon}
-                  />
-                  <ThemedText style={styles.locationValue} weight="bold">
-                    {locationString || "Desconhecida"}
-                  </ThemedText>
-                </>
-              )}
-            </View>
-          </View>
-
-          <View style={styles.headerActions}>
-            <ActionButton
-              variant="circle"
-              icon={
-                <Entypo name="plus" size={22} color={DEFAULT_COLORS.white} />
-              }
-              onPress={() => router.push("/campaign/create")}
-              style={styles.headerButton}
-            />
-            <ActionButton
-              variant="circle"
-              icon={
-                <Entypo name="bell" size={20} color={DEFAULT_COLORS.white} />
-              }
-              onPress={() => navigation.navigate("notifications")}
-              style={styles.headerButton}
-            />
-          </View>
-        </View>
-
         <View style={styles.listHeader}>
           <ThemedText weight="bold" style={styles.listTitle}>
             Mesas disponíveis
@@ -154,58 +154,32 @@ export default function Campaigns() {
             </ThemedText>
           </View>
         ) : hasCampaigns ? (
-          <>
-            <View style={styles.deckWrapper}>
-              <Carousel
-                width={carouselWidth}
-                height={carouselHeight}
-                data={campaigns}
-                loop={true}
-                mode="horizontal-stack"
-                modeConfig={{
-                  showLength: 3,
-                  snapDirection: "left",
-                  stackInterval: 18,
-                  scaleInterval: 0.08,
-                  opacityInterval: 0.12,
-                  rotateZDeg: 8,
-                }}
-                onSnapToItem={handleSnapToItem}
-                onConfigurePanGesture={(gesture) => {
-                  gesture.activeOffsetX([-10, 10]);
-                }}
-                renderItem={({ item }) => (
-                  <View style={styles.cardSlot}>
-                    <CampaignItem data={item} variant="tinder" />
-                  </View>
-                )}
-              />
-            </View>
-
-            <View style={styles.metaRow}>
-              <View style={styles.swipeIndicator}>
-                <FontAwesome6
-                  name="chevron-left"
-                  size={12}
-                  color={DEFAULT_COLORS.purpleBright}
-                />
-                <ThemedText style={styles.counterText}>
-                  {Math.min(activeIndex + 1, campaigns.length)} / {campaigns.length}
-                </ThemedText>
-                <FontAwesome6
-                  name="chevron-right"
-                  size={12}
-                  color={DEFAULT_COLORS.purpleBright}
-                />
-              </View>
-
-              {isFetchingNextPage ? (
-                <ThemedText style={styles.loadingMoreText}>
-                  Carregando mais...
-                </ThemedText>
-              ) : null}
-            </View>
-          </>
+          <View style={styles.deckWrapper}>
+            <Carousel
+              width={carouselWidth}
+              height={carouselHeight}
+              data={campaigns}
+              loop={true}
+              mode="horizontal-stack"
+              modeConfig={{
+                showLength: 3,
+                snapDirection: "left",
+                stackInterval: 18,
+                scaleInterval: 0.08,
+                opacityInterval: 0.12,
+                rotateZDeg: 8,
+              }}
+              onSnapToItem={handleSnapToItem}
+              onConfigurePanGesture={(gesture) => {
+                gesture.activeOffsetX([-10, 10]);
+              }}
+              renderItem={({ item }) => (
+                <View style={styles.cardSlot}>
+                  <CampaignItem data={item} variant="tinder" />
+                </View>
+              )}
+            />
+          </View>
         ) : (
           <View style={styles.emptyWrapper}>
             <ThemedText style={styles.emptyText}>
@@ -228,14 +202,15 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
-    paddingTop: 10,
     paddingBottom: 24,
   },
   topWrapper: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    zIndex: 10,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 6,
   },
   locationWrapper: {
     flex: 1,
@@ -275,7 +250,7 @@ const styles = StyleSheet.create({
   listHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 18,
+    marginTop: 12,
     marginBottom: 20,
     gap: 12,
   },
@@ -297,35 +272,6 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingHorizontal: 4,
     paddingTop: 2,
-  },
-  metaRow: {
-    marginTop: 18,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    minHeight: 20,
-  },
-  swipeIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: DEFAULT_COLORS.white_06,
-    borderWidth: 1,
-    borderColor: DEFAULT_COLORS.purpleBorder_35,
-  },
-  counterText: {
-    color: DEFAULT_COLORS.white,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.4,
-  },
-  loadingMoreText: {
-    color: DEFAULT_COLORS.tertiary,
-    fontSize: 12,
-    fontWeight: "700",
   },
   emptyWrapper: {
     marginTop: 24,

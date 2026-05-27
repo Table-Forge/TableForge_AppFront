@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  ScrollView,
   StyleSheet,
   View,
 } from "react-native";
@@ -13,7 +12,7 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useCampaignBlockedClasses } from "@/src/features/campaign-blocked-classes/hooks/use-campaign-blocked-classes";
 import { useCampaignBlockedClassesMutation } from "@/src/features/campaign-blocked-classes/hooks/use-campaign-blocked-classes-mutations";
@@ -153,26 +152,28 @@ export default function CampaignBlockedOptionsScreen() {
   };
 
   return (
-    <MainContainer style={styles.container}>
-      <HeaderActions>
-        <ActionButton
-          variant="circle"
-          icon={
-            <Ionicons
-              name="arrow-back"
-              size={22}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          onPress={handleBack}
-        />
-        <ThemedText weight="bold" style={styles.headerTitle}>
-          {title}
-        </ThemedText>
-        <View style={styles.headerSpacer} />
-      </HeaderActions>
+    <Screen style={styles.container}>
+      <Screen.Header>
+        <HeaderActions>
+          <ActionButton
+            variant="circle"
+            icon={
+              <Ionicons
+                name="arrow-back"
+                size={22}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            onPress={handleBack}
+          />
+          <ThemedText weight="bold" style={styles.headerTitle}>
+            {title}
+          </ThemedText>
+          <View style={styles.headerSpacer} />
+        </HeaderActions>
+      </Screen.Header>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <Screen.Body scroll contentContainerStyle={styles.content}>
         {isLoading ? (
           <View style={styles.loadingWrapper}>
             <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
@@ -217,9 +218,9 @@ export default function CampaignBlockedOptionsScreen() {
             })}
           </View>
         )}
-      </ScrollView>
+      </Screen.Body>
 
-      <View style={styles.footer}>
+      <Screen.Footer>
         <Button
           variant="tertiary"
           text="Salvar bloqueios"
@@ -227,8 +228,8 @@ export default function CampaignBlockedOptionsScreen() {
           disabled={isLoading || isSaving}
           isLoading={isSaving}
         />
-      </View>
-    </MainContainer>
+      </Screen.Footer>
+    </Screen>
   );
 }
 
@@ -248,7 +249,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 120,
   },
   loadingWrapper: {
     alignItems: "center",

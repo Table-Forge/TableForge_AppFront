@@ -3,7 +3,6 @@ import {
   Dimensions,
   ImageBackground,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   View,
 } from "react-native";
@@ -14,7 +13,7 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { Tabs } from "@/src/components/tabs/tabs";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
@@ -166,8 +165,9 @@ export default function CampaignDetails() {
   };
 
   return (
-    <MainContainer style={styles.container} edgeToEdge>
-      <ScrollView
+    <Screen style={styles.container} edgeToEdge>
+      <Screen.Body
+        scroll
         contentContainerStyle={{ paddingBottom: 60 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -351,10 +351,10 @@ export default function CampaignDetails() {
             ]}
           />
         </View>
-      </ScrollView>
+      </Screen.Body>
 
       {viewerType === "outsider" && (
-        <View style={styles.footer}>
+        <Screen.Footer>
           <Button
             variant="tertiary"
             text={
@@ -373,7 +373,7 @@ export default function CampaignDetails() {
               } as any);
             }}
           />
-        </View>
+        </Screen.Footer>
       )}
 
       <ModalBase
@@ -384,7 +384,7 @@ export default function CampaignDetails() {
         confirmText="Excluir"
         onConfirm={handleDeleteSessionConfirm}
       />
-    </MainContainer>
+    </Screen>
   );
 }
 
@@ -425,16 +425,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   content: { padding: 20, gap: 20 },
-  footer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-    backgroundColor: DEFAULT_COLORS.homeSurface_95,
-    borderTopWidth: 1,
-    borderTopColor: BORDERS.highlight,
-  },
 });
 
 function translateJoinStatus(status: string) {

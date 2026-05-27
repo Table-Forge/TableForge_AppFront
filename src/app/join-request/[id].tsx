@@ -1,13 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
 import { CharacterItem } from "@/src/components/character-item/character-item";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { InfoCard } from "@/src/components/info-card/info-card";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
 import { useCharacter } from "@/src/features/characters/hooks/use-character";
@@ -68,44 +68,47 @@ export default function JoinRequestDetailsScreen() {
 
   if (isLoading) {
     return (
-      <MainContainer style={styles.centerContainer}>
+      <Screen style={styles.centerContainer}>
         <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
         <ThemedText style={styles.feedbackText}>Carregando...</ThemedText>
-      </MainContainer>
+      </Screen>
     );
   }
 
   if (isError || !joinRequest) {
     return (
-      <MainContainer style={styles.centerContainer}>
+      <Screen style={styles.centerContainer}>
         <ThemedText style={styles.feedbackText}>
           Solicitação não encontrada.
         </ThemedText>
-      </MainContainer>
+      </Screen>
     );
   }
 
   return (
-    <MainContainer style={styles.container}>
-      <HeaderActions>
-        <ActionButton
-          variant="circle"
-          icon={
-            <Ionicons
-              name="arrow-back"
-              size={22}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          onPress={handleBack}
-        />
-        <ThemedText weight="bold" style={styles.headerTitle}>
-          Solicitação
-        </ThemedText>
-        <View style={styles.headerSpacer} />
-      </HeaderActions>
+    <Screen style={styles.container}>
+      <Screen.Header>
+        <HeaderActions>
+          <ActionButton
+            variant="circle"
+            icon={
+              <Ionicons
+                name="arrow-back"
+                size={22}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            onPress={handleBack}
+          />
+          <ThemedText weight="bold" style={styles.headerTitle}>
+            Solicitação
+          </ThemedText>
+          <View style={styles.headerSpacer} />
+        </HeaderActions>
+      </Screen.Header>
 
-      <ScrollView
+      <Screen.Body
+        scroll
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
@@ -178,10 +181,10 @@ export default function JoinRequestDetailsScreen() {
             </ThemedText>
           )}
         </InfoCard>
-      </ScrollView>
+      </Screen.Body>
 
       {joinRequest.status === "Pending" && (
-        <View style={styles.footer}>
+        <Screen.Footer style={styles.footer}>
           <View style={styles.footerButton}>
             <Button
               variant="primary"
@@ -198,9 +201,9 @@ export default function JoinRequestDetailsScreen() {
               isLoading={isUpdatingJoinRequest}
             />
           </View>
-        </View>
+        </Screen.Footer>
       )}
-    </MainContainer>
+    </Screen>
   );
 }
 
@@ -237,7 +240,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 140,
     gap: 14,
   },
   card: {
@@ -298,10 +300,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   footer: {
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 24,
     flexDirection: "row",
     gap: 12,
   },

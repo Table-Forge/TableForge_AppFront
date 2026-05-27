@@ -4,13 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
@@ -19,7 +13,7 @@ import { InfoCard } from "@/src/components/info-card/info-card";
 import { ControlledDateInput } from "@/src/components/input/input.date.controlled";
 import { ControlledInput } from "@/src/components/input/input.controlled";
 import { Label } from "@/src/components/label/label";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ScrollToFocusedInputProvider } from "@/src/context/scroll-to-focused-input";
 import { useCampaignSessionsMutation } from "@/src/features/campaign-sessions/hooks/use-campaign-sessions-mutations";
@@ -102,12 +96,9 @@ export default function CreateCampaignSessionScreen() {
   };
 
   return (
-    <MainContainer style={styles.screen}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardWrapper}
-      >
-        <ScrollToFocusedInputProvider scrollViewRef={scrollViewRef}>
+    <Screen style={styles.screen} keyboardAware>
+      <ScrollToFocusedInputProvider scrollViewRef={scrollViewRef}>
+        <Screen.Header>
           <HeaderActions>
             <ActionButton
               variant="circle"
@@ -123,13 +114,15 @@ export default function CreateCampaignSessionScreen() {
             <ThemedText style={styles.headerTitle}>Marcar sessão</ThemedText>
             <View style={styles.headerSpacer} />
           </HeaderActions>
+        </Screen.Header>
 
-          <ScrollView
-            ref={scrollViewRef}
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
+        <ScrollView
+          ref={scrollViewRef}
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
             <InfoCard style={styles.formCard}>
               <View style={styles.fieldContainer}>
                 <Label text="Título" />
@@ -174,10 +167,9 @@ export default function CreateCampaignSessionScreen() {
               isLoading={isCreatingCampaignSession}
               onPress={handleSubmit(onSubmit)}
             />
-          </ScrollView>
-        </ScrollToFocusedInputProvider>
-      </KeyboardAvoidingView>
-    </MainContainer>
+        </ScrollView>
+      </ScrollToFocusedInputProvider>
+    </Screen>
   );
 }
 

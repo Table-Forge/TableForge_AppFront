@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ModalConfirmation } from "@/src/components/modals/modal-confirmation/modal-confirmation";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useCampaignBlockedClasses } from "@/src/features/campaign-blocked-classes/hooks/use-campaign-blocked-classes";
@@ -77,26 +77,28 @@ export default function CampaignSettings() {
   if (isLoading || !campaign) return <ThemedText>Carregando...</ThemedText>;
 
   return (
-    <MainContainer style={styles.container}>
-      <HeaderActions>
-        <ActionButton
-          variant="circle"
-          icon={
-            <Ionicons
-              name="arrow-back"
-              size={22}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          onPress={handleBack}
-        />
-        <ThemedText weight="bold" style={styles.headerTitle}>
-          Configurações
-        </ThemedText>
-        <View style={{ width: 45 }} />
-      </HeaderActions>
+    <Screen style={styles.container}>
+      <Screen.Header>
+        <HeaderActions>
+          <ActionButton
+            variant="circle"
+            icon={
+              <Ionicons
+                name="arrow-back"
+                size={22}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            onPress={handleBack}
+          />
+          <ThemedText weight="bold" style={styles.headerTitle}>
+            Configurações
+          </ThemedText>
+          <View style={{ width: 45 }} />
+        </HeaderActions>
+      </Screen.Header>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <Screen.Body scroll contentContainerStyle={styles.content}>
         <View style={styles.module}>
           <View style={styles.moduleHeader}>
             <ThemedText style={styles.moduleTitle}>
@@ -197,7 +199,7 @@ export default function CampaignSettings() {
             />
           </View>
         </View>
-      </ScrollView>
+      </Screen.Body>
 
       <ModalConfirmation
         visible={!!toggleConfirmation}
@@ -208,7 +210,7 @@ export default function CampaignSettings() {
         onClose={() => setToggleConfirmation(null)}
         onConfirm={handleToggleConfirm}
       />
-    </MainContainer>
+    </Screen>
   );
 }
 

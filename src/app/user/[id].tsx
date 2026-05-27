@@ -1,13 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
 import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
 import { Mail } from "lucide-react-native";
 
@@ -15,7 +9,7 @@ import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { KnightHeadIcon } from "@/src/components/icons";
 import { LoadingOverlay } from "@/src/components/loading-overlay/loading-overlay";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { Tabs } from "@/src/components/tabs/tabs";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
@@ -54,47 +48,46 @@ export default function PublicUserProfileScreen() {
 
   if (isPending) {
     return (
-      <MainContainer style={styles.centerContainer}>
+      <Screen style={styles.centerContainer}>
         <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
         <ThemedText style={styles.feedbackText}>
           Carregando perfil...
         </ThemedText>
-      </MainContainer>
+      </Screen>
     );
   }
 
   if (isError || !user) {
     return (
-      <MainContainer style={styles.centerContainer}>
+      <Screen style={styles.centerContainer}>
         <ThemedText style={styles.feedbackText}>
           Perfil não encontrado.
         </ThemedText>
-      </MainContainer>
+      </Screen>
     );
   }
 
   return (
     <>
-      <MainContainer style={styles.container}>
-        <HeaderActions>
-          <ActionButton
-            variant="circle"
-            icon={
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color={DEFAULT_COLORS.white}
-              />
-            }
-            onPress={handleBack}
-          />
-          <View style={styles.headerSpacer} />
-        </HeaderActions>
+      <Screen style={styles.container}>
+        <Screen.Header>
+          <HeaderActions>
+            <ActionButton
+              variant="circle"
+              icon={
+                <Ionicons
+                  name="arrow-back"
+                  size={24}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              onPress={handleBack}
+            />
+            <View style={styles.headerSpacer} />
+          </HeaderActions>
+        </Screen.Header>
 
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          showsVerticalScrollIndicator={false}
-        >
+        <Screen.Body scroll showsVerticalScrollIndicator={false}>
           <View style={styles.contentBody}>
             <View style={styles.avatarContainer}>
               {user.avatarUrl ? (
@@ -174,8 +167,8 @@ export default function PublicUserProfileScreen() {
               ]}
             />
           </View>
-        </ScrollView>
-      </MainContainer>
+        </Screen.Body>
+      </Screen>
 
       {isPending && <LoadingOverlay />}
     </>

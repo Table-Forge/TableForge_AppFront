@@ -5,13 +5,7 @@ import {
   useLocalSearchParams,
   useRouter,
 } from "expo-router";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { useEffect, useRef } from "react";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
@@ -21,7 +15,7 @@ import { InfoCard } from "@/src/components/info-card/info-card";
 import { ControlledInput } from "@/src/components/input/input.controlled";
 import { ControlledImageInput } from "@/src/components/input/input.image.controlled";
 import { Label } from "@/src/components/label/label";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ControlledSelect } from "@/src/components/select/select.controlled";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
@@ -90,12 +84,9 @@ export default function CreateCharacterScreen() {
   };
 
   return (
-    <MainContainer style={styles.screen}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardWrapper}
-      >
-        <ScrollToFocusedInputProvider scrollViewRef={scrollViewRef}>
+    <Screen style={styles.screen} keyboardAware>
+      <ScrollToFocusedInputProvider scrollViewRef={scrollViewRef}>
+        <Screen.Header>
           <HeaderActions>
             <ActionButton
               variant="circle"
@@ -111,14 +102,16 @@ export default function CreateCharacterScreen() {
             <ThemedText style={styles.headerTitle}>Criar personagem</ThemedText>
             <View style={styles.headerSpacer} />
           </HeaderActions>
+        </Screen.Header>
 
-          <ScrollView
-            ref={scrollViewRef}
-            contentContainerStyle={styles.scrollContent}
-            bounces={false}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
+        <ScrollView
+          ref={scrollViewRef}
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.scrollContent}
+          bounces={false}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
             <View style={styles.sectionHeader}>
               <ThemedText style={styles.sectionTitle}>
                 Dados do personagem
@@ -201,10 +194,9 @@ export default function CreateCharacterScreen() {
               isLoading={isCreatingCharacter}
               text="Criar personagem"
             />
-          </ScrollView>
-        </ScrollToFocusedInputProvider>
-      </KeyboardAvoidingView>
-    </MainContainer>
+        </ScrollView>
+      </ScrollToFocusedInputProvider>
+    </Screen>
   );
 }
 

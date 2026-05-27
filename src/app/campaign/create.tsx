@@ -3,13 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { useEffect, useRef } from "react";
 import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
@@ -22,7 +16,7 @@ import { ControlledInput } from "@/src/components/input/input.controlled";
 import { ControlledImageInput } from "@/src/components/input/input.image.controlled";
 import { Label } from "@/src/components/label/label";
 import { ControlledLocationAutocomplete } from "@/src/components/location-autocomplete/location-autocomplete.controlled";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ControlledProgressInput } from "@/src/components/progress-input/progress-input.controlled";
 import { ControlledSelect } from "@/src/components/select/select.controlled";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
@@ -251,12 +245,9 @@ export default function CreateCampaignScreen() {
     errors.longitude?.message;
 
   return (
-    <MainContainer style={styles.screen}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardWrapper}
-      >
-        <ScrollToFocusedInputProvider scrollViewRef={scrollViewRef}>
+    <Screen style={styles.screen} keyboardAware>
+      <ScrollToFocusedInputProvider scrollViewRef={scrollViewRef}>
+        <Screen.Header>
           <HeaderActions>
             <ActionButton
               variant="circle"
@@ -274,14 +265,16 @@ export default function CreateCampaignScreen() {
             </ThemedText>
             <View style={styles.headerSpacer} />
           </HeaderActions>
+        </Screen.Header>
 
-          <ScrollView
-            ref={scrollViewRef}
-            contentContainerStyle={styles.scrollContent}
-            bounces={false}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
+        <ScrollView
+          ref={scrollViewRef}
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.scrollContent}
+          bounces={false}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
             <View style={styles.sectionHeader}>
               <ThemedText style={styles.sectionTitle}>
                 Dados da campanha
@@ -413,10 +406,9 @@ export default function CreateCampaignScreen() {
               disabled={isLoadingCampaign}
               text={isEditing ? "Salvar campanha" : "Criar campanha"}
             />
-          </ScrollView>
-        </ScrollToFocusedInputProvider>
-      </KeyboardAvoidingView>
-    </MainContainer>
+        </ScrollView>
+      </ScrollToFocusedInputProvider>
+    </Screen>
   );
 }
 

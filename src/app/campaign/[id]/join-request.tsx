@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -14,7 +13,7 @@ import {
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
@@ -97,26 +96,29 @@ export default function CampaignJoinRequestScreen() {
     !selectedCharacterId || !acceptedTerms || isCreatingJoinRequest;
 
   return (
-    <MainContainer style={styles.container}>
-      <HeaderActions>
-        <ActionButton
-          variant="circle"
-          icon={
-            <Ionicons
-              name="arrow-back"
-              size={22}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          onPress={handleBack}
-        />
-        <ThemedText weight="bold" style={styles.headerTitle}>
-          Quero entrar
-        </ThemedText>
-        <View style={styles.headerSpacer} />
-      </HeaderActions>
+    <Screen style={styles.container}>
+      <Screen.Header>
+        <HeaderActions>
+          <ActionButton
+            variant="circle"
+            icon={
+              <Ionicons
+                name="arrow-back"
+                size={22}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            onPress={handleBack}
+          />
+          <ThemedText weight="bold" style={styles.headerTitle}>
+            Quero entrar
+          </ThemedText>
+          <View style={styles.headerSpacer} />
+        </HeaderActions>
+      </Screen.Header>
 
-      <ScrollView
+      <Screen.Body
+        scroll
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
@@ -208,9 +210,9 @@ export default function CampaignJoinRequestScreen() {
             infringem os termos de uso da plataforma.
           </ThemedText>
         </Pressable>
-      </ScrollView>
+      </Screen.Body>
 
-      <View style={styles.footer}>
+      <Screen.Footer style={styles.footer}>
         <View style={styles.footerButton}>
           <Button variant="primary" text="Cancelar" onPress={handleBack} />
         </View>
@@ -223,8 +225,8 @@ export default function CampaignJoinRequestScreen() {
             isLoading={isCreatingJoinRequest}
           />
         </View>
-      </View>
-    </MainContainer>
+      </Screen.Footer>
+    </Screen>
   );
 }
 
@@ -444,10 +446,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   footer: {
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 24,
     flexDirection: "row",
     gap: 12,
   },

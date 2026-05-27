@@ -2,18 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { Input } from "@/src/components/input/input";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
 import { IChatMessage } from "@/src/features/chat-messages/schemas/chat-message.schema";
@@ -78,39 +72,38 @@ export default function CampaignChatScreen() {
   };
 
   return (
-    <MainContainer style={styles.container}>
-      <HeaderActions>
-        <ActionButton
-          variant="circle"
-          icon={
-            <Ionicons
-              name="arrow-back"
-              size={22}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          onPress={handleBack}
-        />
-        <View style={styles.headerTextContainer}>
-          <View style={styles.headerTitleRow}>
-            <FontAwesome5
-              name="beer"
-              size={14}
-              color={DEFAULT_COLORS.purpleBright}
-            />
-            <ThemedText style={styles.headerEyebrow}>Taverna</ThemedText>
+    <Screen style={styles.container} keyboardAware>
+      <Screen.Header>
+        <HeaderActions>
+          <ActionButton
+            variant="circle"
+            icon={
+              <Ionicons
+                name="arrow-back"
+                size={22}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            onPress={handleBack}
+          />
+          <View style={styles.headerTextContainer}>
+            <View style={styles.headerTitleRow}>
+              <FontAwesome5
+                name="beer"
+                size={14}
+                color={DEFAULT_COLORS.purpleBright}
+              />
+              <ThemedText style={styles.headerEyebrow}>Taverna</ThemedText>
+            </View>
+            <ThemedText style={styles.headerSubtitle} numberOfLines={1}>
+              {campaign?.title || "Campanha"}
+            </ThemedText>
           </View>
-          <ThemedText style={styles.headerSubtitle} numberOfLines={1}>
-            {campaign?.title || "Campanha"}
-          </ThemedText>
-        </View>
-        <View style={styles.headerSpacer} />
-      </HeaderActions>
+          <View style={styles.headerSpacer} />
+        </HeaderActions>
+      </Screen.Header>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.content}
-      >
+      <Screen.Body style={styles.content}>
         <FlatList
           inverted
           data={messages}
@@ -159,8 +152,8 @@ export default function CampaignChatScreen() {
             }
           />
         </View>
-      </KeyboardAvoidingView>
-    </MainContainer>
+      </Screen.Body>
+    </Screen>
   );
 }
 

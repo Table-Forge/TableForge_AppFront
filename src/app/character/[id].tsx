@@ -5,14 +5,13 @@ import {
   Image,
   ImageBackground,
   Pressable,
-  ScrollView,
   StyleSheet,
   View,
 } from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useCharacter } from "@/src/features/characters/hooks/use-character";
 import { useUser } from "@/src/features/users/hooks/use-user";
@@ -49,8 +48,8 @@ export default function CharacterScreen() {
   };
 
   return (
-    <MainContainer style={styles.container} edgeToEdge>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <Screen style={styles.container} edgeToEdge>
+      <Screen.Body scroll contentContainerStyle={styles.scrollContent}>
         <ImageBackground
           source={data.imageUrl ? { uri: data.imageUrl } : undefined}
           style={styles.banner}
@@ -160,8 +159,8 @@ export default function CharacterScreen() {
             </ThemedText>
           </View>
         </View>
-      </ScrollView>
-    </MainContainer>
+      </Screen.Body>
+    </Screen>
   );
 }
 

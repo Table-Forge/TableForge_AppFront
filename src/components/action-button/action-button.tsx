@@ -21,6 +21,7 @@ interface IProps {
   backgroundColor?: string;
   active?: boolean;
   glow?: boolean;
+  fullWidth?: boolean;
 }
 
 export const ActionButton = ({
@@ -32,6 +33,7 @@ export const ActionButton = ({
   backgroundColor,
   active = false,
   glow = false,
+  fullWidth = false,
 }: IProps) => {
   const isPill = variant === "pill";
 
@@ -59,6 +61,7 @@ export const ActionButton = ({
         {
           shadowColor,
         },
+        fullWidth ? styles.fullWidth : styles.shrink,
         glow && styles.glow,
         pressed && styles.pressed,
         style,
@@ -111,6 +114,15 @@ export const styles = StyleSheet.create({
     elevation: 8,
   },
 
+  shrink: {
+    alignSelf: "flex-start",
+  },
+
+  fullWidth: {
+    alignSelf: "stretch",
+    width: "100%",
+  },
+
   pressed: {
     opacity: 0.9,
     transform: [{ scale: 0.96 }],
@@ -129,8 +141,6 @@ export const styles = StyleSheet.create({
   },
 
   pill: {
-    minWidth: 160,
-    maxWidth: 300,
     height: 52,
     borderRadius: 999,
   },
@@ -184,7 +194,6 @@ export const styles = StyleSheet.create({
   },
 
   label: {
-    flex: 1,
     color: DEFAULT_COLORS.white,
     fontSize: 13,
     letterSpacing: 0.2,

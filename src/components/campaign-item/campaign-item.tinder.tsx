@@ -14,6 +14,7 @@ import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { ThemedText } from "../themed-text/themed-text";
 import { ICampaignItemProps } from "./campaign-item.types";
+import { useCampaignDifficultyLevelEnum } from "@/src/features/campaigns/hooks/enums/use-campaign-difficulty-level-enum";
 
 const TAP_MOVE_THRESHOLD = 8;
 
@@ -21,6 +22,8 @@ export const CampaignItemTinder = ({
   data,
   cardColor = DEFAULT_COLORS.primary,
 }: ICampaignItemProps) => {
+  const { difficultyLevelEnum } = useCampaignDifficultyLevelEnum();
+
   const router = useRouter();
   const touchStart = useRef({ x: 0, y: 0 });
   const bannerUrl = data.bannerUrl || "";
@@ -28,7 +31,9 @@ export const CampaignItemTinder = ({
   const location = data.locationName || data.address || "-";
   const system = data.gameSystemName || `Sistema ${data.gameSystemId}`;
   const partySize = `0/${data.playersLimit}`;
-  const difficulty = data.difficulty || "-";
+  const difficulty = data.difficulty
+    ? difficultyLevelEnum.find((item) => item.value === data.difficulty)?.name
+    : "-";
   const summary = data.description || "Sem sinopse cadastrada.";
 
   const openCampaign = () =>

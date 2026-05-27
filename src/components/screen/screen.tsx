@@ -1,6 +1,13 @@
-import React, { PropsWithChildren, useContext, useMemo } from "react";
+import React, {
+  PropsWithChildren,
+  ReactNode,
+  useContext,
+  useMemo,
+} from "react";
 import { useSegments } from "expo-router";
 import {
+  ImageBackground,
+  ImageSourcePropType,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -11,6 +18,8 @@ import {
   ViewStyle,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { DEFAULT_COLORS } from "@/src/theme/colors";
 
 const BOTTOM_TAB_BAR_HEIGHT = Platform.OS === "ios" ? 88 : 74;
 
@@ -81,6 +90,57 @@ function ScreenHeader({ children, style }: HeaderProps) {
     <View style={[styles.header, { paddingTop: insets.top }, style]}>
       {children}
     </View>
+  );
+}
+
+interface HeaderBannerProps extends PropsWithChildren {
+  /**
+   * Imagem de fundo do banner. Se ausente, renderiza só o background color.
+   */
+  source?: ImageSourcePropType;
+  /** Altura do banner. */
+  height?: number;
+  /** Dark overlay sobre a imagem pra contraste. Default true. */
+  scrim?: boolean;
+  /**
+   * Conteúdo flutuando no topo do banner (ex.: HeaderActions com back button).
+   * Recebe paddingTop = safe-area-top automaticamente.
+   */
+  actions?: ReactNode;
+  /** Cor de fundo quando não tem imagem (ou enquanto carrega). */
+  backgroundColor?: string;
+  style?: StyleProp<ViewStyle>;
+}
+
+function ScreenHeaderBanner({
+  source,
+  height,
+  scrim = true,
+  actions,
+  backgroundColor,
+  children,
+  style,
+}: HeaderBannerProps) {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <ImageBackground
+      source={source}
+      style={[
+        styles.banner,
+        height !== undefined && { height },
+        backgroundColor !== undefined && { backgroundColor },
+        style,
+      ]}
+    >
+      {scrim && <View style={styles.bannerScrim} />}
+      {actions && (
+        <View style={[styles.bannerActions, { paddingTop: insets.top }]}>
+          {actions}
+        </View>
+      )}
+      {children}
+    </ImageBackground>
   );
 }
 
@@ -165,6 +225,7 @@ function ScreenFooter({ children, style }: FooterProps) {
 }
 
 Screen.Header = ScreenHeader;
+Screen.HeaderBanner = ScreenHeaderBanner;
 Screen.Body = ScreenBody;
 Screen.Footer = ScreenFooter;
 
@@ -184,5 +245,16 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: 20,
     paddingTop: 12,
+  },
+  banner: {
+    width: "100%",
+    justifyContent: "space-between",
+  },
+  bannerScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: DEFAULT_COLORS.overlayDark_45,
+  },
+  bannerActions: {
+    zIndex: 10,
   },
 });

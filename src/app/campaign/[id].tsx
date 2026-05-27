@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   Dimensions,
   Image,
-  ImageBackground,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -183,66 +182,66 @@ export default function CampaignDetails() {
           />
         }
       >
-        <ImageBackground
+        <Screen.HeaderBanner
           source={campaign.bannerUrl ? { uri: campaign.bannerUrl } : undefined}
-          style={styles.banner}
+          height={styles.banner.height}
+          backgroundColor={SURFACES.card}
+          actions={
+            <HeaderActions padding={10}>
+              <ActionButton
+                variant="circle"
+                icon={
+                  <Ionicons
+                    name="arrow-back"
+                    size={22}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                onPress={handleBack}
+              />
+              {canSeePrivateModules && (
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                  {isMaster && (
+                    <ActionButton
+                      variant="circle"
+                      icon={
+                        <Ionicons
+                          name="settings-sharp"
+                          size={22}
+                          color={DEFAULT_COLORS.white}
+                        />
+                      }
+                      onPress={() =>
+                        router.push({
+                          pathname: "/campaign/[id]/settings",
+                          params: { id: campaignId },
+                        } as any)
+                      }
+                    />
+                  )}
+                  {campaign.isChatEnabled && (
+                    <ActionButton
+                      variant="circle"
+                      icon={
+                        <FontAwesome5
+                          name="beer"
+                          size={20}
+                          color={DEFAULT_COLORS.white}
+                        />
+                      }
+                      onPress={() =>
+                        router.push({
+                          pathname: "/campaign-chat/[campaignId]",
+                          params: { campaignId },
+                        } as any)
+                      }
+                    />
+                  )}
+                </View>
+              )}
+            </HeaderActions>
+          }
         >
-          <View style={styles.bannerScrim} />
-
-          <HeaderActions padding={10}>
-            <ActionButton
-              variant="circle"
-              icon={
-                <Ionicons
-                  name="arrow-back"
-                  size={22}
-                  color={DEFAULT_COLORS.white}
-                />
-              }
-              onPress={handleBack}
-            />
-            {canSeePrivateModules && (
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                {isMaster && (
-                  <ActionButton
-                    variant="circle"
-                    icon={
-                      <Ionicons
-                        name="settings-sharp"
-                        size={22}
-                        color={DEFAULT_COLORS.white}
-                      />
-                    }
-                    onPress={() =>
-                      router.push({
-                        pathname: "/campaign/[id]/settings",
-                        params: { id: campaignId },
-                      } as any)
-                    }
-                  />
-                )}
-                {campaign.isChatEnabled && (
-                  <ActionButton
-                    variant="circle"
-                    icon={
-                      <FontAwesome5
-                        name="beer"
-                        size={20}
-                        color={DEFAULT_COLORS.white}
-                      />
-                    }
-                    onPress={() =>
-                      router.push({
-                        pathname: "/campaign-chat/[campaignId]",
-                        params: { campaignId },
-                      } as any)
-                    }
-                  />
-                )}
-              </View>
-            )}
-          </HeaderActions>
-
           <View style={styles.titleOverlay}>
             <ThemedText style={styles.eyebrow}>Campanha</ThemedText>
             <ThemedText weight="bold" style={styles.title}>
@@ -278,7 +277,7 @@ export default function CampaignDetails() {
               </ThemedText>
             </Pressable>
           </View>
-        </ImageBackground>
+        </Screen.HeaderBanner>
 
         <View style={styles.content}>
           <Tabs<TabType>
@@ -426,10 +425,6 @@ const styles = StyleSheet.create({
     height: width * 0.72,
     justifyContent: "space-between",
     backgroundColor: SURFACES.card,
-  },
-  bannerScrim: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: DEFAULT_COLORS.overlayDark_45,
   },
   titleOverlay: {
     padding: 22,

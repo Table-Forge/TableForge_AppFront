@@ -1,13 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Dimensions,
-  Image,
-  ImageBackground,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Dimensions, Image, Pressable, StyleSheet, View } from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
@@ -50,26 +43,27 @@ export default function CharacterScreen() {
   return (
     <Screen style={styles.container}>
       <Screen.Body scroll contentContainerStyle={styles.scrollContent}>
-        <ImageBackground
+        <Screen.HeaderBanner
           source={data.imageUrl ? { uri: data.imageUrl } : undefined}
-          style={styles.banner}
+          height={styles.banner.height}
+          backgroundColor={styles.banner.backgroundColor}
+          actions={
+            <HeaderActions padding={10}>
+              <ActionButton
+                variant="circle"
+                style={styles.backButton}
+                icon={
+                  <Ionicons
+                    name="arrow-back"
+                    size={24}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                onPress={handleBack}
+              />
+            </HeaderActions>
+          }
         >
-          <View style={styles.bannerScrim} />
-          <HeaderActions padding={10}>
-            <ActionButton
-              variant="circle"
-              style={styles.backButton}
-              icon={
-                <Ionicons
-                  name="arrow-back"
-                  size={24}
-                  color={DEFAULT_COLORS.white}
-                />
-              }
-              onPress={handleBack}
-            />
-          </HeaderActions>
-
           <View style={styles.nameOverlay}>
             <ThemedText style={styles.eyebrow}>Personagem</ThemedText>
             <ThemedText weight="bold" style={styles.charName}>
@@ -79,7 +73,7 @@ export default function CharacterScreen() {
               <ThemedText style={styles.classTagText}>{className}</ThemedText>
             </View>
           </View>
-        </ImageBackground>
+        </Screen.HeaderBanner>
 
         <View style={styles.statsGrid}>
           <StatCard label="Raça" value={raceName} icon="dna" />
@@ -200,10 +194,6 @@ const styles = StyleSheet.create({
     height: width * 1.1,
     justifyContent: "space-between",
     backgroundColor: SURFACES.card,
-  },
-  bannerScrim: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: DEFAULT_COLORS.overlayDark_45,
   },
   backButton: {
     backgroundColor: DEFAULT_COLORS.primary_78,

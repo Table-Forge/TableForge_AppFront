@@ -87,7 +87,7 @@ function ScreenHeader({ children, style }: HeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.header, { paddingTop: insets.top }, style]}>
+    <View style={[styles.header, style, { paddingTop: insets.top }]}>
       {children}
     </View>
   );

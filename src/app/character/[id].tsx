@@ -1,6 +1,13 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Dimensions, Image, Pressable, StyleSheet, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
@@ -22,8 +29,18 @@ export default function CharacterScreen() {
   const { handleBack } = useBackRouter();
   const { user: currentUser } = useAuth();
   const characterId = Number(id);
-  const { data, isLoading, isError } = useCharacter(characterId);
-  const { data: owner } = useUser(data?.userId);
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+  } = useCharacter(characterId);
+  const { data: owner, refetch: refetchOwner } = useUser(data?.userId);
+
+  const handleRefresh = async () => {
+    await Promise.all([refetch(), data?.userId ? refetchOwner() : Promise.resolve()]);
+  };
   const currentUserId = currentUser?.id ? Number(currentUser.id) : undefined;
   const isOwner = !!data && currentUserId === data.userId;
 
@@ -46,7 +63,18 @@ export default function CharacterScreen() {
 
   return (
     <Screen style={styles.container}>
-      <Screen.Body scroll contentContainerStyle={styles.scrollContent}>
+      <Screen.Body
+        scroll
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={handleRefresh}
+            tintColor={DEFAULT_COLORS.tertiary}
+            colors={[DEFAULT_COLORS.tertiary]}
+          />
+        }
+      >
         <Screen.HeaderBanner
           source={data.imageUrl ? { uri: data.imageUrl } : undefined}
           height={styles.banner.height}

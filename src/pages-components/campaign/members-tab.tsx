@@ -8,6 +8,8 @@ import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
 import { ICharacter } from "@/src/features/characters/schemas/character.schema";
 import { IJoinRequest } from "@/src/features/join-requests/schemas/join-request.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 interface MembersTabProps {
   campaign: ICampaign;
@@ -58,7 +60,7 @@ export function MembersTab({
                 <CharacterItem
                   key={member.id}
                   data={getMemberCharacter(member, characters)}
-                  cardColor={DEFAULT_COLORS.background}
+                  cardColor={DEFAULT_COLORS.cardImageDark}
                   disabled={!member.characterId}
                 />
               ))}
@@ -98,7 +100,7 @@ export function MembersTab({
                 <View style={styles.requestActions}>
                   <Button
                     size="sm"
-                    variant="secondary"
+                    variant="primary"
                     text="Rejeitar"
                     isLoading={isUpdatingJoinRequest}
                     onPress={() => onRejectJoinRequest(request.id)}
@@ -167,18 +169,20 @@ function getMemberCharacter(
 
 const styles = StyleSheet.create({
   module: {
-    padding: 16,
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderRadius: 8,
+    padding: 18,
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.lg,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.1)",
+    borderColor: BORDERS.highlight,
+    ...SHADOWS.soft,
   },
   moduleTitle: {
     fontSize: 11,
-    color: DEFAULT_COLORS.tertiary,
+    color: DEFAULT_COLORS.purpleBright,
     letterSpacing: 2,
     marginBottom: 12,
     textTransform: "uppercase",
+    ...fonts.bold,
   },
   moduleTitleNoMargin: {
     marginBottom: 0,
@@ -186,7 +190,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 15,
-    color: "rgba(255,255,255,0.7)",
+    color: DEFAULT_COLORS.white_70,
     lineHeight: 22,
   },
   membersHeader: {
@@ -196,17 +200,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   memberCounter: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
     fontSize: 13,
+    ...fonts.bold,
   },
   membersScrollContainer: {
     gap: 12,
     paddingRight: 20,
   },
   inlineItem: {
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.06)",
+    borderBottomColor: BORDERS.divider,
   },
   inlineTitle: {
     fontSize: 14,
@@ -215,21 +220,22 @@ const styles = StyleSheet.create({
   inlineDescription: {
     marginTop: 3,
     fontSize: 13,
-    color: "rgba(255,255,255,0.58)",
+    color: DEFAULT_COLORS.white_64,
     lineHeight: 18,
   },
   emptyText: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.45)",
+    color: DEFAULT_COLORS.textMuted,
   },
   requestItem: {
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.06)",
+    borderTopColor: BORDERS.divider,
+    paddingTop: 4,
   },
   requestActions: {
     flexDirection: "row",
     justifyContent: "flex-end",
     gap: 10,
-    marginTop: 8,
+    marginTop: 10,
   },
 });

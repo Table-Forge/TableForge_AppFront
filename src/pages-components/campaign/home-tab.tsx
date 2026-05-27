@@ -10,8 +10,10 @@ import { ICampaignAnnouncement } from "@/src/features/campaign-announcements/sch
 import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
 import { TOptions } from "@/src/interfaces";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
-const BORDER_COLOR = DEFAULT_COLORS.tertiary_30;
+const ICON_COLOR = DEFAULT_COLORS.purpleBright;
 
 interface HomeTabProps {
   announcements: ICampaignAnnouncement[];
@@ -162,7 +164,7 @@ const InfoItem = ({
 }) => (
   <View style={styles.infoItem}>
     <View style={styles.infoHeader}>
-      {icon && <View style={styles.iconContainer}>{icon(BORDER_COLOR)}</View>}
+      {icon && <View style={styles.iconContainer}>{icon(ICON_COLOR)}</View>}
       <ThemedText style={styles.infoLabel}>{label}</ThemedText>
     </View>
     <ThemedText weight="bold" style={styles.infoValue}>
@@ -173,12 +175,13 @@ const InfoItem = ({
 
 const styles = StyleSheet.create({
   module: {
-    padding: 16,
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderRadius: 8,
+    padding: 18,
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.lg,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.1)",
-    gap: 4,
+    borderColor: BORDERS.highlight,
+    gap: 6,
+    ...SHADOWS.soft,
   },
   moduleHeader: {
     flexDirection: "row",
@@ -189,13 +192,14 @@ const styles = StyleSheet.create({
   },
   moduleTitle: {
     fontSize: 11,
-    color: DEFAULT_COLORS.tertiary,
+    color: DEFAULT_COLORS.purpleBright,
     letterSpacing: 2,
     textTransform: "uppercase",
+    ...fonts.bold,
   },
   description: {
     fontSize: 15,
-    color: "rgba(255,255,255,0.7)",
+    color: DEFAULT_COLORS.white_70,
     lineHeight: 22,
   },
   row: {
@@ -203,7 +207,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   detailsSecondRow: {
-    marginTop: 15,
+    marginTop: 16,
   },
   infoItem: {
     flex: 1,
@@ -220,17 +224,18 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 10,
-    color: "rgba(255,255,255,0.4)",
+    color: DEFAULT_COLORS.textMuted,
     letterSpacing: 1,
     textTransform: "uppercase",
   },
   infoValue: {
     fontSize: 14,
+    color: DEFAULT_COLORS.white,
   },
   inlineItem: {
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.06)",
+    borderBottomColor: BORDERS.divider,
   },
   inlineTitle: {
     fontSize: 14,
@@ -239,11 +244,11 @@ const styles = StyleSheet.create({
   inlineDescription: {
     marginTop: 3,
     fontSize: 13,
-    color: "rgba(255,255,255,0.58)",
+    color: DEFAULT_COLORS.white_64,
     lineHeight: 18,
   },
   emptyText: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.45)",
+    color: DEFAULT_COLORS.textMuted,
   },
 });

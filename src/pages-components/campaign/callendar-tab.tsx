@@ -8,6 +8,8 @@ import { Button } from "@/src/components/button/button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ICampaignSessionList } from "@/src/features/campaign-sessions/schemas/campaign-session.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 interface CallendarTabProps {
   campaignId: number;
@@ -266,7 +268,7 @@ const SessionItem = ({
             {sessionDate.format("DD/MM")}
           </ThemedText>
           <ThemedText style={styles.sessionDateText}>
-            - {sessionDate.format("HH:mm")}
+            {sessionDate.format("HH:mm")}
           </ThemedText>
         </View>
         <View style={styles.sessionContentBox}>
@@ -284,7 +286,7 @@ const SessionItem = ({
               <FontAwesome5
                 name="trash"
                 size={16}
-                color={DEFAULT_COLORS.white}
+                color={DEFAULT_COLORS.textMutedLight}
               />
             </Pressable>
             <Pressable
@@ -296,7 +298,7 @@ const SessionItem = ({
               <FontAwesome5
                 name="pen"
                 size={16}
-                color={DEFAULT_COLORS.white}
+                color={DEFAULT_COLORS.textMutedLight}
               />
             </Pressable>
           </View>
@@ -357,11 +359,12 @@ const EmptyText = ({ text }: { text: string }) => (
 
 const styles = StyleSheet.create({
   module: {
-    padding: 16,
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderRadius: 8,
+    padding: 18,
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.lg,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.1)",
+    borderColor: BORDERS.highlight,
+    ...SHADOWS.soft,
   },
   moduleHeader: {
     flexDirection: "row",
@@ -372,10 +375,11 @@ const styles = StyleSheet.create({
   },
   moduleTitle: {
     fontSize: 11,
-    color: DEFAULT_COLORS.tertiary,
+    color: DEFAULT_COLORS.purpleBright,
     letterSpacing: 2,
     marginBottom: 12,
     textTransform: "uppercase",
+    ...fonts.bold,
   },
   moduleTitleNoMargin: {
     marginBottom: 0,
@@ -383,15 +387,15 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 15,
-    color: "rgba(255,255,255,0.7)",
+    color: DEFAULT_COLORS.white_70,
     lineHeight: 22,
   },
   emptyText: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.45)",
+    color: DEFAULT_COLORS.textMuted,
   },
   calendarContainer: {
-    borderRadius: 8,
+    borderRadius: RADII.md,
   },
   calendarHeader: {
     flexDirection: "row",
@@ -400,12 +404,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   monthButton: {
-    width: 34,
-    height: 34,
+    width: 36,
+    height: 36,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: DEFAULT_COLORS.black,
-    borderRadius: 8,
+    backgroundColor: SURFACES.fill,
+    borderRadius: RADII.pill,
+    borderWidth: 1,
+    borderColor: BORDERS.subtle,
   },
   monthText: {
     flex: 1,
@@ -413,6 +419,7 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.white,
     textAlign: "center",
     textTransform: "capitalize",
+    ...fonts.bold,
   },
   daysHeaderRow: {
     flexDirection: "row",
@@ -422,42 +429,44 @@ const styles = StyleSheet.create({
   dayOfWeekText: {
     width: "14%",
     textAlign: "center",
-    fontSize: 12,
-    color: "rgba(255,255,255,0.5)",
+    fontSize: 11,
+    color: DEFAULT_COLORS.textMuted,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
   },
   daysRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   dayCell: {
     width: "14%",
     alignItems: "center",
     justifyContent: "center",
     aspectRatio: 1,
-    borderRadius: 8,
+    borderRadius: RADII.sm,
     position: "relative",
   },
   otherMonthCell: {
     opacity: 0.45,
   },
   pastDayCell: {
-    opacity: 0.25,
+    opacity: 0.3,
   },
   dayWithSessionCell: {
-    backgroundColor: "rgba(251, 69, 1, 0.16)",
+    backgroundColor: DEFAULT_COLORS.orangeGlow_25,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary,
+    borderColor: DEFAULT_COLORS.orange,
   },
   dayText: {
-    fontSize: 14,
+    fontSize: 13,
     color: DEFAULT_COLORS.white,
   },
   otherMonthText: {
-    color: "rgba(255,255,255,0.2)",
+    color: DEFAULT_COLORS.white_25,
   },
   pastDayText: {
-    color: "rgba(255,255,255,0.28)",
+    color: DEFAULT_COLORS.white_25,
   },
   dayWithSessionText: {
     color: DEFAULT_COLORS.white,
@@ -467,14 +476,14 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 3,
-    backgroundColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.orange,
     position: "absolute",
     bottom: 5,
   },
   sessionItem: {
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.06)",
-    paddingVertical: 12,
+    borderTopColor: BORDERS.divider,
+    paddingVertical: 14,
     marginTop: 4,
   },
   sessionSummary: {
@@ -482,39 +491,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   sessionDateBox: {
-    width: 80,
+    width: 70,
     borderRightWidth: 1,
-    borderRightColor: "rgba(255,255,255,0.2)",
+    borderRightColor: BORDERS.divider,
     paddingRight: 12,
     alignItems: "center",
+    gap: 2,
   },
   sessionDateText: {
-    fontSize: 14,
+    fontSize: 13,
     color: DEFAULT_COLORS.white,
+    ...fonts.bold,
   },
   sessionContentBox: {
     flex: 1,
     paddingLeft: 12,
+    gap: 2,
   },
   sessionTitle: {
     fontSize: 14,
     color: DEFAULT_COLORS.white,
-    fontWeight: "bold",
+    ...fonts.bold,
   },
   sessionLocation: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.7)",
+    color: DEFAULT_COLORS.white_64,
   },
   sessionActionsBox: {
     flexDirection: "row",
-    gap: 12,
+    gap: 14,
     paddingLeft: 12,
   },
   sessionDetails: {
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.06)",
+    borderTopColor: BORDERS.divider,
     gap: 10,
   },
   detailItem: {
@@ -522,9 +534,10 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 11,
-    color: DEFAULT_COLORS.tertiary,
-    letterSpacing: 1.2,
+    color: DEFAULT_COLORS.purpleBright,
+    letterSpacing: 1.5,
     textTransform: "uppercase",
+    ...fonts.bold,
   },
   detailValue: {
     fontSize: 14,

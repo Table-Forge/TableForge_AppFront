@@ -51,7 +51,28 @@ export default function RootLayout() {
             />
 
             <Stack.Screen
+              name="campaign/[id]/join-request"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
               name="campaign-chat/[campaignId]"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
+              name="join-request/[id]"
+              options={{
+                presentation: "card",
+              }}
+            />
+
+            <Stack.Screen
+              name="user/[id]"
               options={{
                 presentation: "card",
               }}

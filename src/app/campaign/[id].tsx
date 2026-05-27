@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Dimensions,
   ImageBackground,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   View,
@@ -45,24 +46,48 @@ export default function CampaignDetails() {
   const { id } = useLocalSearchParams();
   const campaignId = Number(id);
   const { difficultyLevelEnum } = useCampaignDifficultyLevelEnum();
-  const { data: campaign, isLoading, isError } = useCampaign(campaignId);
-  const { data: members = [] } = useCampaignMembers({ campaignId });
-  const { data: joinRequests = [] } = useJoinRequests({ campaignId });
-  const { data: announcements = [] } = useCampaignAnnouncements({ campaignId });
-  const { data: sessionsResponse } = useCampaignSessions({
+  const {
+    data: campaign,
+    isLoading,
+    isError,
+    refetch: refetchCampaign,
+    isRefetching: isRefetchingCampaign,
+  } = useCampaign(campaignId);
+  const {
+    data: members = [],
+    refetch: refetchMembers,
+    isRefetching: isRefetchingMembers,
+  } = useCampaignMembers({ campaignId });
+  const {
+    data: joinRequests = [],
+    refetch: refetchJoinRequests,
+    isRefetching: isRefetchingJoinRequests,
+  } = useJoinRequests({ campaignId });
+  const {
+    data: announcements = [],
+    refetch: refetchAnnouncements,
+    isRefetching: isRefetchingAnnouncements,
+  } = useCampaignAnnouncements({ campaignId });
+  const {
+    data: sessionsResponse,
+    refetch: refetchSessions,
+    isRefetching: isRefetchingSessions,
+  } = useCampaignSessions({
     campaignId,
     page: 1,
     size: 100,
   });
-  const { data: charactersResponse } = useCharacters({
+  const {
+    data: charactersResponse,
+    refetch: refetchCharacters,
+    isRefetching: isRefetchingCharacters,
+  } = useCharacters({
     page: 1,
     size: 100,
     enabled: members.length > 0,
   });
   const {
-    createJoinRequestMutation,
     updateJoinRequestStatusMutation,
-    isCreatingJoinRequest,
     isUpdatingJoinRequest,
   } = useJoinRequestsMutation(campaignId);
 
@@ -96,6 +121,32 @@ export default function CampaignDetails() {
   const visibleTabs: TabType[] = canSeePrivateModules
     ? ["Início", "Jogadores", "Calendário"]
     : ["Início"];
+  const isRefreshing =
+    isRefetchingCampaign ||
+    isRefetchingMembers ||
+    isRefetchingJoinRequests ||
+    isRefetchingAnnouncements ||
+    isRefetchingSessions ||
+    isRefetchingCharacters;
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      refetchCampaign(),
+      refetchMembers(),
+      refetchJoinRequests(),
+      refetchAnnouncements(),
+      refetchSessions(),
+      members.length > 0 ? refetchCharacters() : Promise.resolve(),
+    ]);
+  }, [
+    members.length,
+    refetchAnnouncements,
+    refetchCampaign,
+    refetchCharacters,
+    refetchJoinRequests,
+    refetchMembers,
+    refetchSessions,
+  ]);
 
   if (isLoading) return <ThemedText>Carregando campanha...</ThemedText>;
 
@@ -116,6 +167,14 @@ export default function CampaignDetails() {
       <ScrollView
         contentContainerStyle={{ paddingBottom: 60 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={DEFAULT_COLORS.tertiary}
+            colors={[DEFAULT_COLORS.tertiary]}
+          />
+        }
       >
         <ImageBackground
           source={campaign.bannerUrl ? { uri: campaign.bannerUrl } : undefined}
@@ -223,6 +282,12 @@ export default function CampaignDetails() {
                     isUpdatingJoinRequest={isUpdatingJoinRequest}
                     members={members}
                     pendingJoinRequests={pendingJoinRequests}
+                    onOpenJoinRequest={(requestId) =>
+                      router.push({
+                        pathname: "/join-request/[id]",
+                        params: { id: requestId },
+                      } as any)
+                    }
                     onApproveJoinRequest={(requestId) =>
                       updateJoinRequestStatusMutation.mutate({
                         id: requestId,
@@ -269,13 +334,12 @@ export default function CampaignDetails() {
                 : "Solicitar entrada na mesa"
             }
             disabled={!!currentUserJoinRequest || !currentUserId}
-            isLoading={isCreatingJoinRequest}
             onPress={() => {
               if (!currentUserId) return;
-              createJoinRequestMutation.mutate({
-                campaignId,
-                userId: currentUserId,
-              });
+              router.push({
+                pathname: "/campaign/[id]/join-request",
+                params: { id: campaignId },
+              } as any);
             }}
           />
         </View>

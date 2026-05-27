@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView } from "react-native";
+import { Pressable, StyleSheet, View, ScrollView } from "react-native";
 
 import { Button } from "@/src/components/button/button";
 import { CharacterItem } from "@/src/components/character-item/character-item";
@@ -16,6 +16,7 @@ interface MembersTabProps {
   isMaster: boolean;
   isUpdatingJoinRequest: boolean;
   members: ICampaignMember[];
+  onOpenJoinRequest: (id: number) => void;
   onApproveJoinRequest: (id: number) => void;
   onRejectJoinRequest: (id: number) => void;
   pendingJoinRequests: IJoinRequest[];
@@ -28,6 +29,7 @@ export function MembersTab({
   isMaster,
   isUpdatingJoinRequest,
   members,
+  onOpenJoinRequest,
   onApproveJoinRequest,
   onRejectJoinRequest,
   pendingJoinRequests,
@@ -81,7 +83,14 @@ export function MembersTab({
           </ThemedText>
           {pendingJoinRequests.length ? (
             pendingJoinRequests.map((request) => (
-              <View key={request.id} style={styles.requestItem}>
+              <Pressable
+                key={request.id}
+                style={({ pressed }) => [
+                  styles.requestItem,
+                  pressed && { opacity: 0.85 },
+                ]}
+                onPress={() => onOpenJoinRequest(request.id)}
+              >
                 <InlineItem
                   title={request.username || `Usuário ${request.userId}`}
                   description={request.message || "Sem mensagem."}
@@ -102,7 +111,7 @@ export function MembersTab({
                     onPress={() => onApproveJoinRequest(request.id)}
                   />
                 </View>
-              </View>
+              </Pressable>
             ))
           ) : (
             <EmptyText text="Nenhuma solicitação pendente." />

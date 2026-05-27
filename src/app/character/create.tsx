@@ -2,6 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Ionicons } from "@expo/vector-icons";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
+import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -36,6 +40,8 @@ import { fonts } from "@/src/theme/fonts";
 
 export default function CreateCharacterScreen() {
   const { user } = useAuth();
+  const router = useRouter();
+  const { returnTo, campaignId } = useLocalSearchParams();
   const { handleBack } = useBackRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   const { createCharacterMutation, isCreatingCharacter } =
@@ -65,7 +71,20 @@ export default function CreateCharacterScreen() {
 
   const onSubmit: SubmitHandler<ICharacterCreate> = (data) => {
     createCharacterMutation.mutate(data, {
-      onSuccess: () => handleBack(),
+      onSuccess: (createdCharacter) => {
+        if (returnTo === "campaignJoinRequest" && campaignId) {
+          router.replace({
+            pathname: "/campaign/[id]/join-request",
+            params: {
+              id: campaignId,
+              selectedCharacterId: createdCharacter.id,
+            },
+          } as any);
+          return;
+        }
+
+        handleBack();
+      },
     });
   };
 

@@ -4,7 +4,11 @@ import {
   IJoinRequestCreate,
   IJoinRequestStatusUpdate,
 } from "@/src/features/join-requests/schemas/join-request.schema";
-import { IPaginatedApiResponse, TOptions } from "@/src/interfaces";
+import {
+  IGetPaginatedParams,
+  IPaginatedApiResponse,
+  TOptions,
+} from "@/src/interfaces";
 
 const ENDPOINT = "/api/joinrequests";
 
@@ -16,8 +20,11 @@ export const JoinRequestService = {
   },
   getByCampaign: async (
     campaignId: number,
+    { page = 1, size = 20 }: IGetPaginatedParams = {},
   ): Promise<IPaginatedApiResponse<IJoinRequest>> => {
-    const { data } = await api.get(`${ENDPOINT}/campaign/${campaignId}`);
+    const { data } = await api.get(`${ENDPOINT}/campaign/${campaignId}`, {
+      params: { page, size },
+    });
 
     return data;
   },
@@ -29,7 +36,8 @@ export const JoinRequestService = {
   updateStatus: async (
     payload: IJoinRequestStatusUpdate,
   ): Promise<IJoinRequest> => {
-    const { data } = await api.put(`${ENDPOINT}/${payload.id}/status`, payload);
+    const { id, status } = payload;
+    const { data } = await api.put(`${ENDPOINT}/${id}/status`, { status });
 
     return data;
   },

@@ -5,16 +5,16 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { ScrollView, TouchableOpacity, View, StyleSheet } from "react-native";
+import { TouchableOpacity, View, StyleSheet } from "react-native";
 
 import React, { useState } from "react";
 import { useAuth } from "@/src/context/auth";
 import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
+import { Screen } from "@/src/components/screen/screen";
 import { useNavigation } from "expo-router";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
-import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
 
 export default function SettingsScreen() {
@@ -59,11 +59,8 @@ export default function SettingsScreen() {
 
   return (
     <>
-      <SafeAreaView style={[styles.safe]}>
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          showsVerticalScrollIndicator={false}
-        >
+      <Screen style={styles.safe}>
+        <Screen.Header>
           <HeaderActions>
             <ActionButton
               variant="circle"
@@ -79,7 +76,9 @@ export default function SettingsScreen() {
             <ThemedText style={styles.headerTitle}>Configurações</ThemedText>
             <View style={{ width: 45 }} />
           </HeaderActions>
+        </Screen.Header>
 
+        <Screen.Body scroll showsVerticalScrollIndicator={false}>
           <View style={styles.contentBody}>
             <View style={styles.sectionHeader}>
               <ThemedText style={styles.sectionTitle}>Conta</ThemedText>
@@ -178,8 +177,8 @@ export default function SettingsScreen() {
               />
             </InfoCard>
           </View>
-        </ScrollView>
-      </SafeAreaView>
+        </Screen.Body>
+      </Screen>
 
       <ModalBase
         visible={isLogoutOpen}

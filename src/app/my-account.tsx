@@ -1,15 +1,8 @@
 import React from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { StyleSheet, View } from "react-native";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
@@ -19,6 +12,7 @@ import { ControlledDateInput } from "@/src/components/input/input.date.controlle
 import { ControlledImageInput } from "@/src/components/input/input.image.controlled";
 import { ControlledInput } from "@/src/components/input/input.controlled";
 import { Label } from "@/src/components/label/label";
+import { Screen } from "@/src/components/screen/screen";
 import { ControlledSelect } from "@/src/components/select/select.controlled";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
@@ -65,11 +59,8 @@ export default function MyAccountScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
+    <Screen keyboardAware>
+      <Screen.Header>
         <HeaderActions>
           <ActionButton
             variant="circle"
@@ -85,13 +76,15 @@ export default function MyAccountScreen() {
           <ThemedText style={styles.headerTitle}>Meus Dados</ThemedText>
           <View style={{ width: 45 }} />
         </HeaderActions>
+      </Screen.Header>
 
-        <ScrollView
-          contentContainerStyle={styles.container}
-          bounces={false}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+      <Screen.Body
+        scroll
+        contentContainerStyle={styles.container}
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
           <View style={styles.sectionHeader}>
             <ThemedText style={styles.sectionTitle}>
               Alterar identidade no reino
@@ -187,9 +180,8 @@ export default function MyAccountScreen() {
             disabled={isLoadingUser}
             text="Atualizar pergaminho"
           />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </Screen.Body>
+    </Screen>
   );
 }
 

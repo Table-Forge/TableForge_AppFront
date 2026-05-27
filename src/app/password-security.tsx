@@ -1,10 +1,4 @@
-import {
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
@@ -16,6 +10,7 @@ import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { InfoCard } from "@/src/components/info-card/info-card";
+import { Screen } from "@/src/components/screen/screen";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -25,7 +20,6 @@ import {
 import { useAuth } from "@/src/context/auth";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, SURFACES } from "@/src/theme/tokens";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PasswordAndSecurityScreen() {
   const { user } = useAuth();
@@ -51,11 +45,8 @@ export default function PasswordAndSecurityScreen() {
   };
 
   return (
-    <SafeAreaView style={[{ flex: 1 }]}> 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
+    <Screen keyboardAware>
+      <Screen.Header>
         <HeaderActions>
           <ActionButton
             variant="circle"
@@ -71,13 +62,15 @@ export default function PasswordAndSecurityScreen() {
           <ThemedText style={styles.headerTitle}>Senha e Segurança</ThemedText>
           <View style={{ width: 45 }} />
         </HeaderActions>
+      </Screen.Header>
 
-        <ScrollView
-          contentContainerStyle={styles.container}
-          bounces={false}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+      <Screen.Body
+        scroll
+        contentContainerStyle={styles.container}
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
           <View style={styles.sectionHeader}>
             <ThemedText style={styles.sectionTitle}>
               Alterar Palavra-Passe
@@ -157,9 +150,8 @@ export default function PasswordAndSecurityScreen() {
             isLoading={isUpdatingPassword}
             text="Forjar nova senha"
           />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </Screen.Body>
+    </Screen>
   );
 }
 

@@ -1,7 +1,8 @@
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { ActionButton } from "@/src/components/action-button/action-button";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,7 +11,6 @@ import {
   styles as infoCardStyles,
 } from "@/src/components/info-card/info-card";
 import FeatherIcons from "react-native-vector-icons/Feather";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/src/components/button/button";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
@@ -19,8 +19,8 @@ export default function MyPlanScreen() {
   const { handleBack } = useBackRouter();
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={[styles.container, { flex: 1 }]}>
+    <Screen style={styles.safe}>
+      <Screen.Header>
         <HeaderActions>
           <ActionButton
             variant="circle"
@@ -36,13 +36,15 @@ export default function MyPlanScreen() {
           <ThemedText style={styles.headerTitle}>Meu Plano</ThemedText>
           <View style={{ width: 45 }} />
         </HeaderActions>
+      </Screen.Header>
 
-        <ScrollView
-          contentContainerStyle={styles.container}
-          bounces={false}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+      <Screen.Body
+        scroll
+        contentContainerStyle={styles.container}
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
           <View style={styles.sectionHeader}>
             <ThemedText style={styles.sectionTitle}>
               Escolha o plano que mais se encaixa com você!
@@ -220,9 +222,8 @@ export default function MyPlanScreen() {
               />
             </View>
           </InfoCard>
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+      </Screen.Body>
+    </Screen>
   );
 }
 

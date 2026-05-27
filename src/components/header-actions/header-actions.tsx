@@ -3,7 +3,6 @@ import { View, ViewStyle, StyleSheet } from "react-native";
 interface IProps {
   children?: React.ReactNode;
   position?: "full" | "left" | "right";
-  hasPadding?: boolean;
   padding?: number;
   gap?: number;
 }
@@ -11,7 +10,6 @@ interface IProps {
 export const HeaderActions = ({
   children,
   position = "full",
-  hasPadding = true,
   padding,
   gap = 10,
 }: IProps) => {
@@ -24,9 +22,7 @@ export const HeaderActions = ({
   const dynamicStyles: ViewStyle = {
     justifyContent: alignmentMap[position],
     gap,
-    ...(padding !== undefined
-      ? { padding }
-      : { paddingHorizontal: hasPadding ? 16 : 0 }),
+    ...(padding !== undefined && { padding }),
   };
 
   return <View style={[styles.wrapper, dynamicStyles]}>{children}</View>;
@@ -34,6 +30,8 @@ export const HeaderActions = ({
 
 const styles = StyleSheet.create({
   wrapper: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     flexDirection: "row",
     alignItems: "center",
     width: "100%",

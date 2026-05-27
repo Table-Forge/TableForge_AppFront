@@ -1,5 +1,7 @@
 import { SwordDiceIcon } from "@/src/components/icons";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 import { useRouter } from "expo-router";
 import {
   GestureResponderEvent,
@@ -18,8 +20,8 @@ import { ICampaignItemProps } from "./campaign-item.types";
 
 export const CampaignItemList = ({
   data,
-  cardColor = DEFAULT_COLORS.primary,
-  tagColor = DEFAULT_COLORS.tertiary_30,
+  cardColor,
+  tagColor = DEFAULT_COLORS.purpleBright,
 }: ICampaignItemProps) => {
   const router = useRouter();
   const bannerUrl = data.bannerUrl || "";
@@ -50,11 +52,12 @@ export const CampaignItemList = ({
       style={({ pressed }) => [
         styles.wrapper,
         pressed && { transform: [{ scale: 0.985 }], opacity: 0.92 },
-        { backgroundColor: cardColor },
+        cardColor ? { backgroundColor: cardColor } : null,
       ]}
     >
       <View style={styles.headerList}>
         <View style={styles.listTitleBlock}>
+          <ThemedText style={styles.eyebrow}>Campanha</ThemedText>
           <ThemedText
             weight="bold"
             style={styles.listTitleText}
@@ -70,7 +73,9 @@ export const CampaignItemList = ({
             ]}
             onPress={openMasterProfile}
           >
-            <SwordDiceIcon size={24} color={DEFAULT_COLORS.tertiary} />
+            <View style={styles.masterAvatar}>
+              <SwordDiceIcon size={16} color={DEFAULT_COLORS.purpleBright} />
+            </View>
             <ThemedText style={styles.masterText}>por {gameMaster}</ThemedText>
           </Pressable>
         </View>
@@ -85,6 +90,8 @@ export const CampaignItemList = ({
           </ThemedText>
         </View>
       </View>
+
+      <View style={styles.divider} />
 
       <View style={styles.bottomWrapper}>
         <View style={styles.imageWrapper}>
@@ -107,19 +114,19 @@ export const CampaignItemList = ({
           <View style={styles.tags}>
             <Tag
               icon={() => (
-                <FontAwesome6 name="location-dot" size={12} color={tagColor} />
+                <FontAwesome6 name="location-dot" size={11} color={tagColor} />
               )}
               text={location}
             />
             <Tag
               icon={() => (
-                <FontAwesome5 name="book-reader" size={12} color={tagColor} />
+                <FontAwesome5 name="book-reader" size={11} color={tagColor} />
               )}
               text={system}
             />
             <Tag
               icon={() => (
-                <Fontisto name="persons" size={12} color={tagColor} />
+                <Fontisto name="persons" size={11} color={tagColor} />
               )}
               text={partySize}
             />
@@ -133,19 +140,16 @@ export const CampaignItemList = ({
 const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
-    borderRadius: 8,
-    elevation: 7,
-    shadowColor: DEFAULT_COLORS.black,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.28,
-    shadowRadius: 18,
+    borderRadius: RADII.lg,
     overflow: "hidden",
     flexDirection: "column",
-    gap: 10,
-    padding: 10,
+    gap: 12,
+    padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.secondary_18,
+    borderColor: BORDERS.highlight,
+    backgroundColor: SURFACES.card,
+    ...SHADOWS.card,
   },
   headerList: {
     flexDirection: "row",
@@ -155,6 +159,14 @@ const styles = StyleSheet.create({
   },
   listTitleBlock: {
     flex: 1,
+    gap: 4,
+  },
+  eyebrow: {
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    ...fonts.bold,
   },
   listTitleText: {
     fontSize: 18,
@@ -164,30 +176,44 @@ const styles = StyleSheet.create({
   masterRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    marginTop: 3,
+    gap: 8,
+    marginTop: 4,
+  },
+  masterAvatar: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: DEFAULT_COLORS.white_12,
   },
   masterText: {
     fontSize: 12,
-    color: DEFAULT_COLORS.white,
-    opacity: 0.72,
+    color: DEFAULT_COLORS.white_64,
   },
   listDifficultyBadge: {
     maxWidth: 120,
     minHeight: 30,
-    paddingHorizontal: 9,
+    paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 8,
-    backgroundColor: DEFAULT_COLORS.tertiary,
+    borderRadius: RADII.pill,
+    backgroundColor: DEFAULT_COLORS.orange,
+    borderWidth: 1,
+    borderColor: BORDERS.cta,
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
   },
   difficultyBadgeText: {
     color: DEFAULT_COLORS.white,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: BORDERS.divider,
   },
   bottomWrapper: {
     flexDirection: "row",
@@ -195,12 +221,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   imageWrapper: {
-    width: 112,
-    height: 126,
-    borderRadius: 8,
+    width: 100,
+    height: 116,
+    borderRadius: RADII.md,
     overflow: "hidden",
-    borderWidth: 1.5,
-    borderColor: DEFAULT_COLORS.tertiary_30,
+    borderWidth: 1,
+    borderColor: BORDERS.subtle,
   },
   image: {
     width: "100%",
@@ -210,17 +236,16 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     width: "100%",
     height: "100%",
-    backgroundColor: DEFAULT_COLORS.primary,
+    backgroundColor: DEFAULT_COLORS.cardImageDark,
   },
   contentWrapper: {
     flex: 1,
     justifyContent: "space-between",
-    gap: 8,
+    gap: 10,
     width: "100%",
   },
   summaryText: {
-    opacity: 0.78,
-    color: DEFAULT_COLORS.white,
+    color: DEFAULT_COLORS.white_68,
     lineHeight: 19,
   },
   tags: {

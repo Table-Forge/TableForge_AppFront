@@ -1,9 +1,10 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { Image, Pressable, View, StyleSheet } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { ThemedText } from "../themed-text/themed-text";
 import { ICharacter } from "@/src/features/characters/schemas/character.schema";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 interface IProps {
   data: ICharacter;
@@ -13,7 +14,7 @@ interface IProps {
 }
 export const CharacterItem = ({
   data,
-  cardColor = "#666666",
+  cardColor = DEFAULT_COLORS.cardImageDark,
   disabled = false,
   onPress,
 }: IProps) => {
@@ -39,7 +40,7 @@ export const CharacterItem = ({
       style={({ pressed }) => [
         styles.wrapper,
         disabled && styles.disabled,
-        pressed && !disabled && { transform: [{ scale: 0.97 }], opacity: 0.9 },
+        pressed && !disabled && { transform: [{ scale: 0.97 }], opacity: 0.92 },
       ]}
     >
       <View style={[styles.imageContainer, { backgroundColor: cardColor }]}>
@@ -48,24 +49,17 @@ export const CharacterItem = ({
         )}
 
         <View style={styles.classBadge}>
-          <ThemedText
-            style={{
-              fontSize: 10,
-              color: DEFAULT_COLORS.tertiary,
-              ...fonts.bold,
-              textTransform: "uppercase",
-            }}
-          >
+          <ThemedText style={styles.classBadgeText}>
             {data.className || "-"}
           </ThemedText>
         </View>
       </View>
 
       <View style={styles.contentWrapper}>
+        <ThemedText style={styles.eyebrow}>Personagem</ThemedText>
         <ThemedText weight="bold" style={styles.title} numberOfLines={1}>
           {data.name}
         </ThemedText>
-
         <ThemedText style={styles.subtitle}>{data.raceName || "-"}</ThemedText>
       </View>
     </Pressable>
@@ -74,68 +68,67 @@ export const CharacterItem = ({
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: 155,
-    borderRadius: 16,
+    width: 160,
+    borderRadius: RADII.lg,
     overflow: "hidden",
-    backgroundColor: DEFAULT_COLORS.background,
+    backgroundColor: SURFACES.card,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary_30,
-
-    elevation: 5,
-    shadowColor: DEFAULT_COLORS.tertiary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    borderColor: BORDERS.highlight,
+    ...SHADOWS.card,
   },
   disabled: {
-    opacity: 0.9,
+    opacity: 0.6,
   },
   imageContainer: {
     width: "100%",
-    height: 160,
+    height: 168,
     position: "relative",
   },
   image: {
     width: "100%",
     height: "100%",
   },
-  imageOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.2)",
-    justifyContent: "flex-end",
-  },
   contentWrapper: {
     padding: 12,
-    backgroundColor: DEFAULT_COLORS.background,
-    borderTopWidth: 2,
-    borderTopColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: SURFACES.cardAlt,
+    borderTopWidth: 1,
+    borderTopColor: BORDERS.subtle,
+    gap: 2,
+  },
+  eyebrow: {
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    ...fonts.bold,
+    marginBottom: 2,
   },
   title: {
     fontSize: 16,
     color: DEFAULT_COLORS.white,
     textAlign: "left",
-    marginBottom: 4,
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
   },
   subtitle: {
     fontSize: 12,
-    color: DEFAULT_COLORS.white,
-    opacity: 0.6,
+    color: DEFAULT_COLORS.textMuted,
     textAlign: "left",
   },
   classBadge: {
     position: "absolute",
-    top: 8,
-    right: 8,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    paddingHorizontal: 8,
+    top: 10,
+    right: 10,
+    backgroundColor: DEFAULT_COLORS.primary_78,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: RADII.pill,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary,
+    borderColor: BORDERS.cta,
+  },
+  classBadgeText: {
+    fontSize: 10,
+    color: DEFAULT_COLORS.white,
+    ...fonts.bold,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
 });

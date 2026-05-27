@@ -1,15 +1,17 @@
 import React, { ReactNode } from "react";
 import {
   Modal,
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
   ModalProps,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
+
 import { Button } from "@/src/components/button/button";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 interface GenericModalProps {
   visible: boolean;
@@ -50,6 +52,7 @@ export const ModalBase = ({
           onPress={(e) => e.stopPropagation()}
           style={styles.container}
         >
+          <Text style={styles.eyebrow}>Confirmação</Text>
           <Text style={styles.title}>{title}</Text>
 
           {description && <Text style={styles.message}>{description}</Text>}
@@ -58,20 +61,24 @@ export const ModalBase = ({
 
           {showFooter && (
             <View style={styles.buttonContainer}>
-              <Button
-                variant="primary"
-                size="sm"
-                onPress={onClose}
-                text={cancelText}
-              />
+              <View style={styles.buttonSlot}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onPress={onClose}
+                  text={cancelText}
+                />
+              </View>
 
               {onConfirm && (
-                <Button
-                  variant={confirmVariant}
-                  size="sm"
-                  onPress={onConfirm}
-                  text={confirmText}
-                />
+                <View style={styles.buttonSlot}>
+                  <Button
+                    variant={confirmVariant}
+                    size="sm"
+                    onPress={onConfirm}
+                    text={confirmText}
+                  />
+                </View>
               )}
             </View>
           )}
@@ -84,44 +91,52 @@ export const ModalBase = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: SURFACES.overlayStrong,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
   },
   container: {
-    width: "85%",
-    backgroundColor: DEFAULT_COLORS.primary,
-    borderRadius: 16,
+    width: "100%",
+    maxWidth: 420,
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.xl,
     padding: 24,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.secondary,
-    elevation: 10,
-    shadowColor: DEFAULT_COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
+    borderColor: BORDERS.highlight,
+    gap: 6,
+    ...SHADOWS.card,
+  },
+  eyebrow: {
+    ...fonts.bold,
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 11,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    marginBottom: 4,
   },
   title: {
     ...fonts.heavy,
     color: DEFAULT_COLORS.white,
     fontSize: 20,
-    marginBottom: 8,
+    marginBottom: 4,
   },
   message: {
     ...fonts.regular,
-    color: DEFAULT_COLORS.white,
-    opacity: 0.8,
-    fontSize: 16,
+    color: DEFAULT_COLORS.textMutedLight,
+    fontSize: 15,
     lineHeight: 22,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   content: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "flex-end",
     gap: 12,
-    marginTop: 8,
+    marginTop: 12,
+  },
+  buttonSlot: {
+    flex: 1,
   },
 });

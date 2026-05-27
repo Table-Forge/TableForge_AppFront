@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 import { ITabItem, ITabsProps } from "./tabs.interfaces";
 
 export function Tabs<TValue extends string = string>({
@@ -98,31 +100,39 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: "row",
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderRadius: 16,
+    backgroundColor: SURFACES.fill,
+    borderRadius: RADII.pill,
     padding: 4,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary_30,
+    borderColor: BORDERS.highlight,
   },
   tab: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 16,
+    borderRadius: RADII.pill,
     flexDirection: "row",
     gap: 6,
   },
   activeTab: {
-    backgroundColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.purpleBright,
+    shadowColor: DEFAULT_COLORS.purpleBright,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
   pressedTab: {
-    opacity: 0.88,
+    opacity: 0.85,
   },
   tabLabel: {
-    fontSize: 14,
-    color: DEFAULT_COLORS.white,
-    fontWeight: "bold",
+    fontSize: 13,
+    color: DEFAULT_COLORS.white_64,
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+    ...fonts.bold,
   },
   activeTabLabel: {
     color: DEFAULT_COLORS.white,

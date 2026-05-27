@@ -117,7 +117,7 @@ export const CampaignItemTinder = ({
             <SwordDiceIcon size={18} color={DEFAULT_COLORS.tertiary} />
           </View>
           <ThemedText style={styles.tinderMasterText}>
-            por {gameMaster}
+            Mestre {gameMaster}
           </ThemedText>
         </Pressable>
 

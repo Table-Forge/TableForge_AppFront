@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import {
   Dimensions,
+  Image,
   ImageBackground,
   Pressable,
   RefreshControl,
@@ -10,6 +11,8 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+
+import { SwordDiceIcon } from "@/src/components/icons";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
@@ -24,6 +27,7 @@ import { useCampaignSessions } from "@/src/features/campaign-sessions/hooks/use-
 import { useCampaignSessionsMutation } from "@/src/features/campaign-sessions/hooks/use-campaign-sessions-mutations";
 import { ICampaignSessionList } from "@/src/features/campaign-sessions/schemas/campaign-session.schema";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
+import { useUser } from "@/src/features/users/hooks/use-user";
 import { useCharacters } from "@/src/features/characters/hooks/use-characters";
 import { useJoinRequests } from "@/src/features/join-requests/hooks/use-join-requests";
 import { useJoinRequestsMutation } from "@/src/features/join-requests/hooks/use-join-requests-mutations";
@@ -56,6 +60,7 @@ export default function CampaignDetails() {
     refetch: refetchCampaign,
     isRefetching: isRefetchingCampaign,
   } = useCampaign(campaignId);
+  const { data: creator } = useUser(campaign?.creatorId);
   const {
     data: members = [],
     refetch: refetchMembers,
@@ -184,61 +189,59 @@ export default function CampaignDetails() {
         >
           <View style={styles.bannerScrim} />
 
-          <Screen.Header>
-            <HeaderActions padding={10}>
-              <ActionButton
-                variant="circle"
-                icon={
-                  <Ionicons
-                    name="arrow-back"
-                    size={22}
-                    color={DEFAULT_COLORS.white}
+          <HeaderActions padding={10}>
+            <ActionButton
+              variant="circle"
+              icon={
+                <Ionicons
+                  name="arrow-back"
+                  size={22}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              onPress={handleBack}
+            />
+            {canSeePrivateModules && (
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                {isMaster && (
+                  <ActionButton
+                    variant="circle"
+                    icon={
+                      <Ionicons
+                        name="settings-sharp"
+                        size={22}
+                        color={DEFAULT_COLORS.white}
+                      />
+                    }
+                    onPress={() =>
+                      router.push({
+                        pathname: "/campaign/[id]/settings",
+                        params: { id: campaignId },
+                      } as any)
+                    }
                   />
-                }
-                onPress={handleBack}
-              />
-              {canSeePrivateModules && (
-                <View style={{ flexDirection: "row", gap: 10 }}>
-                  {isMaster && (
-                    <ActionButton
-                      variant="circle"
-                      icon={
-                        <Ionicons
-                          name="settings-sharp"
-                          size={22}
-                          color={DEFAULT_COLORS.white}
-                        />
-                      }
-                      onPress={() =>
-                        router.push({
-                          pathname: "/campaign/[id]/settings",
-                          params: { id: campaignId },
-                        } as any)
-                      }
-                    />
-                  )}
-                  {campaign.isChatEnabled && (
-                    <ActionButton
-                      variant="circle"
-                      icon={
-                        <FontAwesome5
-                          name="beer"
-                          size={20}
-                          color={DEFAULT_COLORS.white}
-                        />
-                      }
-                      onPress={() =>
-                        router.push({
-                          pathname: "/campaign-chat/[campaignId]",
-                          params: { campaignId },
-                        } as any)
-                      }
-                    />
-                  )}
-                </View>
-              )}
-            </HeaderActions>
-          </Screen.Header>
+                )}
+                {campaign.isChatEnabled && (
+                  <ActionButton
+                    variant="circle"
+                    icon={
+                      <FontAwesome5
+                        name="beer"
+                        size={20}
+                        color={DEFAULT_COLORS.white}
+                      />
+                    }
+                    onPress={() =>
+                      router.push({
+                        pathname: "/campaign-chat/[campaignId]",
+                        params: { campaignId },
+                      } as any)
+                    }
+                  />
+                )}
+              </View>
+            )}
+          </HeaderActions>
 
           <View style={styles.titleOverlay}>
             <ThemedText style={styles.eyebrow}>Campanha</ThemedText>
@@ -252,10 +255,26 @@ export default function CampaignDetails() {
                   params: { id: campaign.creatorId.toString() },
                 } as any)
               }
-              style={({ pressed }) => pressed && { opacity: 0.7 }}
+              style={({ pressed }) => [
+                styles.masterRow,
+                pressed && { opacity: 0.7 },
+              ]}
             >
+              <View style={styles.masterAvatar}>
+                {creator?.avatarUrl ? (
+                  <Image
+                    source={{ uri: creator.avatarUrl }}
+                    style={styles.masterAvatarImage}
+                  />
+                ) : (
+                  <SwordDiceIcon
+                    size={18}
+                    color={DEFAULT_COLORS.purpleBright}
+                  />
+                )}
+              </View>
               <ThemedText style={styles.masterText}>
-                Mestre: {campaign.creatorUsername || "Mestre desconhecido"}
+                Mestre {campaign.creatorUsername || "desconhecido"}
               </ThemedText>
             </Pressable>
           </View>
@@ -431,10 +450,30 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.white,
     lineHeight: 30,
   },
+  masterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 6,
+  },
+  masterAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: DEFAULT_COLORS.white_12,
+    borderWidth: 1,
+    borderColor: BORDERS.highlight,
+  },
+  masterAvatarImage: {
+    width: "100%",
+    height: "100%",
+  },
   masterText: {
     fontSize: 13,
     color: DEFAULT_COLORS.textMuted,
-    marginTop: 4,
   },
   content: { padding: 20, gap: 20 },
 });

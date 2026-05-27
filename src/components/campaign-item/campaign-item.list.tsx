@@ -76,7 +76,7 @@ export const CampaignItemList = ({
             <View style={styles.masterAvatar}>
               <SwordDiceIcon size={16} color={DEFAULT_COLORS.purpleBright} />
             </View>
-            <ThemedText style={styles.masterText}>por {gameMaster}</ThemedText>
+            <ThemedText style={styles.masterText}>Mestre {gameMaster}</ThemedText>
           </Pressable>
         </View>
         <View style={styles.listDifficultyBadge}>

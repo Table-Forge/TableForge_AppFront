@@ -30,9 +30,7 @@ import { CharactersTab } from "@/src/pages-components/profile/characters-tab";
 import { CampaignsTab } from "@/src/pages-components/profile/campaigns-tab";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
-import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
 import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
-import { Mail } from "lucide-react-native";
 
 type ITabs = "Perfil" | "Personagens" | "Campanhas";
 
@@ -147,47 +145,6 @@ export default function Profile() {
                 )}
               </View>
             </Pressable>
-
-            <View style={styles.menuPopupWrapper}>
-              <MenuPopup
-                trigger={
-                  <MaterialDesignIcons
-                    name="dots-horizontal-circle-outline"
-                    size={32}
-                    color={DEFAULT_COLORS.white}
-                  />
-                }
-                options={[
-                  {
-                    label: "Enviar Mensagem",
-                    icon: <Mail size={18} color={DEFAULT_COLORS.purpleBright} />,
-                    onPress: () => {},
-                  },
-                  {
-                    label: "Remover Amigo",
-                    icon: (
-                      <Ionicons
-                        name="person-remove-outline"
-                        size={18}
-                        color={DEFAULT_COLORS.purpleBright}
-                      />
-                    ),
-                    onPress: () => {},
-                  },
-                  {
-                    label: "Bloquear",
-                    icon: (
-                      <MaterialDesignIcons
-                        name="block-helper"
-                        size={18}
-                        color={DEFAULT_COLORS.danger}
-                      />
-                    ),
-                    onPress: () => {},
-                  },
-                ]}
-              />
-            </View>
 
             <View style={styles.profileInfo}>
               <ThemedText style={styles.profileEyebrow}>Aventureiro</ThemedText>
@@ -318,10 +275,5 @@ const styles = StyleSheet.create({
   groupedIcons: {
     flexDirection: "row",
     gap: 10,
-  },
-  menuPopupWrapper: {
-    position: "absolute",
-    right: 15,
-    top: 15,
   },
 });

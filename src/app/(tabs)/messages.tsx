@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: DEFAULT_COLORS.white_05,
     width: "90%",
     alignSelf: "center",
   },

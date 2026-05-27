@@ -10,9 +10,8 @@ import { ScrollView, TouchableOpacity, View, StyleSheet } from "react-native";
 import React, { useState } from "react";
 import { useAuth } from "@/src/context/auth";
 import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "expo-router";
-import { ParamListBase } from "@react-navigation/native";
+import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { fonts } from "@/src/theme/fonts";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
@@ -21,7 +20,7 @@ export default function SettingsScreen() {
   const { signOut } = useAuth();
 
   const { handleBack } = useBackRouter();
-  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
 
   const [isLogoutOpen, setLogoutOpen] = useState(false);
 

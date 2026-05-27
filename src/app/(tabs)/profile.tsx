@@ -23,9 +23,8 @@ import { useUser } from "@/src/features/users/hooks/use-user";
 import { useAvatarPicker } from "@/src/features/users/hooks/use-avatar-picker";
 import { LoadingOverlay } from "@/src/components/loading-overlay/loading-overlay";
 import { Tabs } from "@/src/components/tabs/tabs";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "expo-router";
-import { ParamListBase } from "@react-navigation/native";
+import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { ProfileTab } from "@/src/pages-components/profile/profile-tab";
 import { CharactersTab } from "@/src/pages-components/profile/characters-tab";
 import { CampaignsTab } from "@/src/pages-components/profile/campaigns-tab";
@@ -40,7 +39,7 @@ export default function Profile() {
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
 
-  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
 
   const userId = user?.id ? Number(user.id) : undefined;
   const { data, isPending, refetch } = useUser(userId);

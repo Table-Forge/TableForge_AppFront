@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     borderLeftColor: DEFAULT_COLORS.tertiary,
   },
   selectedCard: {
-    backgroundColor: "rgba(126, 135, 226, 0.1)",
+    backgroundColor: DEFAULT_COLORS.secondary_10,
   },
   row: { flexDirection: "row" },
   iconContainer: {
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: DEFAULT_COLORS.white_05,
     width: "90%",
     alignSelf: "center",
   },

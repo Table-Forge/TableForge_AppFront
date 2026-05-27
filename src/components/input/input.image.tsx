@@ -12,6 +12,7 @@ import Toast from "react-native-toast-message";
 import { ErrorMessage } from "@/src/components/error-message/error-message";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 export type ImageInputValue = {
   content: string;
@@ -101,7 +102,7 @@ export const InputImage = ({
             <Ionicons
               name="image-outline"
               size={28}
-              color={DEFAULT_COLORS.grays._200}
+              color={DEFAULT_COLORS.textMutedLight}
             />
             <ThemedText style={styles.placeholderText}>{placeholder}</ThemedText>
           </View>
@@ -124,10 +125,10 @@ export const InputImage = ({
 const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
-    borderRadius: 16,
+    borderRadius: RADII.md,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.4)",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderColor: BORDERS.highlight,
+    backgroundColor: SURFACES.fill,
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
     borderColor: DEFAULT_COLORS.danger,
   },
   wrapperPressed: {
-    opacity: 0.85,
+    opacity: 0.9,
     transform: [{ scale: 0.99 }],
   },
   image: {
@@ -150,7 +151,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   placeholderText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMutedLight,
     textAlign: "center",
   },
   editBadge: {
@@ -160,10 +161,10 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.orange,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: DEFAULT_COLORS.primary,
+    borderColor: SURFACES.card,
   },
 });

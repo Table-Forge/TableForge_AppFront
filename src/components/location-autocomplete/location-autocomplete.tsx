@@ -13,6 +13,7 @@ import { Input } from "@/src/components/input/input";
 import { Label } from "@/src/components/label/label";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 const GEOAPIFY_API_KEY = process.env.EXPO_PUBLIC_GEOAPIFY_API_KEY;
 const LOCATION_SUGGESTIONS_RADIUS_METERS = 50000;
@@ -200,7 +201,7 @@ export function LocationAutocomplete({
 
       {isLoadingSuggestions && (
         <View style={styles.loading}>
-          <ActivityIndicator size="small" color={DEFAULT_COLORS.secondary} />
+          <ActivityIndicator size="small" color={DEFAULT_COLORS.purpleBright} />
         </View>
       )}
 
@@ -308,10 +309,10 @@ const styles = StyleSheet.create({
   },
   list: {
     marginTop: 8,
-    borderRadius: 12,
-    backgroundColor: DEFAULT_COLORS.primary,
+    borderRadius: RADII.md,
+    backgroundColor: SURFACES.card,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.2)",
+    borderColor: BORDERS.highlight,
     overflow: "hidden",
   },
   listRow: {
@@ -319,7 +320,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.08)",
+    borderBottomColor: BORDERS.divider,
     gap: 4,
   },
   listRowHeader: {
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   listRowPressed: {
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: DEFAULT_COLORS.white_08,
   },
   listTitle: {
     flex: 1,
@@ -336,11 +337,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   listDescription: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
     fontSize: 12,
   },
   distance: {
-    color: DEFAULT_COLORS.secondary,
+    color: DEFAULT_COLORS.purpleBright,
     fontSize: 12,
   },
 });

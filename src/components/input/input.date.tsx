@@ -13,6 +13,7 @@ import DateTimePicker, {
 import { Input } from "../input/input";
 import { Button } from "../button/button";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 import { Label } from "@/src/components/label/label";
 
 interface IDateInputProps {
@@ -117,18 +118,20 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: SURFACES.overlayStrong,
   },
   modalContainer: {
-    backgroundColor: DEFAULT_COLORS.background,
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: SURFACES.card,
+    padding: 22,
+    borderTopLeftRadius: RADII.xxl,
+    borderTopRightRadius: RADII.xxl,
     paddingBottom: 40,
+    borderTopWidth: 1,
+    borderColor: BORDERS.highlight,
     shadowColor: DEFAULT_COLORS.black,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
 });

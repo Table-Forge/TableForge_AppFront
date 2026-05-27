@@ -7,6 +7,7 @@ import { ErrorMessage } from "@/src/components/error-message/error-message";
 import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 interface ProgressInputProps {
   value: number;
@@ -54,7 +55,7 @@ export const ProgressInput = ({
           </View>
 
           <View style={styles.badge}>
-            <Ionicons name="people" size={16} color={DEFAULT_COLORS.tertiary} />
+            <Ionicons name="people" size={14} color={DEFAULT_COLORS.white} />
             <Text style={styles.valueText}>{clampedValue}</Text>
           </View>
         </View>
@@ -116,11 +117,11 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     width: "100%",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    backgroundColor: SURFACES.fill,
     padding: 14,
-    borderRadius: 16,
+    borderRadius: RADII.md,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.35)",
+    borderColor: BORDERS.highlight,
   },
   wrapperError: {
     borderColor: DEFAULT_COLORS.danger,
@@ -133,26 +134,26 @@ const styles = StyleSheet.create({
   },
   labelInfo: {
     ...fonts.bold,
-    fontSize: 12,
-    color: DEFAULT_COLORS.secondary,
+    fontSize: 11,
+    color: DEFAULT_COLORS.purpleBright,
     textTransform: "uppercase",
-    letterSpacing: 1,
+    letterSpacing: 2,
   },
   badge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "rgba(251, 69, 1, 0.15)",
+    backgroundColor: DEFAULT_COLORS.orangeGlow_25,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingVertical: 5,
+    borderRadius: RADII.pill,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary,
+    borderColor: BORDERS.cta,
   },
   valueText: {
-    fontSize: 18,
+    fontSize: 16,
     ...fonts.heavy,
-    color: DEFAULT_COLORS.tertiary,
+    color: DEFAULT_COLORS.white,
   },
   controls: {
     flexDirection: "row",
@@ -160,14 +161,14 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   stepButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 36,
+    height: 36,
+    borderRadius: RADII.pill,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(126, 135, 226, 0.2)",
+    backgroundColor: DEFAULT_COLORS.white_08,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.45)",
+    borderColor: BORDERS.highlight,
   },
   stepButtonPressed: {
     opacity: 0.8,
@@ -184,15 +185,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "rgba(126, 135, 226, 0.18)",
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: DEFAULT_COLORS.white_08,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
-    borderRadius: 5,
-    backgroundColor: DEFAULT_COLORS.tertiary,
+    borderRadius: 4,
+    backgroundColor: DEFAULT_COLORS.purpleBright,
   },
   slider: {
     width: "100%",

@@ -11,6 +11,7 @@ import * as Haptics from "expo-haptics";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { ThemedText } from "../themed-text/themed-text";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 export interface MenuOption {
   label: string;
@@ -129,20 +130,20 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.1)",
+    backgroundColor: DEFAULT_COLORS.black_14,
   },
   menuContainer: {
-    backgroundColor: "rgba(26, 26, 46, 0.98)",
-    borderRadius: 12,
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.md,
     padding: 4,
-    width: 220,
+    width: 230,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.3)",
+    borderColor: BORDERS.highlight,
     elevation: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+    shadowColor: DEFAULT_COLORS.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 14,
   },
   arrow: {
     position: "absolute",
@@ -150,26 +151,27 @@ const styles = StyleSheet.create({
     right: 12,
     width: 16,
     height: 16,
-    backgroundColor: "rgba(26, 26, 46, 0.98)",
+    backgroundColor: SURFACES.card,
     borderTopWidth: 1,
     borderLeftWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.3)",
+    borderColor: BORDERS.highlight,
     transform: [{ rotate: "45deg" }],
   },
   option: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 14,
+    paddingVertical: 12,
     paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.05)",
+    borderBottomColor: BORDERS.divider,
+    borderRadius: RADII.xs,
   },
   optionPressed: {
-    backgroundColor: "rgba(126, 135, 226, 0.15)",
+    backgroundColor: DEFAULT_COLORS.white_08,
   },
   optionText: {
     marginLeft: 12,
-    fontSize: 15,
+    fontSize: 14,
     color: DEFAULT_COLORS.white,
     ...fonts.bold,
   },

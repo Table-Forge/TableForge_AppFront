@@ -23,6 +23,7 @@ import {
 import { useAuth } from "@/src/context/auth";
 import { ControlledToggle } from "@/src/components/toggle/controlled-toggle";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, SURFACES } from "@/src/theme/tokens";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NotificationsSettingsScreen() {
@@ -78,7 +79,7 @@ export default function NotificationsSettingsScreen() {
             </ThemedText>
           </View>
 
-          <InfoCard style={{ backgroundColor: DEFAULT_COLORS.primary }}>
+          <InfoCard style={styles.formCard}>
             <View style={styles.formContent}>
               <ControlledToggle
                 name="privateMessages"
@@ -140,10 +141,15 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   sectionTitle: {
-    fontSize: 16,
-    opacity: 0.7,
+    fontSize: 12,
+    letterSpacing: 2,
     ...fonts.bold,
-    color: DEFAULT_COLORS.white,
+    color: DEFAULT_COLORS.purpleBright,
+    textTransform: "uppercase",
+  },
+  formCard: {
+    backgroundColor: SURFACES.card,
+    borderColor: BORDERS.highlight,
   },
   formContent: {
     gap: 20,

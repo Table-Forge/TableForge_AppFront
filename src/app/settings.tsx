@@ -13,6 +13,7 @@ import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
 import { useNavigation } from "expo-router";
 import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
 
@@ -50,7 +51,7 @@ export default function SettingsScreen() {
         <Ionicons
           name="chevron-forward"
           size={20}
-          color="rgba(255,255,255,0.3)"
+          color={DEFAULT_COLORS.white_35}
         />
       </View>
     </TouchableOpacity>
@@ -58,7 +59,7 @@ export default function SettingsScreen() {
 
   return (
     <>
-      <SafeAreaView style={[{ flex: 1 }]}>
+      <SafeAreaView style={[styles.safe]}>
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
@@ -83,24 +84,25 @@ export default function SettingsScreen() {
             <View style={styles.sectionHeader}>
               <ThemedText style={styles.sectionTitle}>Conta</ThemedText>
             </View>
-            <InfoCard style={{ backgroundColor: DEFAULT_COLORS.primary }}>
+            <InfoCard style={styles.cardOverride}>
               <SettingItem
                 icon={
                   <MaterialIcons
                     name="person-outline"
                     size={22}
-                    color={DEFAULT_COLORS.white}
+                    color={DEFAULT_COLORS.purpleBright}
                   />
                 }
                 label="Meus Dados"
                 onPress={() => navigation.navigate("my-account")}
               />
+              <View style={styles.separator} />
               <SettingItem
                 icon={
                   <MaterialIcons
                     name={"lock-outline"}
                     size={22}
-                    color={DEFAULT_COLORS.white}
+                    color={DEFAULT_COLORS.purpleBright}
                   />
                 }
                 label="Senha e Segurança"
@@ -112,7 +114,7 @@ export default function SettingsScreen() {
                   <MaterialIcons
                     name={"notifications-none"}
                     size={22}
-                    color={DEFAULT_COLORS.white}
+                    color={DEFAULT_COLORS.purpleBright}
                   />
                 }
                 label="Notificações"
@@ -124,7 +126,7 @@ export default function SettingsScreen() {
                   <MaterialDesignIcons
                     name="crown"
                     size={22}
-                    color={DEFAULT_COLORS.white}
+                    color={DEFAULT_COLORS.crown}
                   />
                 }
                 label="Meu Plano"
@@ -135,13 +137,13 @@ export default function SettingsScreen() {
             <View style={styles.sectionHeader}>
               <ThemedText style={styles.sectionTitle}>Suporte</ThemedText>
             </View>
-            <InfoCard style={{ backgroundColor: DEFAULT_COLORS.primary }}>
+            <InfoCard style={styles.cardOverride}>
               <SettingItem
                 icon={
                   <MaterialIcons
                     name={"info-outline"}
                     size={22}
-                    color={DEFAULT_COLORS.white}
+                    color={DEFAULT_COLORS.purpleBright}
                   />
                 }
                 label="Sobre Nós"
@@ -152,7 +154,7 @@ export default function SettingsScreen() {
                   <MaterialIcons
                     name={"help-outline"}
                     size={22}
-                    color={DEFAULT_COLORS.white}
+                    color={DEFAULT_COLORS.purpleBright}
                   />
                 }
                 label="Help Center"
@@ -162,13 +164,13 @@ export default function SettingsScreen() {
             <View style={styles.sectionHeader}>
               <ThemedText style={styles.sectionTitle}>Sessão</ThemedText>
             </View>
-            <InfoCard style={{ backgroundColor: DEFAULT_COLORS.primary }}>
+            <InfoCard style={styles.cardOverride}>
               <SettingItem
                 icon={
                   <MaterialIcons
                     name={"logout"}
                     size={22}
-                    color={DEFAULT_COLORS.white}
+                    color={DEFAULT_COLORS.danger}
                   />
                 }
                 label="Sair da Conta"
@@ -194,13 +196,17 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: SURFACES.background,
+  },
   headerTitle: {
     fontSize: 20,
     ...fonts.bold,
     color: DEFAULT_COLORS.white,
   },
   contentBody: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 14,
     paddingBottom: 40,
   },
   sectionHeader: {
@@ -208,44 +214,53 @@ const styles = StyleSheet.create({
     paddingLeft: 4,
   },
   sectionTitle: {
-    fontSize: 16,
-    opacity: 0.6,
-    ...fonts.medium,
+    fontSize: 11,
+    letterSpacing: 2,
+    color: DEFAULT_COLORS.purpleBright,
+    textTransform: "uppercase",
+    ...fonts.bold,
+  },
+  cardOverride: {
+    backgroundColor: SURFACES.card,
+    borderColor: BORDERS.highlight,
   },
   settingItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 4,
+    paddingVertical: 8,
   },
   settingItemLeft: {
     flexDirection: "row",
     alignItems: "center",
   },
   iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    width: 38,
+    height: 38,
+    borderRadius: RADII.pill,
+    backgroundColor: SURFACES.fill,
+    borderWidth: 1,
+    borderColor: BORDERS.subtle,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
   settingLabel: {
-    fontSize: 16,
+    fontSize: 15,
+    color: DEFAULT_COLORS.white,
   },
   settingItemRight: {
     flexDirection: "row",
     alignItems: "center",
   },
   settingValue: {
-    fontSize: 14,
-    opacity: 0.5,
+    fontSize: 13,
+    color: DEFAULT_COLORS.textMuted,
     marginRight: 8,
   },
   separator: {
     height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    marginLeft: 48,
+    backgroundColor: BORDERS.divider,
+    marginLeft: 50,
   },
 });

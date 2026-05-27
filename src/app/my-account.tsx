@@ -33,6 +33,7 @@ import {
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, SURFACES } from "@/src/theme/tokens";
 
 export default function MyAccountScreen() {
   const { user } = useAuth();
@@ -210,16 +211,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   sectionTitle: {
-    fontSize: 14,
-    letterSpacing: 1.2,
+    fontSize: 12,
+    letterSpacing: 2,
     ...fonts.bold,
-    color: DEFAULT_COLORS.secondary,
+    color: DEFAULT_COLORS.purpleBright,
     textTransform: "uppercase",
   },
   formCard: {
-    backgroundColor: "rgba(26, 26, 46, 0.95)",
+    backgroundColor: SURFACES.card,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.2)",
+    borderColor: BORDERS.highlight,
   },
   formContent: {
     gap: 20,

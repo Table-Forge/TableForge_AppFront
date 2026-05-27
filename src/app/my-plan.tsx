@@ -13,12 +13,13 @@ import FeatherIcons from "react-native-vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/src/components/button/button";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 export default function MyPlanScreen() {
   const { handleBack } = useBackRouter();
 
   return (
-    <SafeAreaView style={[{ flex: 1 }]}>
+    <SafeAreaView style={styles.safe}>
       <View style={[styles.container, { flex: 1 }]}>
         <HeaderActions>
           <ActionButton
@@ -48,63 +49,60 @@ export default function MyPlanScreen() {
             </ThemedText>
           </View>
 
-          <InfoCard
-            title="Plano Atual"
-            style={[{ backgroundColor: DEFAULT_COLORS.primary }]}
-          >
-            <View style={infoCardStyles.cardTitle}>
-              <ThemedText fontSize={16} weight="bold">
-                Básico
-              </ThemedText>
-
-              <ThemedText
-                style={{ fontSize: 16, color: DEFAULT_COLORS.tertiary }}
-                weight="bold"
-              >
-                Grátis!
-              </ThemedText>
+          <InfoCard title="Plano Atual" style={styles.planCard}>
+            <View style={styles.planHeader}>
+              <ThemedText style={styles.planName}>Básico</ThemedText>
+              <ThemedText style={styles.planPrice}>Grátis!</ThemedText>
             </View>
 
             <View style={infoCardStyles.cardList}>
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Pesquisar campanhas em sua localidade
                 </ThemedText>
               </View>
 
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Criar e entrar em campanhas
                 </ThemedText>
               </View>
 
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Visualizar e participar do Chat da Campanha (Sala de Taverna)
                 </ThemedText>
               </View>
 
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Receber notificações sobre eventos futuros
                 </ThemedText>
@@ -112,71 +110,77 @@ export default function MyPlanScreen() {
             </View>
           </InfoCard>
 
-          <InfoCard>
-            <View style={infoCardStyles.cardTitle}>
-              <ThemedText fontSize={16} weight="bold">
+          <InfoCard style={styles.premiumCard}>
+            <View style={styles.planHeader}>
+              <ThemedText style={[styles.planName, styles.premiumName]}>
                 Premium
               </ThemedText>
-
-              <ThemedText
-                style={{ fontSize: 16, color: DEFAULT_COLORS.tertiary }}
-                weight="bold"
-              >
+              <ThemedText style={[styles.planPrice, styles.premiumPrice]}>
                 R$ 9,99/mês
               </ThemedText>
             </View>
 
             <View style={infoCardStyles.cardList}>
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Todas as funcionalidades do Plano Básico
                 </ThemedText>
               </View>
 
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Criar e salvar personagens ilimitados na página de perfil
                 </ThemedText>
               </View>
 
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Criar tópicos no Fórum
                 </ThemedText>
               </View>
 
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Selo Premium ao lado do nome do usuário
                 </ThemedText>
               </View>
 
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Destaque nas campanhas criadas por você, aparecendo primeiro
                   na listagem
@@ -184,22 +188,26 @@ export default function MyPlanScreen() {
               </View>
 
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Campanhas privadas
                 </ThemedText>
               </View>
 
               <View style={infoCardStyles.cardItem}>
-                <FeatherIcons
-                  name="check-circle"
-                  size={16}
-                  color={DEFAULT_COLORS.white}
-                />
+                <View style={styles.checkBadge}>
+                  <FeatherIcons
+                    name="check"
+                    size={12}
+                    color={DEFAULT_COLORS.white}
+                  />
+                </View>
                 <ThemedText fontSize={16} style={{ flex: 1 }}>
                   Personalização de Banner de campanha
                 </ThemedText>
@@ -219,6 +227,10 @@ export default function MyPlanScreen() {
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: SURFACES.background,
+  },
   headerTitle: {
     fontSize: 20,
     ...fonts.bold,
@@ -226,17 +238,62 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 14,
     paddingTop: 10,
   },
   sectionHeader: {
-    marginTop: 20,
-    marginBottom: 15,
+    marginTop: 18,
+    marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: 16,
-    opacity: 0.7,
+    fontSize: 12,
+    letterSpacing: 2,
     ...fonts.bold,
+    color: DEFAULT_COLORS.purpleBright,
+    textTransform: "uppercase",
+  },
+  planCard: {
+    backgroundColor: SURFACES.card,
+    borderColor: BORDERS.highlight,
+  },
+  premiumCard: {
+    backgroundColor: SURFACES.card,
+    borderColor: BORDERS.ctaSoft,
+    shadowColor: DEFAULT_COLORS.orange,
+    shadowOpacity: 0.25,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
+  },
+  planHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  planName: {
+    fontSize: 18,
     color: DEFAULT_COLORS.white,
+    ...fonts.bold,
+  },
+  premiumName: {
+    color: DEFAULT_COLORS.crown,
+  },
+  planPrice: {
+    fontSize: 16,
+    color: DEFAULT_COLORS.purpleBright,
+    ...fonts.bold,
+  },
+  premiumPrice: {
+    color: DEFAULT_COLORS.orange,
+  },
+  checkBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: RADII.pill,
+    backgroundColor: DEFAULT_COLORS.purpleBright,
+    alignItems: "center",
+    justifyContent: "center",
+    ...SHADOWS.soft,
   },
 });

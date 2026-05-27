@@ -11,18 +11,26 @@ import { useCharacters } from "@/src/features/characters/hooks/use-characters";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 
-export const CharactersTab = () => {
+interface IProps {
+  userId?: number;
+}
+
+export const CharactersTab = ({ userId: userIdProp }: IProps = {}) => {
   const router = useRouter();
   const { user } = useAuth();
-  const userId = user?.id ? Number(user.id) : undefined;
+  const currentUserId = user?.id ? Number(user.id) : undefined;
+  const targetUserId = userIdProp ?? currentUserId;
+  const isCurrentUser = !userIdProp || userIdProp === currentUserId;
   const { data, isLoading, isError } = useCharacters({ page: 1, size: 100 });
 
   const characters = useMemo(
     () =>
-      userId
-        ? (data?.items ?? []).filter((character) => character.userId === userId)
+      targetUserId
+        ? (data?.items ?? []).filter(
+            (character) => character.userId === targetUserId,
+          )
         : [],
-    [data?.items, userId],
+    [data?.items, targetUserId],
   );
 
   return (
@@ -35,13 +43,15 @@ export const CharactersTab = () => {
           </ThemedText>
         </View>
 
-        <ActionButton
-          variant="pill"
-          label="Criar"
-          active
-          icon={<Entypo name="plus" size={20} color={DEFAULT_COLORS.white} />}
-          onPress={() => router.push("/character/create")}
-        />
+        {isCurrentUser && (
+          <ActionButton
+            variant="pill"
+            label="Criar"
+            active
+            icon={<Entypo name="plus" size={20} color={DEFAULT_COLORS.white} />}
+            onPress={() => router.push("/character/create")}
+          />
+        )}
       </View>
 
       {isLoading ? (
@@ -64,8 +74,10 @@ export const CharactersTab = () => {
       ) : (
         <ThemedText style={styles.feedbackText}>
           {isError
-            ? "Não foi possível carregar seus personagens."
-            : "Você ainda não criou personagens."}
+            ? "Não foi possível carregar os personagens."
+            : isCurrentUser
+              ? "Você ainda não criou personagens."
+              : "Esse aventureiro ainda não tem personagens."}
         </ThemedText>
       )}
     </>

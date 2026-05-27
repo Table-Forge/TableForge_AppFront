@@ -15,10 +15,16 @@ import { useRouter } from "expo-router";
 import { useMemo } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
-export const CampaignsTab = () => {
+interface IProps {
+  userId?: number;
+}
+
+export const CampaignsTab = ({ userId: userIdProp }: IProps = {}) => {
   const router = useRouter();
   const { user } = useAuth();
-  const userId = user?.id ? Number(user.id) : undefined;
+  const currentUserId = user?.id ? Number(user.id) : undefined;
+  const targetUserId = userIdProp ?? currentUserId;
+  const isCurrentUser = !userIdProp || userIdProp === currentUserId;
 
   const {
     data,
@@ -29,8 +35,8 @@ export const CampaignsTab = () => {
     isFetchingNextPage,
   } = useInfiniteCampaigns({
     size: CAMPAIGNS_PAGE_SIZE,
-    creatorId: userId,
-    enabled: Boolean(userId),
+    creatorId: targetUserId,
+    enabled: Boolean(targetUserId),
   });
 
   const campaigns = useMemo(
@@ -50,13 +56,15 @@ export const CampaignsTab = () => {
           </ThemedText>
         </View>
 
-        <ActionButton
-          variant="pill"
-          label="Criar"
-          active
-          icon={<Entypo name="plus" size={20} color={DEFAULT_COLORS.white} />}
-          onPress={() => router.push("/campaign/create")}
-        />
+        {isCurrentUser && (
+          <ActionButton
+            variant="pill"
+            label="Criar"
+            active
+            icon={<Entypo name="plus" size={20} color={DEFAULT_COLORS.white} />}
+            onPress={() => router.push("/campaign/create")}
+          />
+        )}
       </View>
 
       {isLoading ? (
@@ -88,8 +96,10 @@ export const CampaignsTab = () => {
         <View style={styles.feedbackWrapper}>
           <ThemedText style={styles.feedbackText}>
             {isError
-              ? "Não foi possível carregar suas campanhas."
-              : "Você ainda não criou campanhas."}
+              ? "Não foi possível carregar as campanhas."
+              : isCurrentUser
+                ? "Você ainda não criou campanhas."
+                : "Esse aventureiro ainda não criou campanhas."}
           </ThemedText>
         </View>
       )}

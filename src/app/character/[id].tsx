@@ -1,11 +1,13 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
+  Dimensions,
+  Image,
   ImageBackground,
+  Pressable,
   ScrollView,
   StyleSheet,
   View,
-  Dimensions,
 } from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
@@ -13,6 +15,7 @@ import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { MainContainer } from "@/src/components/main-container/main-container";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useCharacter } from "@/src/features/characters/hooks/use-character";
+import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
@@ -21,10 +24,12 @@ import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 const { width } = Dimensions.get("window");
 
 export default function CharacterScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams();
   const { handleBack } = useBackRouter();
   const characterId = Number(id);
   const { data, isLoading, isError } = useCharacter(characterId);
+  const { data: owner } = useUser(data?.userId);
 
   if (isLoading) return <ThemedText>Carregando personagem...</ThemedText>;
 
@@ -35,9 +40,17 @@ export default function CharacterScreen() {
   const className = data.className || "Classe não informada";
   const raceName = data.raceName || "Raça não informada";
 
+  const openOwnerProfile = () => {
+    if (!data.userId) return;
+    router.push({
+      pathname: "/user/[id]",
+      params: { id: data.userId.toString() },
+    } as any);
+  };
+
   return (
     <MainContainer style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <ImageBackground
           source={data.imageUrl ? { uri: data.imageUrl } : undefined}
           style={styles.banner}
@@ -77,6 +90,57 @@ export default function CharacterScreen() {
             icon="scale-balance"
           />
         </View>
+
+        {data.userId && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <MaterialCommunityIcons
+                name="account-circle-outline"
+                size={18}
+                color={DEFAULT_COLORS.purpleBright}
+              />
+              <ThemedText style={styles.sectionTitle}>Pertence a</ThemedText>
+            </View>
+
+            <Pressable
+              onPress={openOwnerProfile}
+              style={({ pressed }) => [
+                styles.ownerCard,
+                pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
+              ]}
+            >
+              <View style={styles.ownerAvatar}>
+                {owner?.avatarUrl ? (
+                  <Image
+                    source={{ uri: owner.avatarUrl }}
+                    style={styles.ownerAvatarImage}
+                  />
+                ) : (
+                  <Ionicons
+                    name="person"
+                    size={26}
+                    color={DEFAULT_COLORS.purpleBright}
+                  />
+                )}
+              </View>
+              <View style={styles.ownerInfo}>
+                <ThemedText weight="bold" style={styles.ownerName}>
+                  {owner?.nickname || data.userUsername || `Usuário ${data.userId}`}
+                </ThemedText>
+                {(owner?.username || data.userUsername) && (
+                  <ThemedText style={styles.ownerUsername}>
+                    @{owner?.username || data.userUsername}
+                  </ThemedText>
+                )}
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={DEFAULT_COLORS.textMuted}
+              />
+            </Pressable>
+          </View>
+        )}
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -129,6 +193,7 @@ const StatCard = ({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: SURFACES.background },
+  scrollContent: { paddingBottom: 40 },
   banner: {
     width: "100%",
     height: width * 1.1,
@@ -220,6 +285,7 @@ const styles = StyleSheet.create({
   section: {
     paddingHorizontal: 20,
     marginTop: 6,
+    marginBottom: 12,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -233,6 +299,44 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     textTransform: "uppercase",
     ...fonts.bold,
+  },
+  ownerCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    backgroundColor: SURFACES.card,
+    padding: 14,
+    borderRadius: RADII.lg,
+    borderWidth: 1,
+    borderColor: BORDERS.highlight,
+    ...SHADOWS.soft,
+  },
+  ownerAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: SURFACES.fill,
+    borderWidth: 1,
+    borderColor: BORDERS.highlightStrong,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ownerAvatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  ownerInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  ownerName: {
+    fontSize: 15,
+    color: DEFAULT_COLORS.white,
+  },
+  ownerUsername: {
+    fontSize: 12,
+    color: DEFAULT_COLORS.textMuted,
   },
   historyCard: {
     backgroundColor: SURFACES.card,

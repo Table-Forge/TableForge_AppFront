@@ -247,14 +247,6 @@ const FriendshipActions = ({
   onDecline,
   onRemove,
 }: FriendshipActionsProps) => {
-  if (isLoadingFriendship) {
-    return (
-      <View style={styles.actionsRow}>
-        <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
-      </View>
-    );
-  }
-
   const isPending = friendshipStatus === "Pending";
   const isAccepted = friendshipStatus === "Accepted";
   const canSendRequest =
@@ -263,95 +255,109 @@ const FriendshipActions = ({
     friendshipStatus === "Declined";
 
   return (
-    <View style={styles.actionsRow}>
-      {canSendRequest && (
-        <FriendshipPill
-          loading={isMutating}
-          onPress={onSendRequest}
+    <View style={styles.actionsWrapper}>
+      <View style={styles.actionsRow}>
+        <ActionButton
+          variant="circle"
+          icon={<Mail size={20} color={DEFAULT_COLORS.purpleBright} />}
+          onPress={() => {}}
+        />
+        <ActionButton
+          variant="circle"
           icon={
-            <Ionicons
-              name="person-add"
-              size={18}
-              color={DEFAULT_COLORS.white}
+            <MaterialDesignIcons
+              name="block-helper"
+              size={20}
+              color={DEFAULT_COLORS.danger}
             />
           }
-          label="Adicionar amigo"
-          active
+          onPress={() => {}}
         />
-      )}
+      </View>
 
-      {isPending && isRequester && (
-        <FriendshipPill
-          loading={isMutating}
-          onPress={onRemove}
-          icon={
-            <Ionicons
-              name="time-outline"
-              size={18}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          label="Cancelar solicitação"
-        />
-      )}
-
-      {isPending && !isRequester && (
-        <>
-          <FriendshipPill
-            loading={isMutating}
-            onPress={onAccept}
-            icon={
-              <Ionicons
-                name="checkmark"
-                size={18}
-                color={DEFAULT_COLORS.white}
+      <View style={styles.friendshipRow}>
+        {isLoadingFriendship ? (
+          <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
+        ) : (
+          <>
+            {canSendRequest && (
+              <FriendshipPill
+                loading={isMutating}
+                onPress={onSendRequest}
+                icon={
+                  <Ionicons
+                    name="person-add"
+                    size={18}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                label="Adicionar amigo"
+                active
               />
-            }
-            label="Aceitar"
-            active
-          />
-          <FriendshipPill
-            loading={isMutating}
-            onPress={onDecline}
-            icon={
-              <Ionicons name="close" size={18} color={DEFAULT_COLORS.white} />
-            }
-            label="Recusar"
-          />
-        </>
-      )}
+            )}
 
-      {isAccepted && (
-        <FriendshipPill
-          loading={isMutating}
-          onPress={onRemove}
-          icon={
-            <Ionicons
-              name="person-remove"
-              size={18}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          label="Desfazer amizade"
-        />
-      )}
+            {isPending && isRequester && (
+              <FriendshipPill
+                loading={isMutating}
+                onPress={onRemove}
+                icon={
+                  <Ionicons
+                    name="time-outline"
+                    size={18}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                label="Cancelar solicitação"
+              />
+            )}
 
-      <ActionButton
-        variant="circle"
-        icon={<Mail size={20} color={DEFAULT_COLORS.purpleBright} />}
-        onPress={() => {}}
-      />
-      <ActionButton
-        variant="circle"
-        icon={
-          <MaterialDesignIcons
-            name="block-helper"
-            size={20}
-            color={DEFAULT_COLORS.danger}
-          />
-        }
-        onPress={() => {}}
-      />
+            {isPending && !isRequester && (
+              <>
+                <FriendshipPill
+                  loading={isMutating}
+                  onPress={onAccept}
+                  icon={
+                    <Ionicons
+                      name="checkmark"
+                      size={18}
+                      color={DEFAULT_COLORS.white}
+                    />
+                  }
+                  label="Aceitar"
+                  active
+                />
+                <FriendshipPill
+                  loading={isMutating}
+                  onPress={onDecline}
+                  icon={
+                    <Ionicons
+                      name="close"
+                      size={18}
+                      color={DEFAULT_COLORS.white}
+                    />
+                  }
+                  label="Recusar"
+                />
+              </>
+            )}
+
+            {isAccepted && (
+              <FriendshipPill
+                loading={isMutating}
+                onPress={onRemove}
+                icon={
+                  <Ionicons
+                    name="person-remove"
+                    size={18}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                label="Desfazer amizade"
+              />
+            )}
+          </>
+        )}
+      </View>
     </View>
   );
 };
@@ -485,13 +491,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: DEFAULT_COLORS.textMuted,
   },
+  actionsWrapper: {
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 22,
+  },
   actionsRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  },
+  friendshipRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     flexWrap: "wrap",
     gap: 8,
-    marginBottom: 22,
     minHeight: 44,
   },
   friendshipPill: {

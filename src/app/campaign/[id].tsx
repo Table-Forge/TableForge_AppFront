@@ -166,7 +166,7 @@ export default function CampaignDetails() {
   };
 
   return (
-    <MainContainer style={styles.container}>
+    <MainContainer style={styles.container} edgeToEdge>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 60 }}
         showsVerticalScrollIndicator={false}

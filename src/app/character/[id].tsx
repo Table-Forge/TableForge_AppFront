@@ -49,7 +49,7 @@ export default function CharacterScreen() {
   };
 
   return (
-    <MainContainer style={styles.container}>
+    <MainContainer style={styles.container} edgeToEdge>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <ImageBackground
           source={data.imageUrl ? { uri: data.imageUrl } : undefined}

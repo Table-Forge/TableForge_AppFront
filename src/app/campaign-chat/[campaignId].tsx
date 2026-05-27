@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
@@ -19,7 +19,7 @@ import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
-import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 export default function CampaignChatScreen() {
   const { campaignId } = useLocalSearchParams();
@@ -73,10 +73,11 @@ export default function CampaignChatScreen() {
 
   return (
     <Screen style={styles.container} keyboardAware>
-      <Screen.Header>
+      <Screen.Header style={styles.topWrapper}>
         <HeaderActions>
           <ActionButton
             variant="circle"
+            style={styles.backButton}
             icon={
               <Ionicons
                 name="arrow-back"
@@ -88,14 +89,18 @@ export default function CampaignChatScreen() {
           />
           <View style={styles.headerTextContainer}>
             <View style={styles.headerTitleRow}>
-              <FontAwesome5
-                name="beer"
-                size={14}
-                color={DEFAULT_COLORS.purpleBright}
+              <FontAwesome6
+                name="beer-mug-empty"
+                size={12}
+                color={DEFAULT_COLORS.tertiary}
               />
               <ThemedText style={styles.headerEyebrow}>Taverna</ThemedText>
             </View>
-            <ThemedText style={styles.headerSubtitle} numberOfLines={1}>
+            <ThemedText
+              style={styles.headerSubtitle}
+              numberOfLines={1}
+              weight="bold"
+            >
               {campaign?.title || "Campanha"}
             </ThemedText>
           </View>
@@ -104,6 +109,13 @@ export default function CampaignChatScreen() {
       </Screen.Header>
 
       <Screen.Body style={styles.content}>
+        <View style={styles.sectionHeader}>
+          <ThemedText weight="bold" style={styles.sectionTitle}>
+            Histórico
+          </ThemedText>
+          <View style={styles.sectionLine} />
+        </View>
+
         <FlatList
           inverted
           data={messages}
@@ -115,9 +127,11 @@ export default function CampaignChatScreen() {
           refreshing={isLoading}
           onRefresh={refetch}
           ListEmptyComponent={
-            <ThemedText style={styles.emptyText}>
-              Nenhuma mensagem por aqui.
-            </ThemedText>
+            <View style={styles.emptyWrapper}>
+              <ThemedText style={styles.emptyText}>
+                Nenhuma mensagem por aqui.
+              </ThemedText>
+            </View>
           }
         />
 
@@ -176,7 +190,17 @@ const MessageBubble = ({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: SURFACES.background,
+  },
+  topWrapper: {
+    paddingHorizontal: 20,
+    paddingBottom: 6,
+  },
+  backButton: {
+    backgroundColor: DEFAULT_COLORS.primary_80,
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.secondary_30,
   },
   headerTextContainer: {
     flex: 1,
@@ -185,20 +209,19 @@ const styles = StyleSheet.create({
   headerTitleRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
   headerEyebrow: {
     fontSize: 11,
-    color: DEFAULT_COLORS.purpleBright,
+    color: DEFAULT_COLORS.tertiary,
     letterSpacing: 2,
     textTransform: "uppercase",
     ...fonts.bold,
   },
   headerSubtitle: {
     marginTop: 2,
-    fontSize: 14,
+    fontSize: 16,
     color: DEFAULT_COLORS.white,
-    ...fonts.bold,
   },
   headerSpacer: {
     width: 45,
@@ -206,17 +229,36 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginTop: 12,
+    marginBottom: 6,
+    gap: 12,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    color: DEFAULT_COLORS.tertiary,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+  },
+  sectionLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: DEFAULT_COLORS.tertiary_20,
+  },
   listContent: {
     paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingVertical: 14,
     flexGrow: 1,
     justifyContent: "flex-end",
-    gap: 6,
+    gap: 8,
   },
   messageRow: {
     width: "100%",
     alignItems: "flex-start",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   myMessageRow: {
     alignItems: "flex-end",
@@ -227,17 +269,18 @@ const styles = StyleSheet.create({
     borderRadius: RADII.lg,
     backgroundColor: SURFACES.card,
     borderWidth: 1,
-    borderColor: BORDERS.subtle,
+    borderColor: BORDERS.highlight,
+    ...SHADOWS.soft,
   },
   myBubble: {
     backgroundColor: DEFAULT_COLORS.orangeGlow_25,
-    borderColor: DEFAULT_COLORS.orange,
+    borderColor: BORDERS.cta,
   },
   username: {
     fontSize: 11,
-    color: DEFAULT_COLORS.purpleBright,
+    color: DEFAULT_COLORS.tertiary,
     marginBottom: 6,
-    letterSpacing: 1,
+    letterSpacing: 1.5,
     textTransform: "uppercase",
     ...fonts.bold,
   },
@@ -253,8 +296,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    paddingHorizontal: 12,
-    paddingTop: 10,
+    paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 14,
     borderTopWidth: 1,
     borderTopColor: BORDERS.divider,
@@ -266,9 +309,19 @@ const styles = StyleSheet.create({
   sendButtonDisabled: {
     opacity: 0.45,
   },
+  emptyWrapper: {
+    marginTop: 24,
+    marginHorizontal: 4,
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.white_10,
+    borderRadius: 12,
+    padding: 18,
+    backgroundColor: DEFAULT_COLORS.primary_45,
+    alignItems: "center",
+    gap: 12,
+  },
   emptyText: {
-    marginTop: 40,
+    color: DEFAULT_COLORS.grays?._200 || DEFAULT_COLORS.white_70,
     textAlign: "center",
-    color: DEFAULT_COLORS.textMuted,
   },
 });

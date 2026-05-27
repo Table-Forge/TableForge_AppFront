@@ -9,7 +9,6 @@ import {
 import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
 import { Mail, MailOpen } from "lucide-react-native";
 
-import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { WizardTowerIcon } from "@/src/components/icons";
 import { Screen } from "@/src/components/screen/screen";
 import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
@@ -20,7 +19,7 @@ import { useNotificationsMutation } from "@/src/features/notifications/hooks/use
 import { INotification } from "@/src/features/notifications/schemas/notification.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
-import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 export default function Notifications() {
   const { user } = useAuth();
@@ -64,6 +63,10 @@ export default function Notifications() {
   const notifications = useMemo(
     () => notificationsQuery.data?.items ?? [],
     [notificationsQuery.data?.items],
+  );
+  const unreadCount = useMemo(
+    () => notifications.filter((notification) => !notification.read).length,
+    [notifications],
   );
   const isSelectionMode = selectedIds.length > 0;
 
@@ -129,10 +132,12 @@ export default function Notifications() {
           !item.read && styles.unreadCard,
           isSelected && styles.selectedCard,
         ]}
-        activeOpacity={0.7}
+        activeOpacity={0.8}
         onLongPress={() => toggleSelection(item.id)}
         onPress={() =>
-          isSelectionMode ? toggleSelection(item.id) : handleNotificationPress(item)
+          isSelectionMode
+            ? toggleSelection(item.id)
+            : handleNotificationPress(item)
         }
       >
         <View style={styles.row}>
@@ -230,44 +235,72 @@ export default function Notifications() {
     ];
   };
 
-  return (
-    <Screen>
-      <Screen.Header>
-        <HeaderActions>
-          <ThemedText style={styles.headerTitle}>
-            {isSelectionMode
-              ? `${selectedIds.length} selecionada(s)`
-              : "Notificações"}
-          </ThemedText>
+  const subtitle = isSelectionMode
+    ? `${selectedIds.length} selecionada(s)`
+    : unreadCount > 0
+      ? `${unreadCount} nova${unreadCount === 1 ? "" : "s"}`
+      : "Tudo em dia";
 
-          <MenuPopup
-            trigger={
-              <MaterialDesignIcons
-                name="dots-vertical-circle-outline"
-                size={32}
-                color={DEFAULT_COLORS.white}
-              />
-            }
-            options={menuOptions()}
-          />
-        </HeaderActions>
+  return (
+    <Screen style={styles.screen}>
+      <Screen.Header style={styles.topWrapper}>
+        <View style={styles.titleWrapper}>
+          <ThemedText weight="bold" style={styles.eyebrow}>
+            Inbox místico
+          </ThemedText>
+          <View style={styles.titleRow}>
+            <FontAwesome6
+              name="scroll"
+              size={16}
+              color={DEFAULT_COLORS.secondary}
+              style={styles.titleIcon}
+            />
+            <ThemedText weight="bold" style={styles.titleValue}>
+              {subtitle}
+            </ThemedText>
+          </View>
+        </View>
+
+        <View style={styles.headerActions}>
+          <View style={styles.menuButton}>
+            <MenuPopup
+              trigger={
+                <MaterialDesignIcons
+                  name="dots-vertical-circle-outline"
+                  size={32}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              options={menuOptions()}
+            />
+          </View>
+        </View>
       </Screen.Header>
 
       <Screen.Body>
+        <View style={styles.sectionHeader}>
+          <ThemedText weight="bold" style={styles.sectionTitle}>
+            Notificações
+          </ThemedText>
+          <View style={styles.sectionLine} />
+        </View>
+
         <FlatList
           showsVerticalScrollIndicator={false}
-          style={{ width: "100%" }}
+          style={styles.list}
           data={notifications}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          contentContainerStyle={[styles.listContent, { flexGrow: 1 }]}
+          contentContainerStyle={styles.listContent}
           ListEmptyComponent={
-            <ThemedText style={styles.emptyText}>
-              {notificationsQuery.isError
-                ? "Não foi possível carregar as notificações."
-                : "Nenhuma notificação por aqui."}
-            </ThemedText>
+            <View style={styles.emptyWrapper}>
+              <ThemedText style={styles.emptyText}>
+                {notificationsQuery.isError
+                  ? "Não foi possível carregar as notificações."
+                  : "Nenhuma notificação por aqui."}
+              </ThemedText>
+            </View>
           }
           refreshing={notificationsQuery.isRefetching}
           onRefresh={notificationsQuery.refetch}
@@ -304,23 +337,107 @@ function formatNotificationDate(date?: string) {
 }
 
 const styles = StyleSheet.create({
-  headerTitle: { fontSize: 20, ...fonts.bold, color: DEFAULT_COLORS.white },
-  listContent: { paddingBottom: 20, paddingTop: 6 },
+  screen: {
+    flex: 1,
+    backgroundColor: DEFAULT_COLORS.background,
+  },
+  topWrapper: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingBottom: 6,
+  },
+  titleWrapper: {
+    flex: 1,
+    justifyContent: "flex-start",
+  },
+  eyebrow: {
+    fontSize: 11,
+    color: DEFAULT_COLORS.grays?._200 || DEFAULT_COLORS.white_65,
+    letterSpacing: 1.5,
+    marginBottom: 4,
+    textTransform: "uppercase",
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  titleIcon: {
+    textShadowColor: DEFAULT_COLORS.secondary_50,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  titleValue: {
+    fontSize: 18,
+    color: DEFAULT_COLORS.white,
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  menuButton: {
+    width: 42,
+    height: 42,
+    borderRadius: RADII.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: DEFAULT_COLORS.primary_80,
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.secondary_30,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginTop: 12,
+    marginBottom: 14,
+    gap: 12,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    color: DEFAULT_COLORS.tertiary,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+  },
+  sectionLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: DEFAULT_COLORS.tertiary_20,
+  },
+  list: {
+    width: "100%",
+  },
+  listContent: {
+    paddingBottom: 24,
+    paddingHorizontal: 16,
+    flexGrow: 1,
+    gap: 10,
+  },
   notificationCard: {
     width: "100%",
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 14,
-    backgroundColor: "transparent",
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.lg,
+    borderWidth: 1,
+    borderColor: BORDERS.highlight,
+    ...SHADOWS.soft,
   },
   unreadCard: {
     backgroundColor: DEFAULT_COLORS.orangeGlow_07,
-    borderLeftWidth: 3,
-    borderLeftColor: DEFAULT_COLORS.orange,
+    borderColor: BORDERS.ctaSoft,
   },
   selectedCard: {
-    backgroundColor: DEFAULT_COLORS.secondary_10,
+    borderColor: BORDERS.cta,
+    backgroundColor: DEFAULT_COLORS.orangeGlow_25,
   },
-  row: { flexDirection: "row" },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   iconContainer: {
     width: 48,
     height: 48,
@@ -354,14 +471,21 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   separator: {
-    height: 1,
-    backgroundColor: BORDERS.divider,
-    width: "90%",
-    alignSelf: "center",
+    height: 0,
+  },
+  emptyWrapper: {
+    marginTop: 24,
+    marginHorizontal: 4,
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.white_10,
+    borderRadius: 12,
+    padding: 18,
+    backgroundColor: DEFAULT_COLORS.primary_45,
+    alignItems: "center",
+    gap: 12,
   },
   emptyText: {
+    color: DEFAULT_COLORS.grays?._200 || DEFAULT_COLORS.white_70,
     textAlign: "center",
-    marginTop: 40,
-    color: DEFAULT_COLORS.textMuted,
   },
 });

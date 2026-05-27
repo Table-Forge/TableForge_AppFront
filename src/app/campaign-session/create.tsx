@@ -24,7 +24,12 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ScrollToFocusedInputProvider } from "@/src/context/scroll-to-focused-input";
 import { useCampaignSessionsMutation } from "@/src/features/campaign-sessions/hooks/use-campaign-sessions-mutations";
 import { CampaignSessionCreateSchema } from "@/src/features/campaign-sessions/schemas/campaign-session.schema";
+import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
+import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-campaign-members";
+import { useAuth } from "@/src/context/auth";
+import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
+import dayjs from "dayjs";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, SURFACES } from "@/src/theme/tokens";
@@ -33,12 +38,17 @@ type ICampaignSessionCreateInput = z.input<typeof CampaignSessionCreateSchema>;
 type ICampaignSessionCreate = z.output<typeof CampaignSessionCreateSchema>;
 
 export default function CreateCampaignSessionScreen() {
+  const { user } = useAuth();
   const { campaignId, date } = useLocalSearchParams();
   const parsedCampaignId = Number(campaignId);
   const selectedDate = Array.isArray(date) ? date[0] : date;
   const minSessionDate = new Date();
   const { handleBack } = useBackRouter();
   const scrollViewRef = useRef<ScrollView>(null);
+  const { data: campaign } = useCampaign(parsedCampaignId);
+  const { data: members = [] } = useCampaignMembers({
+    campaignId: parsedCampaignId,
+  });
   const { createCampaignSessionMutation, isCreatingCampaignSession } =
     useCampaignSessionsMutation();
 
@@ -72,7 +82,22 @@ export default function CreateCampaignSessionScreen() {
 
   const onSubmit: SubmitHandler<ICampaignSessionCreate> = (data) => {
     createCampaignSessionMutation.mutate(data, {
-      onSuccess: () => handleBack(),
+      onSuccess: () => {
+        if (campaign) {
+          const senderId = user?.id ? Number(user.id) : undefined;
+          const recipientIds = members
+            .map((member) => member.userId)
+            .filter((id) => id !== senderId);
+          notify.newSession({
+            memberIds: recipientIds,
+            campaignId: parsedCampaignId,
+            campaignTitle: campaign.title,
+            sessionTitle: data.title,
+            sessionDate: dayjs(data.date).format("DD/MM/YYYY [às] HH:mm"),
+          });
+        }
+        handleBack();
+      },
     });
   };
 

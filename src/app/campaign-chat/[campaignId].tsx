@@ -20,6 +20,8 @@ import { IChatMessage } from "@/src/features/chat-messages/schemas/chat-message.
 import { useChatMessages } from "@/src/features/chat-messages/hooks/use-chat-messages";
 import { useChatMessagesMutation } from "@/src/features/chat-messages/hooks/use-chat-messages-mutations";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
+import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-campaign-members";
+import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
@@ -33,6 +35,9 @@ export default function CampaignChatScreen() {
   const [message, setMessage] = useState("");
 
   const { data: campaign } = useCampaign(parsedCampaignId);
+  const { data: members = [] } = useCampaignMembers({
+    campaignId: parsedCampaignId,
+  });
   const { data = [], isLoading, refetch } = useChatMessages({
     campaignId: parsedCampaignId,
   });
@@ -53,7 +58,21 @@ export default function CampaignChatScreen() {
         content,
       },
       {
-        onSuccess: () => setMessage(""),
+        onSuccess: () => {
+          if (campaign) {
+            const senderId = Number(user.id);
+            const recipientIds = members
+              .map((member) => member.userId)
+              .filter((id) => id !== senderId);
+            notify.newChatMessage({
+              memberIds: recipientIds,
+              campaignId: parsedCampaignId,
+              campaignTitle: campaign.title,
+              senderName: user.nickname || user.username || "Aventureiro",
+            });
+          }
+          setMessage("");
+        },
       },
     );
   };

@@ -24,6 +24,10 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ScrollToFocusedInputProvider } from "@/src/context/scroll-to-focused-input";
 import { useCampaignAnnouncementsMutation } from "@/src/features/campaign-announcements/hooks/use-campaign-announcements-mutations";
 import { CampaignAnnouncementCreateSchema } from "@/src/features/campaign-announcements/schemas/campaign-announcement.schema";
+import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
+import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-campaign-members";
+import { useAuth } from "@/src/context/auth";
+import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
@@ -37,10 +41,15 @@ type ICampaignAnnouncementCreate = z.output<
 >;
 
 export default function CreateCampaignAnnouncementScreen() {
+  const { user } = useAuth();
   const { campaignId } = useLocalSearchParams();
   const parsedCampaignId = Number(campaignId);
   const { handleBack } = useBackRouter();
   const scrollViewRef = useRef<ScrollView>(null);
+  const { data: campaign } = useCampaign(parsedCampaignId);
+  const { data: members = [] } = useCampaignMembers({
+    campaignId: parsedCampaignId,
+  });
   const { createCampaignAnnouncementMutation, isCreatingCampaignAnnouncement } =
     useCampaignAnnouncementsMutation(parsedCampaignId);
 
@@ -67,7 +76,21 @@ export default function CreateCampaignAnnouncementScreen() {
 
   const onSubmit: SubmitHandler<ICampaignAnnouncementCreate> = (data) => {
     createCampaignAnnouncementMutation.mutate(data, {
-      onSuccess: () => handleBack(),
+      onSuccess: () => {
+        if (campaign) {
+          const senderId = user?.id ? Number(user.id) : undefined;
+          const recipientIds = members
+            .map((member) => member.userId)
+            .filter((id) => id !== senderId);
+          notify.newAnnouncement({
+            memberIds: recipientIds,
+            campaignId: parsedCampaignId,
+            campaignTitle: campaign.title,
+            announcementTitle: data.title,
+          });
+        }
+        handleBack();
+      },
     });
   };
 

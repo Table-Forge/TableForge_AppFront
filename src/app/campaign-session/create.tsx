@@ -32,8 +32,10 @@ type ICampaignSessionCreateInput = z.input<typeof CampaignSessionCreateSchema>;
 type ICampaignSessionCreate = z.output<typeof CampaignSessionCreateSchema>;
 
 export default function CreateCampaignSessionScreen() {
-  const { campaignId } = useLocalSearchParams();
+  const { campaignId, date } = useLocalSearchParams();
   const parsedCampaignId = Number(campaignId);
+  const selectedDate = Array.isArray(date) ? date[0] : date;
+  const minSessionDate = new Date();
   const { handleBack } = useBackRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   const { createCampaignSessionMutation, isCreatingCampaignSession } =
@@ -50,7 +52,7 @@ export default function CreateCampaignSessionScreen() {
       title: "",
       location: "",
       link: "",
-      date: new Date().toISOString(),
+      date: selectedDate || new Date().toISOString(),
     },
   });
   const { handleSubmit, setValue } = hookForm;
@@ -60,6 +62,12 @@ export default function CreateCampaignSessionScreen() {
 
     setValue("campaignId", parsedCampaignId);
   }, [parsedCampaignId, setValue]);
+
+  useEffect(() => {
+    if (!selectedDate) return;
+
+    setValue("date", selectedDate);
+  }, [selectedDate, setValue]);
 
   const onSubmit: SubmitHandler<ICampaignSessionCreate> = (data) => {
     createCampaignSessionMutation.mutate(data, {
@@ -110,6 +118,7 @@ export default function CreateCampaignSessionScreen() {
                 hookForm={hookForm}
                 name="date"
                 label="Data"
+                minDate={minSessionDate}
                 placeholder="Selecione a data"
               />
 

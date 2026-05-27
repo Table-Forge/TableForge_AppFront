@@ -1,4 +1,5 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { useMemo, useState } from "react";
+import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import dayjs from "dayjs";
@@ -24,6 +25,16 @@ export function CallendarTab({
   sessions,
 }: CallendarTabProps) {
   const router = useRouter();
+  const [selectedSessionId, setSelectedSessionId] = useState<number>();
+
+  const handleCreateSession = (date?: string) => {
+    if (!isMaster) return;
+
+    router.push({
+      pathname: "/campaign-session/create",
+      params: date ? { campaignId, date } : { campaignId },
+    } as any);
+  };
 
   if (!canSeePrivateModules) {
     return (
@@ -40,68 +51,39 @@ export function CallendarTab({
     <>
       <View style={styles.module}>
         <ThemedText style={styles.moduleTitle}>Agenda</ThemedText>
-        <CalendarWidget />
+        <CalendarWidget
+          isMaster={isMaster}
+          sessions={sessions}
+          onSelectDate={handleCreateSession}
+        />
       </View>
 
       <View style={styles.module}>
         <ModuleHeader
           title="Sessões agendadas"
           actionText={isMaster ? "Nova sessão" : undefined}
-          onActionPress={
-            isMaster
-              ? () =>
-                  router.push({
-                    pathname: "/campaign-session/create",
-                    params: { campaignId },
-                  } as any)
-              : undefined
-          }
+          onActionPress={isMaster ? () => handleCreateSession() : undefined}
         />
         {sessions.length ? (
           sessions.map((session) => (
-            <View key={session.id} style={styles.sessionItem}>
-              <View style={styles.sessionDateBox}>
-                <ThemedText style={styles.sessionDateText}>
-                  {dayjs(session.date).format("DD/MM")}
-                </ThemedText>
-                <ThemedText style={styles.sessionDateText}>
-                  - {dayjs(session.date).format("HH:mm")}
-                </ThemedText>
-              </View>
-              <View style={styles.sessionContentBox}>
-                <ThemedText style={styles.sessionTitle}>
-                  {session.title}
-                </ThemedText>
-                <ThemedText style={styles.sessionLocation}>
-                  {session.location}
-                </ThemedText>
-              </View>
-              {isMaster && (
-                <View style={styles.sessionActionsBox}>
-                  <TouchableOpacity onPress={() => onDeleteSession(session)}>
-                    <FontAwesome5
-                      name="trash"
-                      size={16}
-                      color={DEFAULT_COLORS.white}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() =>
-                      router.push({
-                        pathname: "/campaign-session/[sessionId]/edit",
-                        params: { sessionId: session.id },
-                      } as any)
-                    }
-                  >
-                    <FontAwesome5
-                      name="pen"
-                      size={16}
-                      color={DEFAULT_COLORS.white}
-                    />
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
+            <SessionItem
+              key={session.id}
+              isExpanded={selectedSessionId === session.id}
+              isMaster={isMaster}
+              session={session}
+              onDeleteSession={onDeleteSession}
+              onPress={() =>
+                setSelectedSessionId((currentId) =>
+                  currentId === session.id ? undefined : session.id,
+                )
+              }
+              onEditSession={() =>
+                router.push({
+                  pathname: "/campaign-session/[sessionId]/edit",
+                  params: { sessionId: session.id },
+                } as any)
+              }
+            />
           ))
         ) : (
           <EmptyText text="Nenhuma sessão agendada." />
@@ -111,24 +93,96 @@ export function CallendarTab({
   );
 }
 
-const CalendarWidget = () => {
+const CalendarWidget = ({
+  isMaster,
+  onSelectDate,
+  sessions,
+}: {
+  isMaster: boolean;
+  onSelectDate: (date: string) => void;
+  sessions: ICampaignSessionList[];
+}) => {
   const daysOfWeek = ["dom.", "seg.", "ter.", "qua.", "qui.", "sex.", "sáb."];
-  const calendarGrid = [
-    [29, 30, 31, 1, 2, 3, 4],
-    [5, 6, 7, 8, 9, 10, 11],
-    [12, 13, 14, 15, 16, 17, 18],
-    [19, 20, 21, 22, 23, 24, 25],
-    [26, 27, 28, 29, 30, 31, 1],
-    [2, 3, 4, 5, 6, 7, 8],
+  const monthNames = [
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
   ];
+  const [visibleMonth, setVisibleMonth] = useState(() =>
+    dayjs().startOf("month"),
+  );
+  const sessionsByDate = useMemo(() => {
+    return sessions.reduce<Record<string, ICampaignSessionList[]>>(
+      (acc, session) => {
+        const dateKey = dayjs(session.date).format("YYYY-MM-DD");
+        acc[dateKey] = [...(acc[dateKey] ?? []), session];
+        return acc;
+      },
+      {},
+    );
+  }, [sessions]);
+  const calendarDays = useMemo(() => {
+    const firstDay = visibleMonth.startOf("month");
+    const gridStart = firstDay.subtract(firstDay.day(), "day");
+    const today = dayjs().startOf("day");
+
+    return Array.from({ length: 42 }, (_, index) => {
+      const date = gridStart.add(index, "day");
+      const dateKey = date.format("YYYY-MM-DD");
+
+      return {
+        date,
+        dateKey,
+        isBeforeToday: date.isBefore(today, "day"),
+        isCurrentMonth: date.month() === visibleMonth.month(),
+        sessions: sessionsByDate[dateKey] ?? [],
+      };
+    });
+  }, [sessionsByDate, visibleMonth]);
 
   return (
     <View style={styles.calendarContainer}>
       <View style={styles.calendarHeader}>
-        <View style={styles.monthPill}>
-          <ThemedText style={styles.monthText}>janeiro</ThemedText>
-        </View>
+        <TouchableOpacity
+          style={styles.monthButton}
+          onPress={() =>
+            setVisibleMonth((currentMonth) =>
+              currentMonth.subtract(1, "month"),
+            )
+          }
+        >
+          <FontAwesome5
+            name="chevron-left"
+            size={12}
+            color={DEFAULT_COLORS.white}
+          />
+        </TouchableOpacity>
+        <ThemedText style={styles.monthText}>
+          {monthNames[visibleMonth.month()]} {visibleMonth.year()}
+        </ThemedText>
+        <TouchableOpacity
+          style={styles.monthButton}
+          onPress={() =>
+            setVisibleMonth((currentMonth) => currentMonth.add(1, "month"))
+          }
+        >
+          <FontAwesome5
+            name="chevron-right"
+            size={12}
+            color={DEFAULT_COLORS.white}
+          />
+        </TouchableOpacity>
       </View>
+
       <View style={styles.daysHeaderRow}>
         {daysOfWeek.map((day) => (
           <ThemedText key={day} style={styles.dayOfWeekText}>
@@ -136,33 +190,142 @@ const CalendarWidget = () => {
           </ThemedText>
         ))}
       </View>
-      {calendarGrid.map((row, i) => (
-        <View key={i} style={styles.daysRow}>
-          {row.map((day, j) => {
-            const isOtherMonth = (i === 0 && day > 20) || (i >= 4 && day < 15);
-            const isSelected = day === 30 && !isOtherMonth;
-            return (
-              <View
-                key={j}
-                style={[styles.dayCell, isSelected && styles.selectedDayCell]}
-              >
-                <ThemedText
+
+      {Array.from({ length: 6 }, (_, rowIndex) => (
+        <View key={rowIndex} style={styles.daysRow}>
+          {calendarDays
+            .slice(rowIndex * 7, rowIndex * 7 + 7)
+            .map(
+              ({
+                date,
+                dateKey,
+                isBeforeToday,
+                isCurrentMonth,
+                sessions: daySessions,
+              }) => {
+              const hasSession = daySessions.length > 0;
+              const isDisabled = !isMaster || isBeforeToday;
+
+              return (
+                <TouchableOpacity
+                  key={dateKey}
+                  activeOpacity={0.75}
+                  disabled={isDisabled}
                   style={[
-                    styles.dayText,
-                    isOtherMonth && styles.otherMonthText,
-                    isSelected && styles.selectedDayText,
+                    styles.dayCell,
+                    !isCurrentMonth && styles.otherMonthCell,
+                    isBeforeToday && styles.pastDayCell,
+                    hasSession && styles.dayWithSessionCell,
                   ]}
+                  onPress={() => onSelectDate(date.toISOString())}
                 >
-                  {day}
-                </ThemedText>
-              </View>
-            );
-          })}
+                  <ThemedText
+                    style={[
+                      styles.dayText,
+                      !isCurrentMonth && styles.otherMonthText,
+                      isBeforeToday && styles.pastDayText,
+                      hasSession && styles.dayWithSessionText,
+                    ]}
+                  >
+                    {date.date()}
+                  </ThemedText>
+                  {hasSession && <View style={styles.sessionMarker} />}
+                </TouchableOpacity>
+              );
+            },
+            )}
         </View>
       ))}
     </View>
   );
 };
+
+const SessionItem = ({
+  isExpanded,
+  isMaster,
+  onDeleteSession,
+  onEditSession,
+  onPress,
+  session,
+}: {
+  isExpanded: boolean;
+  isMaster: boolean;
+  onDeleteSession: (session: ICampaignSessionList) => void;
+  onEditSession: () => void;
+  onPress: () => void;
+  session: ICampaignSessionList;
+}) => {
+  const sessionDate = dayjs(session.date);
+  const sessionPlace = session.link || session.location;
+
+  return (
+    <Pressable onPress={onPress} style={styles.sessionItem}>
+      <View style={styles.sessionSummary}>
+        <View style={styles.sessionDateBox}>
+          <ThemedText style={styles.sessionDateText}>
+            {sessionDate.format("DD/MM")}
+          </ThemedText>
+          <ThemedText style={styles.sessionDateText}>
+            - {sessionDate.format("HH:mm")}
+          </ThemedText>
+        </View>
+        <View style={styles.sessionContentBox}>
+          <ThemedText style={styles.sessionTitle}>{session.title}</ThemedText>
+          <ThemedText style={styles.sessionLocation}>{sessionPlace}</ThemedText>
+        </View>
+        {isMaster && (
+          <View style={styles.sessionActionsBox}>
+            <Pressable
+              onPress={(event) => {
+                event.stopPropagation();
+                onDeleteSession(session);
+              }}
+            >
+              <FontAwesome5
+                name="trash"
+                size={16}
+                color={DEFAULT_COLORS.white}
+              />
+            </Pressable>
+            <Pressable
+              onPress={(event) => {
+                event.stopPropagation();
+                onEditSession();
+              }}
+            >
+              <FontAwesome5
+                name="pen"
+                size={16}
+                color={DEFAULT_COLORS.white}
+              />
+            </Pressable>
+          </View>
+        )}
+      </View>
+
+      {isExpanded && (
+        <View style={styles.sessionDetails}>
+          <DetailItem label="Título" value={session.title} />
+          <DetailItem
+            label="Data"
+            value={sessionDate.format("DD/MM/YYYY [às] HH:mm")}
+          />
+          <DetailItem
+            label={session.link ? "Link" : "Local"}
+            value={sessionPlace}
+          />
+        </View>
+      )}
+    </Pressable>
+  );
+};
+
+const DetailItem = ({ label, value }: { label: string; value: string }) => (
+  <View style={styles.detailItem}>
+    <ThemedText style={styles.detailLabel}>{label}</ThemedText>
+    <ThemedText style={styles.detailValue}>{value || "-"}</ThemedText>
+  </View>
+);
 
 const ModuleHeader = ({
   title,
@@ -231,18 +394,25 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   calendarHeader: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 16,
   },
-  monthPill: {
+  monthButton: {
+    width: 34,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: DEFAULT_COLORS.black,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
     borderRadius: 8,
   },
   monthText: {
+    flex: 1,
     fontSize: 14,
     color: DEFAULT_COLORS.white,
+    textAlign: "center",
+    textTransform: "capitalize",
   },
   daysHeaderRow: {
     flexDirection: "row",
@@ -266,9 +436,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     aspectRatio: 1,
     borderRadius: 8,
+    position: "relative",
   },
-  selectedDayCell: {
-    backgroundColor: DEFAULT_COLORS.black,
+  otherMonthCell: {
+    opacity: 0.45,
+  },
+  pastDayCell: {
+    opacity: 0.25,
+  },
+  dayWithSessionCell: {
+    backgroundColor: "rgba(251, 69, 1, 0.16)",
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.tertiary,
   },
   dayText: {
     fontSize: 14,
@@ -277,17 +456,30 @@ const styles = StyleSheet.create({
   otherMonthText: {
     color: "rgba(255,255,255,0.2)",
   },
-  selectedDayText: {
+  pastDayText: {
+    color: "rgba(255,255,255,0.28)",
+  },
+  dayWithSessionText: {
     color: DEFAULT_COLORS.white,
     fontWeight: "bold",
   },
+  sessionMarker: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: DEFAULT_COLORS.tertiary,
+    position: "absolute",
+    bottom: 5,
+  },
   sessionItem: {
-    flexDirection: "row",
     borderTopWidth: 1,
     borderTopColor: "rgba(255,255,255,0.06)",
     paddingVertical: 12,
-    alignItems: "center",
     marginTop: 4,
+  },
+  sessionSummary: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   sessionDateBox: {
     width: 80,
@@ -317,5 +509,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     paddingLeft: 12,
+  },
+  sessionDetails: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.06)",
+    gap: 10,
+  },
+  detailItem: {
+    gap: 2,
+  },
+  detailLabel: {
+    fontSize: 11,
+    color: DEFAULT_COLORS.tertiary,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+  },
+  detailValue: {
+    fontSize: 14,
+    color: DEFAULT_COLORS.white,
   },
 });

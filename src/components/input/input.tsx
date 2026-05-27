@@ -2,6 +2,7 @@ import React, { forwardRef, useRef, useState } from "react";
 import {
   StyleProp,
   StyleSheet,
+  Text,
   TextInput,
   TextInputProps,
   TouchableOpacity,
@@ -49,6 +50,10 @@ export const Input = forwardRef<TextInput, InputProps>(
       const sanitizedValue = removeSpaces ? value.replace(/\s+/g, "") : value;
       onChangeText?.(sanitizedValue);
     };
+
+    const showCounter =
+      props.multiline === true && typeof props.maxLength === "number";
+    const currentLength = String(props.value ?? "").length;
 
     return (
       <View ref={wrapperRef} collapsable={false} style={styles.wrapper}>
@@ -113,6 +118,12 @@ export const Input = forwardRef<TextInput, InputProps>(
                 color={DEFAULT_COLORS.white_35}
               />
             </View>
+          )}
+
+          {showCounter && (
+            <Text style={styles.counter}>
+              {currentLength}/{props.maxLength} caracteres
+            </Text>
           )}
         </View>
 
@@ -184,5 +195,13 @@ const styles = StyleSheet.create({
   statusMarkDisabled: {
     backgroundColor: DEFAULT_COLORS.white_10,
     borderColor: DEFAULT_COLORS.white_08,
+  },
+  counter: {
+    position: "absolute",
+    right: 12,
+    bottom: 8,
+    fontSize: 11,
+    color: DEFAULT_COLORS.textMuted,
+    ...fonts.regular,
   },
 });

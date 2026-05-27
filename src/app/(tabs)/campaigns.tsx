@@ -11,15 +11,20 @@ import { useLocation } from "@/src/hooks/use-location";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { Entypo } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { ParamListBase, useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { NavigationProp, ParamListBase, useNavigation } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 
 export default function Campaigns() {
-  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const router = useRouter();
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -31,6 +36,8 @@ export default function Campaigns() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isRefetching,
+    refetch,
   } = useInfiniteCampaigns({ size: CAMPAIGNS_PAGE_SIZE });
 
   const campaigns = useMemo(
@@ -43,7 +50,7 @@ export default function Campaigns() {
   }${location?.region || ""}`;
 
   const carouselWidth = SCREEN_WIDTH - 40;
-  const carouselHeight = Math.min(560, Math.max(430, SCREEN_HEIGHT * 0.62));
+  const carouselHeight = Math.min(620, Math.max(540, SCREEN_HEIGHT * 0.68));
   const hasCampaigns = campaigns.length > 0;
 
   useEffect(() => {
@@ -66,112 +73,137 @@ export default function Campaigns() {
     [campaigns.length, fetchNextPage, hasNextPage, isFetchingNextPage],
   );
 
+  const handleRefresh = useCallback(async () => {
+    setActiveIndex(0);
+    await refetch();
+  }, [refetch]);
+
   return (
     <MainContainer style={styles.container}>
-      <View style={styles.topWrapper}>
-        <View style={styles.locationWrapper}>
-          <ThemedText weight="bold" style={styles.locationLabel}>
-            Região rastreada
-          </ThemedText>
-          <View style={styles.locationTextContainer}>
-            {loading ? (
-              <ActivityIndicator color={DEFAULT_COLORS.tertiary} size="small" />
-            ) : (
-              <>
-                <FontAwesome6
-                  name="location-dot"
-                  color={DEFAULT_COLORS.secondary}
-                  size={16}
-                  style={styles.locationIcon}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={handleRefresh}
+            tintColor={DEFAULT_COLORS.tertiary}
+            colors={[DEFAULT_COLORS.tertiary]}
+          />
+        }
+      >
+        <View style={styles.topWrapper}>
+          <View style={styles.locationWrapper}>
+            <ThemedText weight="bold" style={styles.locationLabel}>
+              Região rastreada
+            </ThemedText>
+            <View style={styles.locationTextContainer}>
+              {loading ? (
+                <ActivityIndicator
+                  color={DEFAULT_COLORS.tertiary}
+                  size="small"
                 />
-                <ThemedText style={styles.locationValue} weight="bold">
-                  {locationString || "Desconhecida"}
-                </ThemedText>
-              </>
-            )}
-          </View>
-        </View>
-
-        <View style={styles.headerActions}>
-          <ActionButton
-            variant="circle"
-            icon={<Entypo name="plus" size={22} color={DEFAULT_COLORS.white} />}
-            onPress={() => router.push("/campaign/create")}
-            style={styles.headerButton}
-          />
-          <ActionButton
-            variant="circle"
-            icon={<Entypo name="bell" size={20} color={DEFAULT_COLORS.white} />}
-            onPress={() => navigation.navigate("notifications")}
-            style={styles.headerButton}
-          />
-        </View>
-      </View>
-
-      <View style={styles.listHeader}>
-        <ThemedText weight="bold" style={styles.listTitle}>
-          Mesas disponíveis
-        </ThemedText>
-        <View style={styles.listTitleLine} />
-      </View>
-
-      {isLoading && !hasCampaigns ? (
-        <View style={styles.emptyWrapper}>
-          <ActivityIndicator color={DEFAULT_COLORS.tertiary} size="large" />
-          <ThemedText style={styles.emptyText}>
-            Carregando campanhas...
-          </ThemedText>
-        </View>
-      ) : hasCampaigns ? (
-        <>
-          <View style={styles.deckWrapper}>
-            <Carousel
-              width={carouselWidth}
-              height={carouselHeight}
-              data={campaigns}
-              loop={false}
-              mode="horizontal-stack"
-              modeConfig={{
-                showLength: 3,
-                snapDirection: "left",
-                stackInterval: 18,
-                scaleInterval: 0.08,
-                opacityInterval: 0.12,
-                rotateZDeg: 8,
-              }}
-              onSnapToItem={handleSnapToItem}
-              onConfigurePanGesture={(gesture) => {
-                gesture.activeOffsetX([-10, 10]);
-              }}
-              renderItem={({ item }) => (
-                <View style={styles.cardSlot}>
-                  <CampaignItem data={item} variant="tinder" />
-                </View>
+              ) : (
+                <>
+                  <FontAwesome6
+                    name="location-dot"
+                    color={DEFAULT_COLORS.secondary}
+                    size={16}
+                    style={styles.locationIcon}
+                  />
+                  <ThemedText style={styles.locationValue} weight="bold">
+                    {locationString || "Desconhecida"}
+                  </ThemedText>
+                </>
               )}
+            </View>
+          </View>
+
+          <View style={styles.headerActions}>
+            <ActionButton
+              variant="circle"
+              icon={
+                <Entypo name="plus" size={22} color={DEFAULT_COLORS.white} />
+              }
+              onPress={() => router.push("/campaign/create")}
+              style={styles.headerButton}
+            />
+            <ActionButton
+              variant="circle"
+              icon={
+                <Entypo name="bell" size={20} color={DEFAULT_COLORS.white} />
+              }
+              onPress={() => navigation.navigate("notifications")}
+              style={styles.headerButton}
             />
           </View>
-
-          <View style={styles.metaRow}>
-            <ThemedText style={styles.swipeHint}>
-              Deslize para esquerda ou direita
-            </ThemedText>
-
-            {isFetchingNextPage ? (
-              <ThemedText style={styles.loadingMoreText}>
-                Carregando mais...
-              </ThemedText>
-            ) : null}
-          </View>
-        </>
-      ) : (
-        <View style={styles.emptyWrapper}>
-          <ThemedText style={styles.emptyText}>
-            {isError
-              ? "Nao foi possivel carregar campanhas"
-              : "Nenhuma campanha disponivel"}
-          </ThemedText>
         </View>
-      )}
+
+        <View style={styles.listHeader}>
+          <ThemedText weight="bold" style={styles.listTitle}>
+            Mesas disponíveis
+          </ThemedText>
+          <View style={styles.listTitleLine} />
+        </View>
+
+        {isLoading && !hasCampaigns ? (
+          <View style={styles.emptyWrapper}>
+            <ActivityIndicator color={DEFAULT_COLORS.tertiary} size="large" />
+            <ThemedText style={styles.emptyText}>
+              Carregando campanhas...
+            </ThemedText>
+          </View>
+        ) : hasCampaigns ? (
+          <>
+            <View style={styles.deckWrapper}>
+              <Carousel
+                width={carouselWidth}
+                height={carouselHeight}
+                data={campaigns}
+                loop={true}
+                mode="horizontal-stack"
+                modeConfig={{
+                  showLength: 3,
+                  snapDirection: "left",
+                  stackInterval: 18,
+                  scaleInterval: 0.08,
+                  opacityInterval: 0.12,
+                  rotateZDeg: 8,
+                }}
+                onSnapToItem={handleSnapToItem}
+                onConfigurePanGesture={(gesture) => {
+                  gesture.activeOffsetX([-10, 10]);
+                }}
+                renderItem={({ item }) => (
+                  <View style={styles.cardSlot}>
+                    <CampaignItem data={item} variant="tinder" />
+                  </View>
+                )}
+              />
+            </View>
+
+            <View style={styles.metaRow}>
+              <ThemedText style={styles.swipeHint}>
+                Deslize para esquerda ou direita
+              </ThemedText>
+
+              {isFetchingNextPage ? (
+                <ThemedText style={styles.loadingMoreText}>
+                  Carregando mais...
+                </ThemedText>
+              ) : null}
+            </View>
+          </>
+        ) : (
+          <View style={styles.emptyWrapper}>
+            <ThemedText style={styles.emptyText}>
+              {isError
+                ? "Nao foi possivel carregar campanhas"
+                : "Nenhuma campanha disponivel"}
+            </ThemedText>
+          </View>
+        )}
+      </ScrollView>
     </MainContainer>
   );
 }
@@ -179,9 +211,13 @@ export default function Campaigns() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: DEFAULT_COLORS.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 20,
     paddingTop: 10,
-    backgroundColor: DEFAULT_COLORS.background,
+    paddingBottom: 24,
   },
   topWrapper: {
     flexDirection: "row",
@@ -195,7 +231,7 @@ const styles = StyleSheet.create({
   },
   locationLabel: {
     fontSize: 11,
-    color: DEFAULT_COLORS.grays?._200 || "rgba(255,255,255,0.5)",
+    color: DEFAULT_COLORS.grays?._200 || DEFAULT_COLORS.white_65,
     letterSpacing: 1.5,
     marginBottom: 4,
     textTransform: "uppercase",
@@ -206,7 +242,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   locationIcon: {
-    textShadowColor: "rgba(126, 135, 226, 0.5)",
+    textShadowColor: DEFAULT_COLORS.secondary_50,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },
@@ -220,9 +256,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   headerButton: {
-    backgroundColor: "rgba(26, 26, 46, 0.8)",
+    backgroundColor: DEFAULT_COLORS.primary_80,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.3)",
+    borderColor: DEFAULT_COLORS.secondary_30,
   },
   listHeader: {
     flexDirection: "row",
@@ -240,7 +276,7 @@ const styles = StyleSheet.create({
   listTitleLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "rgba(251, 69, 1, 0.2)",
+    backgroundColor: DEFAULT_COLORS.tertiary_20,
   },
   deckWrapper: {
     alignItems: "center",
@@ -258,7 +294,7 @@ const styles = StyleSheet.create({
     minHeight: 20,
   },
   swipeHint: {
-    color: DEFAULT_COLORS.grays?._200 || "rgba(255,255,255,0.65)",
+    color: DEFAULT_COLORS.grays?._200 || DEFAULT_COLORS.white_65,
     fontSize: 12,
   },
   loadingMoreText: {
@@ -269,15 +305,15 @@ const styles = StyleSheet.create({
   emptyWrapper: {
     marginTop: 24,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: DEFAULT_COLORS.white_10,
     borderRadius: 12,
     padding: 18,
-    backgroundColor: "rgba(26, 26, 46, 0.45)",
+    backgroundColor: DEFAULT_COLORS.primary_45,
     alignItems: "center",
     gap: 12,
   },
   emptyText: {
-    color: DEFAULT_COLORS.grays?._200 || "rgba(255,255,255,0.7)",
+    color: DEFAULT_COLORS.grays?._200 || DEFAULT_COLORS.white_70,
     textAlign: "center",
   },
 });

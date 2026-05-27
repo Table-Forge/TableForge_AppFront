@@ -79,8 +79,8 @@ export default function CreateCharacterScreen() {
 
     reset({
       name: existingCharacter.name,
-      classId: String(existingCharacter.classId),
-      raceId: String(existingCharacter.raceId),
+      classId: existingCharacter.classId,
+      raceId: existingCharacter.raceId,
       alignment: existingCharacter.alignment ?? "",
       bio: existingCharacter.bio ?? "",
       imageUrl: existingCharacter.imageUrl ?? "",

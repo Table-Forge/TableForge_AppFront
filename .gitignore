@@ -34,3 +34,6 @@ npm-debug.*
 *.tsbuildinfo
 
 app-example
+
+# AI
+.claude

@@ -1,7 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
 import { Mail } from "lucide-react-native";
 
@@ -13,6 +19,8 @@ import { Screen } from "@/src/components/screen/screen";
 import { Tabs } from "@/src/components/tabs/tabs";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
+import { useFriendshipWithUser } from "@/src/features/friendships/hooks/use-friendship-with-user";
+import { useFriendshipsMutation } from "@/src/features/friendships/hooks/use-friendships-mutations";
 import { notify } from "@/src/features/notifications/helpers/notify";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
@@ -32,18 +40,81 @@ export default function PublicUserProfileScreen() {
   const userId = Number(id);
   const { data: user, isPending, isError } = useUser(userId);
   const [activeTab, setActiveTab] = useState<ITabs>("Perfil");
-  const [isFriend] = useState(false);
 
-  const isSelf = currentUser?.id === userId;
+  const currentUserId = currentUser?.id ? Number(currentUser.id) : undefined;
+  const isSelf = currentUserId === userId;
 
-  const handleFriendshipRequest = () => {
-    if (!currentUser?.id || !user) return;
-    notify.friendshipRequest({
-      receiverId: userId,
-      requesterId: Number(currentUser.id),
-      requesterName:
-        currentUser.nickname || currentUser.username || "Aventureiro",
+  const {
+    friendship,
+    isRequester,
+    isLoading: isLoadingFriendship,
+  } = useFriendshipWithUser({
+    currentUserId,
+    otherUserId: userId,
+  });
+
+  const {
+    createFriendshipMutation,
+    updateFriendshipMutation,
+    deleteFriendshipMutation,
+    isCreatingFriendship,
+    isUpdatingFriendship,
+    isDeletingFriendship,
+  } = useFriendshipsMutation();
+
+  const isMutatingFriendship =
+    isCreatingFriendship || isUpdatingFriendship || isDeletingFriendship;
+
+  const requesterName =
+    currentUser?.nickname || currentUser?.username || "Aventureiro";
+  const accepterName =
+    currentUser?.nickname || currentUser?.username || "Aventureiro";
+
+  const handleSendRequest = () => {
+    if (!currentUserId || !user) return;
+
+    createFriendshipMutation.mutate(
+      { requesterId: currentUserId, receiverId: userId },
+      {
+        onSuccess: () => {
+          notify.friendshipRequest({
+            receiverId: userId,
+            requesterId: currentUserId,
+            requesterName,
+          });
+        },
+      },
+    );
+  };
+
+  const handleAccept = () => {
+    if (!friendship || !currentUserId) return;
+
+    updateFriendshipMutation.mutate(
+      { id: friendship.id, status: "Accepted" },
+      {
+        onSuccess: () => {
+          notify.friendshipAccepted({
+            requesterId: friendship.requesterId,
+            accepterId: currentUserId,
+            accepterName,
+          });
+        },
+      },
+    );
+  };
+
+  const handleDecline = () => {
+    if (!friendship) return;
+    updateFriendshipMutation.mutate({
+      id: friendship.id,
+      status: "Declined",
     });
+  };
+
+  const handleRemove = () => {
+    if (!friendship) return;
+    deleteFriendshipMutation.mutate(friendship.id);
   };
 
   if (isPending) {
@@ -113,36 +184,16 @@ export default function PublicUserProfileScreen() {
             </View>
 
             {!isSelf && (
-              <View style={styles.actionsRow}>
-                <ActionButton
-                  variant="circle"
-                  active={!isFriend}
-                  icon={
-                    <Ionicons
-                      name={isFriend ? "person-remove" : "person-add"}
-                      size={20}
-                      color={DEFAULT_COLORS.white}
-                    />
-                  }
-                  onPress={handleFriendshipRequest}
-                />
-                <ActionButton
-                  variant="circle"
-                  icon={<Mail size={20} color={DEFAULT_COLORS.purpleBright} />}
-                  onPress={() => {}}
-                />
-                <ActionButton
-                  variant="circle"
-                  icon={
-                    <MaterialDesignIcons
-                      name="block-helper"
-                      size={20}
-                      color={DEFAULT_COLORS.danger}
-                    />
-                  }
-                  onPress={() => {}}
-                />
-              </View>
+              <FriendshipActions
+                isLoadingFriendship={isLoadingFriendship}
+                isMutating={isMutatingFriendship}
+                friendshipStatus={friendship?.status}
+                isRequester={isRequester}
+                onSendRequest={handleSendRequest}
+                onAccept={handleAccept}
+                onDecline={handleDecline}
+                onRemove={handleRemove}
+              />
             )}
 
             <Tabs<ITabs>
@@ -174,6 +225,179 @@ export default function PublicUserProfileScreen() {
     </>
   );
 }
+
+interface FriendshipActionsProps {
+  isLoadingFriendship: boolean;
+  isMutating: boolean;
+  friendshipStatus?: string;
+  isRequester: boolean;
+  onSendRequest: () => void;
+  onAccept: () => void;
+  onDecline: () => void;
+  onRemove: () => void;
+}
+
+const FriendshipActions = ({
+  isLoadingFriendship,
+  isMutating,
+  friendshipStatus,
+  isRequester,
+  onSendRequest,
+  onAccept,
+  onDecline,
+  onRemove,
+}: FriendshipActionsProps) => {
+  if (isLoadingFriendship) {
+    return (
+      <View style={styles.actionsRow}>
+        <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
+      </View>
+    );
+  }
+
+  const isPending = friendshipStatus === "Pending";
+  const isAccepted = friendshipStatus === "Accepted";
+  const canSendRequest =
+    !friendshipStatus ||
+    friendshipStatus === "None" ||
+    friendshipStatus === "Declined";
+
+  return (
+    <View style={styles.actionsRow}>
+      {canSendRequest && (
+        <FriendshipPill
+          loading={isMutating}
+          onPress={onSendRequest}
+          icon={
+            <Ionicons
+              name="person-add"
+              size={18}
+              color={DEFAULT_COLORS.white}
+            />
+          }
+          label="Adicionar amigo"
+          active
+        />
+      )}
+
+      {isPending && isRequester && (
+        <FriendshipPill
+          loading={isMutating}
+          onPress={onRemove}
+          icon={
+            <Ionicons
+              name="time-outline"
+              size={18}
+              color={DEFAULT_COLORS.white}
+            />
+          }
+          label="Cancelar solicitação"
+        />
+      )}
+
+      {isPending && !isRequester && (
+        <>
+          <FriendshipPill
+            loading={isMutating}
+            onPress={onAccept}
+            icon={
+              <Ionicons
+                name="checkmark"
+                size={18}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            label="Aceitar"
+            active
+          />
+          <FriendshipPill
+            loading={isMutating}
+            onPress={onDecline}
+            icon={
+              <Ionicons name="close" size={18} color={DEFAULT_COLORS.white} />
+            }
+            label="Recusar"
+          />
+        </>
+      )}
+
+      {isAccepted && (
+        <FriendshipPill
+          loading={isMutating}
+          onPress={onRemove}
+          icon={
+            <Ionicons
+              name="person-remove"
+              size={18}
+              color={DEFAULT_COLORS.white}
+            />
+          }
+          label="Desfazer amizade"
+        />
+      )}
+
+      <ActionButton
+        variant="circle"
+        icon={<Mail size={20} color={DEFAULT_COLORS.purpleBright} />}
+        onPress={() => {}}
+      />
+      <ActionButton
+        variant="circle"
+        icon={
+          <MaterialDesignIcons
+            name="block-helper"
+            size={20}
+            color={DEFAULT_COLORS.danger}
+          />
+        }
+        onPress={() => {}}
+      />
+    </View>
+  );
+};
+
+interface FriendshipPillProps {
+  loading?: boolean;
+  onPress: () => void;
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+}
+
+const FriendshipPill = ({
+  loading,
+  onPress,
+  icon,
+  label,
+  active = false,
+}: FriendshipPillProps) => {
+  if (loading) {
+    return (
+      <View style={styles.friendshipPillLoading}>
+        <ActivityIndicator
+          color={active ? DEFAULT_COLORS.white : DEFAULT_COLORS.purpleBright}
+          size="small"
+        />
+      </View>
+    );
+  }
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.friendshipPill,
+        active && styles.friendshipPillActive,
+        pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] },
+      ]}
+    >
+      {icon}
+      <ThemedText weight="bold" style={styles.friendshipPillLabel}>
+        {label}
+      </ThemedText>
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -265,7 +489,42 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 12,
+    flexWrap: "wrap",
+    gap: 8,
     marginBottom: 22,
+    minHeight: 44,
+  },
+  friendshipPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: RADII.pill,
+    borderWidth: 1,
+    borderColor: BORDERS.highlight,
+    backgroundColor: SURFACES.fill,
+  },
+  friendshipPillActive: {
+    borderColor: BORDERS.cta,
+    backgroundColor: DEFAULT_COLORS.orangeGlow_25,
+  },
+  friendshipPillLoading: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: RADII.pill,
+    borderWidth: 1,
+    borderColor: BORDERS.highlight,
+    backgroundColor: SURFACES.fill,
+    minWidth: 120,
+    minHeight: 44,
+  },
+  friendshipPillLabel: {
+    color: DEFAULT_COLORS.white,
+    fontSize: 12,
+    letterSpacing: 0.5,
   },
 });

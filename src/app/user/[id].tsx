@@ -66,25 +66,25 @@ export default function PublicUserProfileScreen() {
   return (
     <>
       <MainContainer style={styles.container}>
+        <HeaderActions>
+          <ActionButton
+            variant="circle"
+            icon={
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            onPress={handleBack}
+          />
+          <View style={styles.headerSpacer} />
+        </HeaderActions>
+
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
         >
-          <HeaderActions>
-            <ActionButton
-              variant="circle"
-              icon={
-                <Ionicons
-                  name="arrow-back"
-                  size={24}
-                  color={DEFAULT_COLORS.white}
-                />
-              }
-              onPress={handleBack}
-            />
-            <View style={styles.headerSpacer} />
-          </HeaderActions>
-
           <View style={styles.contentBody}>
             <View style={styles.avatarContainer}>
               {user.avatarUrl ? (

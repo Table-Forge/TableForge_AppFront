@@ -61,6 +61,46 @@ export default function Profile() {
   return (
     <>
       <MainContainer>
+        <HeaderActions>
+          <ActionButton
+            variant="circle"
+            icon={
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            onPress={handleBack}
+          />
+
+          <View style={styles.groupedIcons}>
+            <ActionButton
+              variant="circle"
+              active
+              icon={
+                <MaterialDesignIcons
+                  name="crown"
+                  size={28}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              onPress={() => navigation.navigate("my-plan")}
+            />
+            <ActionButton
+              variant="circle"
+              icon={
+                <FontAwesome
+                  name="gear"
+                  size={24}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              onPress={() => navigation.navigate("settings")}
+            />
+          </View>
+        </HeaderActions>
+
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
@@ -73,46 +113,6 @@ export default function Profile() {
             />
           }
         >
-          <HeaderActions>
-            <ActionButton
-              variant="circle"
-              icon={
-                <Ionicons
-                  name="arrow-back"
-                  size={24}
-                  color={DEFAULT_COLORS.white}
-                />
-              }
-              onPress={handleBack}
-            />
-
-            <View style={styles.groupedIcons}>
-              <ActionButton
-                variant="circle"
-                active
-                icon={
-                  <MaterialDesignIcons
-                    name="crown"
-                    size={28}
-                    color={DEFAULT_COLORS.white}
-                  />
-                }
-                onPress={() => navigation.navigate("my-plan")}
-              />
-              <ActionButton
-                variant="circle"
-                icon={
-                  <FontAwesome
-                    name="gear"
-                    size={24}
-                    color={DEFAULT_COLORS.white}
-                  />
-                }
-                onPress={() => navigation.navigate("settings")}
-              />
-            </View>
-          </HeaderActions>
-
           <View style={styles.contentBody}>
             <Pressable
               onPress={selectAvatar}

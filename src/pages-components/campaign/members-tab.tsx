@@ -62,6 +62,7 @@ export function MembersTab({
                   data={getMemberCharacter(member, characters)}
                   cardColor={DEFAULT_COLORS.cardImageDark}
                   disabled={!member.characterId}
+                  showOwner
                 />
               ))}
             </ScrollView>

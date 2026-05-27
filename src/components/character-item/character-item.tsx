@@ -1,5 +1,11 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import {
+  GestureResponderEvent,
+  Image,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { ThemedText } from "../themed-text/themed-text";
 import { ICharacter } from "@/src/features/characters/schemas/character.schema";
@@ -11,14 +17,17 @@ interface IProps {
   cardColor?: string;
   disabled?: boolean;
   onPress?: () => void;
+  showOwner?: boolean;
 }
 export const CharacterItem = ({
   data,
   cardColor = DEFAULT_COLORS.cardImageDark,
   disabled = false,
   onPress,
+  showOwner = false,
 }: IProps) => {
   const router = useRouter();
+  const ownerUsername = data.userUsername;
 
   const handlePress = () => {
     if (disabled) return;
@@ -32,6 +41,15 @@ export const CharacterItem = ({
       pathname: "/character/[id]",
       params: { id: data.id.toString() },
     });
+  };
+
+  const openOwner = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+    if (!data.userId) return;
+    router.push({
+      pathname: "/user/[id]",
+      params: { id: data.userId.toString() },
+    } as any);
   };
 
   return (
@@ -61,6 +79,20 @@ export const CharacterItem = ({
           {data.name}
         </ThemedText>
         <ThemedText style={styles.subtitle}>{data.raceName || "-"}</ThemedText>
+
+        {showOwner && ownerUsername && (
+          <Pressable
+            onPress={openOwner}
+            style={({ pressed }) => [
+              styles.ownerRow,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <ThemedText style={styles.ownerText} numberOfLines={1}>
+              por @{ownerUsername}
+            </ThemedText>
+          </Pressable>
+        )}
       </View>
     </Pressable>
   );
@@ -112,6 +144,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: DEFAULT_COLORS.textMuted,
     textAlign: "left",
+  },
+  ownerRow: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: BORDERS.divider,
+  },
+  ownerText: {
+    fontSize: 11,
+    color: DEFAULT_COLORS.purpleBright,
+    ...fonts.bold,
   },
   classBadge: {
     position: "absolute",

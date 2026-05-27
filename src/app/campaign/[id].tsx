@@ -88,10 +88,8 @@ export default function CampaignDetails() {
     size: 100,
     enabled: members.length > 0,
   });
-  const {
-    updateJoinRequestStatusMutation,
-    isUpdatingJoinRequest,
-  } = useJoinRequestsMutation(campaignId);
+  const { updateJoinRequestStatusMutation, isUpdatingJoinRequest } =
+    useJoinRequestsMutation(campaignId);
 
   const { deleteCampaignSessionMutation } = useCampaignSessionsMutation();
 
@@ -165,7 +163,7 @@ export default function CampaignDetails() {
   };
 
   return (
-    <Screen style={styles.container} edgeToEdge>
+    <Screen style={styles.container}>
       <Screen.Body
         scroll
         contentContainerStyle={{ paddingBottom: 60 }}

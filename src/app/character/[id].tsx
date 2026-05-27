@@ -48,7 +48,7 @@ export default function CharacterScreen() {
   };
 
   return (
-    <Screen style={styles.container} edgeToEdge>
+    <Screen style={styles.container}>
       <Screen.Body scroll contentContainerStyle={styles.scrollContent}>
         <ImageBackground
           source={data.imageUrl ? { uri: data.imageUrl } : undefined}
@@ -124,7 +124,9 @@ export default function CharacterScreen() {
               </View>
               <View style={styles.ownerInfo}>
                 <ThemedText weight="bold" style={styles.ownerName}>
-                  {owner?.nickname || data.userUsername || `Usuário ${data.userId}`}
+                  {owner?.nickname ||
+                    data.userUsername ||
+                    `Usuário ${data.userId}`}
                 </ThemedText>
                 {(owner?.username || data.userUsername) && (
                   <ThemedText style={styles.ownerUsername}>

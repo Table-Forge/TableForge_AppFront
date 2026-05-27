@@ -15,24 +15,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 const BOTTOM_TAB_BAR_HEIGHT = Platform.OS === "ios" ? 88 : 74;
 
 type ScreenContextValue = {
-  edgeToEdge: boolean;
   hasBottomTabs: boolean;
   hasFooter: boolean;
 };
 
 const ScreenContext = React.createContext<ScreenContextValue>({
-  edgeToEdge: false,
   hasBottomTabs: false,
   hasFooter: false,
 });
 
 interface ScreenProps extends PropsWithChildren {
   style?: StyleProp<ViewStyle>;
-  /**
-   * Quando true, o container ignora o safe-area-top.
-   * Use em telas com banner/hero que devem se estender por baixo da status bar.
-   */
-  edgeToEdge?: boolean;
   /**
    * Envolve o conteúdo num KeyboardAvoidingView (padding/height por plataforma).
    */
@@ -42,7 +35,6 @@ interface ScreenProps extends PropsWithChildren {
 export function Screen({
   children,
   style,
-  edgeToEdge = false,
   keyboardAware = false,
 }: ScreenProps) {
   const segments = useSegments();
@@ -54,8 +46,8 @@ export function Screen({
   );
 
   const ctx = useMemo<ScreenContextValue>(
-    () => ({ edgeToEdge, hasBottomTabs, hasFooter }),
-    [edgeToEdge, hasBottomTabs, hasFooter],
+    () => ({ hasBottomTabs, hasFooter }),
+    [hasBottomTabs, hasFooter],
   );
 
   if (keyboardAware) {
@@ -83,17 +75,10 @@ interface HeaderProps extends PropsWithChildren {
 }
 
 function ScreenHeader({ children, style }: HeaderProps) {
-  const { edgeToEdge } = useContext(ScreenContext);
   const insets = useSafeAreaInsets();
 
   return (
-    <View
-      style={[
-        styles.header,
-        { paddingTop: edgeToEdge ? 0 : insets.top },
-        style,
-      ]}
-    >
+    <View style={[styles.header, { paddingTop: insets.top }, style]}>
       {children}
     </View>
   );

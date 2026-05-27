@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -7,29 +8,47 @@ import {
   StyleSheet,
   View,
 } from "react-native";
+import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
+import { Mail } from "lucide-react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { InfoCard } from "@/src/components/info-card/info-card";
+import { KnightHeadIcon } from "@/src/components/icons";
+import { LoadingOverlay } from "@/src/components/loading-overlay/loading-overlay";
 import { MainContainer } from "@/src/components/main-container/main-container";
+import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
+import { Tabs } from "@/src/components/tabs/tabs";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { useAuth } from "@/src/context/auth";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
-import { BORDERS, SHADOWS, SURFACES } from "@/src/theme/tokens";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
+import { CampaignsTab } from "@/src/pages-components/profile/campaigns-tab";
+import { CharactersTab } from "@/src/pages-components/profile/characters-tab";
+import { ProfileTab } from "@/src/pages-components/profile/profile-tab";
+
+type ITabs = "Perfil" | "Personagens" | "Campanhas";
 
 export default function PublicUserProfileScreen() {
+  const { user: currentUser } = useAuth();
   const { handleBack } = useBackRouter();
   const { id } = useLocalSearchParams();
   const userId = Number(id);
-  const { data: user, isLoading, isError } = useUser(userId);
+  const { data: user, isPending, isError } = useUser(userId);
+  const [activeTab, setActiveTab] = useState<ITabs>("Perfil");
+  const [isFriend] = useState(false);
 
-  if (isLoading) {
+  const isSelf = currentUser?.id === userId;
+
+  if (isPending) {
     return (
       <MainContainer style={styles.centerContainer}>
         <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
-        <ThemedText style={styles.feedbackText}>Carregando perfil...</ThemedText>
+        <ThemedText style={styles.feedbackText}>
+          Carregando perfil...
+        </ThemedText>
       </MainContainer>
     );
   }
@@ -45,63 +64,140 @@ export default function PublicUserProfileScreen() {
   }
 
   return (
-    <MainContainer style={styles.container}>
-      <HeaderActions>
-        <ActionButton
-          variant="circle"
-          icon={
-            <Ionicons
-              name="arrow-back"
-              size={22}
-              color={DEFAULT_COLORS.white}
+    <>
+      <MainContainer style={styles.container}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <HeaderActions>
+            <ActionButton
+              variant="circle"
+              icon={
+                <Ionicons
+                  name="arrow-back"
+                  size={24}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              onPress={handleBack}
             />
-          }
-          onPress={handleBack}
-        />
-        <ThemedText weight="bold" style={styles.headerTitle}>
-          Perfil
-        </ThemedText>
-        <View style={styles.headerSpacer} />
-      </HeaderActions>
+            <View style={styles.headerSpacer} />
+          </HeaderActions>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.profileHeader}>
-          <View style={styles.avatarWrapper}>
-            {user.avatarUrl ? (
-              <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
-            ) : (
-              <Ionicons
-                name="person-circle-outline"
-                size={96}
-                color={DEFAULT_COLORS.white_35}
-              />
+          <View style={styles.contentBody}>
+            <View style={styles.avatarContainer}>
+              {user.avatarUrl ? (
+                <Image
+                  source={{ uri: user.avatarUrl }}
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <KnightHeadIcon color={DEFAULT_COLORS.primary} size={90} />
+                </View>
+              )}
+            </View>
+
+            {!isSelf && (
+              <View style={styles.menuPopupWrapper}>
+                <MenuPopup
+                  trigger={
+                    <MaterialDesignIcons
+                      name="dots-horizontal-circle-outline"
+                      size={32}
+                      color={DEFAULT_COLORS.white}
+                    />
+                  }
+                  options={[
+                    {
+                      label: "Enviar mensagem",
+                      icon: (
+                        <Mail size={18} color={DEFAULT_COLORS.purpleBright} />
+                      ),
+                      onPress: () => {},
+                    },
+                    {
+                      label: "Bloquear",
+                      icon: (
+                        <MaterialDesignIcons
+                          name="block-helper"
+                          size={18}
+                          color={DEFAULT_COLORS.danger}
+                        />
+                      ),
+                      onPress: () => {},
+                    },
+                  ]}
+                />
+              </View>
             )}
-          </View>
-          <ThemedText style={styles.eyebrow}>Aventureiro</ThemedText>
-          <ThemedText weight="bold" style={styles.nickname}>
-            {user.nickname || user.username}
-          </ThemedText>
-          <ThemedText style={styles.username}>@{user.username}</ThemedText>
-        </View>
 
-        <InfoCard style={styles.card}>
-          <ThemedText style={styles.moduleTitle}>Dados públicos</ThemedText>
-          <InfoRow label="Apelido" value={user.nickname || "-"} />
-          <InfoRow label="Usuário" value={`@${user.username}`} />
-        </InfoCard>
-      </ScrollView>
-    </MainContainer>
+            <View style={styles.profileInfo}>
+              <ThemedText style={styles.profileEyebrow}>Aventureiro</ThemedText>
+              <ThemedText style={styles.profileNickname}>
+                {user.nickname}
+              </ThemedText>
+              <ThemedText style={styles.profileUsername}>
+                @{user.username}
+              </ThemedText>
+            </View>
+
+            {!isSelf && (
+              <View style={styles.actionsRow}>
+                <ActionButton
+                  variant="pill"
+                  label={isFriend ? "Remover amigo" : "Adicionar amigo"}
+                  active={!isFriend}
+                  icon={
+                    <Ionicons
+                      name={isFriend ? "person-remove" : "person-add"}
+                      size={18}
+                      color={DEFAULT_COLORS.white}
+                    />
+                  }
+                  onPress={() => {}}
+                  style={styles.actionPill}
+                />
+                <ActionButton
+                  variant="circle"
+                  icon={
+                    <Mail size={20} color={DEFAULT_COLORS.purpleBright} />
+                  }
+                  onPress={() => {}}
+                />
+              </View>
+            )}
+
+            <Tabs<ITabs>
+              activeTab={activeTab}
+              onChange={setActiveTab}
+              tabs={[
+                {
+                  label: "Perfil",
+                  value: "Perfil",
+                  component: <ProfileTab data={user} />,
+                },
+                {
+                  label: "Personagens",
+                  value: "Personagens",
+                  component: <CharactersTab userId={userId} />,
+                },
+                {
+                  label: "Campanhas",
+                  value: "Campanhas",
+                  component: <CampaignsTab userId={userId} />,
+                },
+              ]}
+            />
+          </View>
+        </ScrollView>
+      </MainContainer>
+
+      {isPending && <LoadingOverlay />}
+    </>
   );
 }
-
-const InfoRow = ({ label, value }: { label: string; value: string }) => (
-  <View style={styles.infoRow}>
-    <ThemedText style={styles.infoLabel}>{label}</ThemedText>
-    <ThemedText weight="bold" style={styles.infoValue}>
-      {value}
-    </ThemedText>
-  </View>
-);
 
 const styles = StyleSheet.create({
   container: {
@@ -115,87 +211,93 @@ const styles = StyleSheet.create({
     gap: 12,
     backgroundColor: SURFACES.background,
   },
-  headerTitle: {
-    flex: 1,
-    fontSize: 20,
-    color: DEFAULT_COLORS.white,
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 45,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-    gap: 18,
-  },
-  profileHeader: {
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 20,
-  },
-  avatarWrapper: {
-    width: 112,
-    height: 112,
-    borderRadius: 56,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    backgroundColor: SURFACES.fill,
-    borderWidth: 1,
-    borderColor: BORDERS.highlightStrong,
-    marginBottom: 10,
-    ...SHADOWS.glow,
-    shadowColor: DEFAULT_COLORS.purpleBright,
-  },
-  avatar: {
-    width: "100%",
-    height: "100%",
-  },
-  eyebrow: {
-    color: DEFAULT_COLORS.purpleBright,
-    fontSize: 11,
-    letterSpacing: 2,
-    textTransform: "uppercase",
-    ...fonts.bold,
-  },
-  nickname: {
-    fontSize: 24,
-    color: DEFAULT_COLORS.white,
-  },
-  username: {
-    color: DEFAULT_COLORS.textMuted,
-    fontSize: 13,
-  },
-  card: {
-    marginBottom: 0,
-    backgroundColor: SURFACES.card,
-    borderColor: BORDERS.highlight,
-  },
-  moduleTitle: {
-    color: DEFAULT_COLORS.purpleBright,
-    fontSize: 11,
-    letterSpacing: 2,
-    textTransform: "uppercase",
-    ...fonts.bold,
-  },
-  infoRow: {
-    gap: 4,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: BORDERS.divider,
-  },
-  infoLabel: {
-    color: DEFAULT_COLORS.textMuted,
-    fontSize: 12,
-    letterSpacing: 0.3,
-  },
-  infoValue: {
-    color: DEFAULT_COLORS.white,
-    fontSize: 15,
-  },
+  headerSpacer: { width: 45 },
   feedbackText: {
     color: DEFAULT_COLORS.textMuted,
     textAlign: "center",
+  },
+  contentBody: {
+    marginTop: 50,
+    marginHorizontal: 14,
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.xxl,
+    borderWidth: 1,
+    borderColor: BORDERS.highlight,
+    paddingHorizontal: 14,
+    paddingTop: 70,
+    paddingBottom: 20,
+    position: "relative",
+    ...SHADOWS.soft,
+  },
+  avatarContainer: {
+    alignSelf: "center",
+    position: "absolute",
+    top: -56,
+  },
+  avatarImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 2,
+    borderColor: BORDERS.highlightStrong,
+    backgroundColor: SURFACES.fill,
+    shadowColor: DEFAULT_COLORS.purpleBright,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 14,
+    elevation: 12,
+  },
+  avatarPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: SURFACES.cardAlt,
+    borderWidth: 2,
+    borderColor: BORDERS.highlightStrong,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: DEFAULT_COLORS.purpleBright,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 14,
+    elevation: 12,
+  },
+  menuPopupWrapper: {
+    position: "absolute",
+    right: 15,
+    top: 15,
+  },
+  profileInfo: {
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 16,
+    gap: 2,
+  },
+  profileEyebrow: {
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    ...fonts.bold,
+    marginBottom: 2,
+  },
+  profileNickname: {
+    fontSize: 20,
+    color: DEFAULT_COLORS.white,
+    ...fonts.bold,
+  },
+  profileUsername: {
+    fontSize: 13,
+    color: DEFAULT_COLORS.textMuted,
+  },
+  actionsRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 22,
+  },
+  actionPill: {
+    flexShrink: 1,
   },
 });

@@ -1,4 +1,5 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { Ionicons } from "@expo/vector-icons";
 import {
   GestureResponderEvent,
   Image,
@@ -8,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { ThemedText } from "../themed-text/themed-text";
+import { useAuth } from "@/src/context/auth";
 import { ICharacter } from "@/src/features/characters/schemas/character.schema";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
@@ -27,7 +29,10 @@ export const CharacterItem = ({
   showOwner = false,
 }: IProps) => {
   const router = useRouter();
+  const { user: currentUser } = useAuth();
   const ownerUsername = data.userUsername;
+  const currentUserId = currentUser?.id ? Number(currentUser.id) : undefined;
+  const isOwner = currentUserId === data.userId;
 
   const handlePress = () => {
     if (disabled) return;
@@ -52,6 +57,14 @@ export const CharacterItem = ({
     } as any);
   };
 
+  const openEdit = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+    router.push({
+      pathname: "/character/create",
+      params: { editId: data.id.toString() },
+    } as any);
+  };
+
   return (
     <Pressable
       onPress={handlePress}
@@ -64,6 +77,23 @@ export const CharacterItem = ({
       <View style={[styles.imageContainer, { backgroundColor: cardColor }]}>
         {data.imageUrl && (
           <Image style={styles.image} source={{ uri: data.imageUrl }} />
+        )}
+
+        {isOwner && (
+          <Pressable
+            onPress={openEdit}
+            hitSlop={8}
+            style={({ pressed }) => [
+              styles.editButton,
+              pressed && { opacity: 0.85, transform: [{ scale: 0.95 }] },
+            ]}
+          >
+            <Ionicons
+              name="create-outline"
+              size={16}
+              color={DEFAULT_COLORS.white}
+            />
+          </Pressable>
         )}
 
         <View style={styles.classBadge}>
@@ -166,6 +196,20 @@ const styles = StyleSheet.create({
     borderRadius: RADII.pill,
     borderWidth: 1,
     borderColor: BORDERS.cta,
+  },
+  editButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    width: 30,
+    height: 30,
+    borderRadius: RADII.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: DEFAULT_COLORS.primary_78,
+    borderWidth: 1,
+    borderColor: BORDERS.highlightStrong,
+    zIndex: 2,
   },
   classBadgeText: {
     fontSize: 10,

@@ -6,6 +6,7 @@ import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { useAuth } from "@/src/context/auth";
 import { useCharacter } from "@/src/features/characters/hooks/use-character";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
@@ -19,9 +20,12 @@ export default function CharacterScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { handleBack } = useBackRouter();
+  const { user: currentUser } = useAuth();
   const characterId = Number(id);
   const { data, isLoading, isError } = useCharacter(characterId);
   const { data: owner } = useUser(data?.userId);
+  const currentUserId = currentUser?.id ? Number(currentUser.id) : undefined;
+  const isOwner = !!data && currentUserId === data.userId;
 
   if (isLoading) return <ThemedText>Carregando personagem...</ThemedText>;
 
@@ -61,6 +65,25 @@ export default function CharacterScreen() {
                 }
                 onPress={handleBack}
               />
+              {isOwner && (
+                <ActionButton
+                  variant="circle"
+                  style={styles.backButton}
+                  icon={
+                    <Ionicons
+                      name="create-outline"
+                      size={22}
+                      color={DEFAULT_COLORS.white}
+                    />
+                  }
+                  onPress={() =>
+                    router.push({
+                      pathname: "/character/create",
+                      params: { editId: characterId },
+                    } as any)
+                  }
+                />
+              )}
             </HeaderActions>
           }
         >

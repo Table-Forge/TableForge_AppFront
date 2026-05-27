@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
@@ -38,7 +38,7 @@ export default function CampaignChatScreen() {
   const { createChatMessageMutation, isCreatingChatMessage } =
     useChatMessagesMutation(parsedCampaignId);
 
-  const messages = useMemo(() => [...data].reverse(), [data]);
+  const messages = data;
 
   const handleSendMessage = () => {
     const content = message.trim();

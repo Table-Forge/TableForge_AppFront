@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   Dimensions,
   ImageBackground,
+  Pressable,
   RefreshControl,
   StyleSheet,
   View,
@@ -182,68 +183,81 @@ export default function CampaignDetails() {
           style={styles.banner}
         >
           <View style={styles.bannerScrim} />
-          <HeaderActions padding={10}>
-            <ActionButton
-              variant="circle"
-              icon={
-                <Ionicons
-                  name="arrow-back"
-                  size={22}
-                  color={DEFAULT_COLORS.white}
-                />
-              }
-              onPress={handleBack}
-            />
-            {canSeePrivateModules && (
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                {isMaster && (
-                  <ActionButton
-                    variant="circle"
-                    icon={
-                      <Ionicons
-                        name="settings-sharp"
-                        size={22}
-                        color={DEFAULT_COLORS.white}
-                      />
-                    }
-                    onPress={() =>
-                      router.push({
-                        pathname: "/campaign/[id]/settings",
-                        params: { id: campaignId },
-                      } as any)
-                    }
+
+          <Screen.Header>
+            <HeaderActions padding={10}>
+              <ActionButton
+                variant="circle"
+                icon={
+                  <Ionicons
+                    name="arrow-back"
+                    size={22}
+                    color={DEFAULT_COLORS.white}
                   />
-                )}
-                {campaign.isChatEnabled && (
-                  <ActionButton
-                    variant="circle"
-                    icon={
-                      <FontAwesome5
-                        name="beer"
-                        size={20}
-                        color={DEFAULT_COLORS.white}
-                      />
-                    }
-                    onPress={() =>
-                      router.push({
-                        pathname: "/campaign-chat/[campaignId]",
-                        params: { campaignId },
-                      } as any)
-                    }
-                  />
-                )}
-              </View>
-            )}
-          </HeaderActions>
+                }
+                onPress={handleBack}
+              />
+              {canSeePrivateModules && (
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                  {isMaster && (
+                    <ActionButton
+                      variant="circle"
+                      icon={
+                        <Ionicons
+                          name="settings-sharp"
+                          size={22}
+                          color={DEFAULT_COLORS.white}
+                        />
+                      }
+                      onPress={() =>
+                        router.push({
+                          pathname: "/campaign/[id]/settings",
+                          params: { id: campaignId },
+                        } as any)
+                      }
+                    />
+                  )}
+                  {campaign.isChatEnabled && (
+                    <ActionButton
+                      variant="circle"
+                      icon={
+                        <FontAwesome5
+                          name="beer"
+                          size={20}
+                          color={DEFAULT_COLORS.white}
+                        />
+                      }
+                      onPress={() =>
+                        router.push({
+                          pathname: "/campaign-chat/[campaignId]",
+                          params: { campaignId },
+                        } as any)
+                      }
+                    />
+                  )}
+                </View>
+              )}
+            </HeaderActions>
+          </Screen.Header>
 
           <View style={styles.titleOverlay}>
             <ThemedText style={styles.eyebrow}>Campanha</ThemedText>
             <ThemedText weight="bold" style={styles.title}>
               {campaign.title}
             </ThemedText>
-            <ThemedText style={styles.masterText}>
-              Mestre: {campaign.creatorUsername || "Mestre desconhecido"}
-            </ThemedText>
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/user/[id]",
+                  params: { id: campaign.creatorId.toString() },
+                } as any)
+              }
+              style={({ pressed }) => pressed && { opacity: 0.7 }}
+            >
+              <ThemedText style={styles.masterText}>
+                Mestre: {campaign.creatorUsername || "Mestre desconhecido"}
+              </ThemedText>
+            </Pressable>
           </View>
         </ImageBackground>
 

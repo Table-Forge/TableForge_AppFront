@@ -37,6 +37,7 @@ import { useRacesSelect } from "@/src/features/races/hooks/use-races-select";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, SURFACES } from "@/src/theme/tokens";
 
 export default function CreateCharacterScreen() {
   const { user } = useAuth();
@@ -209,7 +210,7 @@ export default function CreateCharacterScreen() {
 
 const styles = StyleSheet.create({
   screen: {
-    backgroundColor: DEFAULT_COLORS.background,
+    backgroundColor: SURFACES.background,
   },
   keyboardWrapper: {
     flex: 1,
@@ -233,15 +234,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   sectionTitle: {
-    fontSize: 14,
-    letterSpacing: 1.2,
+    fontSize: 12,
+    letterSpacing: 2,
     ...fonts.bold,
-    color: DEFAULT_COLORS.secondary,
+    color: DEFAULT_COLORS.purpleBright,
     textTransform: "uppercase",
   },
   formCard: {
-    backgroundColor: "rgba(26, 26, 46, 0.95)",
-    borderColor: "rgba(126, 135, 226, 0.2)",
+    backgroundColor: SURFACES.card,
+    borderColor: BORDERS.highlight,
     gap: 18,
   },
   fieldContainer: {

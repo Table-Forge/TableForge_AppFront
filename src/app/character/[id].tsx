@@ -16,6 +16,7 @@ import { useCharacter } from "@/src/features/characters/hooks/use-character";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 const { width } = Dimensions.get("window");
 
@@ -41,6 +42,7 @@ export default function CharacterScreen() {
           source={data.imageUrl ? { uri: data.imageUrl } : undefined}
           style={styles.banner}
         >
+          <View style={styles.bannerScrim} />
           <HeaderActions padding={10}>
             <ActionButton
               variant="circle"
@@ -57,13 +59,12 @@ export default function CharacterScreen() {
           </HeaderActions>
 
           <View style={styles.nameOverlay}>
+            <ThemedText style={styles.eyebrow}>Personagem</ThemedText>
             <ThemedText weight="bold" style={styles.charName}>
               {data.name}
             </ThemedText>
             <View style={styles.classTag}>
-              <ThemedText style={styles.classTagText}>
-                {className}
-              </ThemedText>
+              <ThemedText style={styles.classTagText}>{className}</ThemedText>
             </View>
           </View>
         </ImageBackground>
@@ -81,10 +82,10 @@ export default function CharacterScreen() {
           <View style={styles.sectionHeader}>
             <MaterialCommunityIcons
               name="book-open-variant"
-              size={20}
-              color={DEFAULT_COLORS.tertiary}
+              size={18}
+              color={DEFAULT_COLORS.purpleBright}
             />
-            <ThemedText weight="bold" style={styles.sectionTitle}>
+            <ThemedText style={styles.sectionTitle}>
               História do personagem
             </ThemedText>
           </View>
@@ -110,11 +111,13 @@ const StatCard = ({
   icon: any;
 }) => (
   <View style={styles.statCard}>
-    <MaterialCommunityIcons
-      name={icon}
-      size={18}
-      color={DEFAULT_COLORS.tertiary}
-    />
+    <View style={styles.statIconWrapper}>
+      <MaterialCommunityIcons
+        name={icon}
+        size={18}
+        color={DEFAULT_COLORS.purpleBright}
+      />
+    </View>
     <View>
       <ThemedText style={styles.statLabel}>{label}</ThemedText>
       <ThemedText weight="bold" style={styles.statValue}>
@@ -125,42 +128,56 @@ const StatCard = ({
 );
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: SURFACES.background },
   banner: {
     width: "100%",
     height: width * 1.1,
     justifyContent: "space-between",
-    backgroundColor: DEFAULT_COLORS.primary,
+    backgroundColor: SURFACES.card,
+  },
+  bannerScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: DEFAULT_COLORS.overlayDark_45,
   },
   backButton: {
-    backgroundColor: "rgba(26, 26, 46, 0.7)",
-    borderColor: "rgba(126, 135, 226, 0.3)",
+    backgroundColor: DEFAULT_COLORS.primary_78,
+    borderColor: BORDERS.highlight,
   },
   nameOverlay: {
-    padding: 20,
-    backgroundColor: "rgba(26, 26, 46, 0.85)",
-    borderTopWidth: 2,
-    borderTopColor: DEFAULT_COLORS.tertiary,
+    padding: 22,
+    backgroundColor: DEFAULT_COLORS.homeSurface_95,
+    borderTopWidth: 1,
+    borderTopColor: BORDERS.highlight,
+    gap: 4,
+  },
+  eyebrow: {
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 11,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    ...fonts.bold,
   },
   charName: {
-    fontSize: 32,
+    fontSize: 30,
     color: DEFAULT_COLORS.white,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
+    lineHeight: 34,
   },
   classTag: {
-    backgroundColor: "rgba(251, 69, 1, 0.2)",
+    backgroundColor: DEFAULT_COLORS.orangeGlow_25,
     alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: RADII.pill,
     marginTop: 8,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary,
+    borderColor: BORDERS.cta,
   },
   classTagText: {
-    fontSize: 12,
-    color: DEFAULT_COLORS.tertiary,
+    fontSize: 11,
+    color: DEFAULT_COLORS.white,
     ...fonts.bold,
+    letterSpacing: 0.6,
     textTransform: "uppercase",
   },
   statsGrid: {
@@ -172,16 +189,27 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    padding: 12,
-    borderRadius: 12,
+    gap: 12,
+    backgroundColor: SURFACES.card,
+    padding: 14,
+    borderRadius: RADII.lg,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.1)",
+    borderColor: BORDERS.highlight,
+    ...SHADOWS.soft,
+  },
+  statIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: RADII.pill,
+    backgroundColor: SURFACES.fill,
+    borderWidth: 1,
+    borderColor: BORDERS.subtle,
+    alignItems: "center",
+    justifyContent: "center",
   },
   statLabel: {
     fontSize: 10,
-    color: "rgba(255,255,255,0.4)",
+    color: DEFAULT_COLORS.textMuted,
     letterSpacing: 1,
     textTransform: "uppercase",
   },
@@ -191,7 +219,7 @@ const styles = StyleSheet.create({
   },
   section: {
     paddingHorizontal: 20,
-    marginTop: 10,
+    marginTop: 6,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -200,22 +228,24 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 14,
-    color: DEFAULT_COLORS.tertiary,
-    letterSpacing: 1,
+    fontSize: 11,
+    color: DEFAULT_COLORS.purpleBright,
+    letterSpacing: 2,
     textTransform: "uppercase",
+    ...fonts.bold,
   },
   historyCard: {
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    backgroundColor: SURFACES.card,
     padding: 20,
-    borderRadius: 12,
+    borderRadius: RADII.lg,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.05)",
+    borderColor: BORDERS.highlight,
+    ...SHADOWS.soft,
   },
   historyText: {
-    fontSize: 16,
-    color: "rgba(255,255,255,0.7)",
-    lineHeight: 26,
+    fontSize: 15,
+    color: DEFAULT_COLORS.white_70,
+    lineHeight: 22,
     fontStyle: "italic",
   },
 });

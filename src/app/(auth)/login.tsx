@@ -10,6 +10,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 import {
   ILoginRequest,
@@ -146,22 +147,22 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 36,
   },
   logoWrapper: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: DEFAULT_COLORS.primary,
+    backgroundColor: SURFACES.card,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: DEFAULT_COLORS.tertiary,
-    shadowColor: DEFAULT_COLORS.tertiary,
+    borderWidth: 1,
+    borderColor: BORDERS.highlightStrong,
+    shadowColor: DEFAULT_COLORS.purpleBright,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowRadius: 14,
+    elevation: 10,
   },
   logoImage: {
     width: 80,
@@ -175,22 +176,18 @@ const styles = StyleSheet.create({
   subtitle: {
     textAlign: "center",
     marginTop: 8,
-    opacity: 0.7,
+    color: DEFAULT_COLORS.textMutedLight,
     fontSize: 14,
     paddingHorizontal: 20,
   },
   formCard: {
-    backgroundColor: "rgba(26, 26, 46, 0.8)",
+    backgroundColor: SURFACES.card,
     padding: 24,
-    borderRadius: 16,
+    borderRadius: RADII.xl,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.2)",
-    gap: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 5,
+    borderColor: BORDERS.highlight,
+    gap: 18,
+    ...SHADOWS.card,
   },
   fieldContainer: {
     width: "100%",
@@ -200,26 +197,25 @@ const styles = StyleSheet.create({
     height: 56,
   },
   footerLinks: {
-    marginTop: 30,
+    marginTop: 28,
     alignItems: "center",
-    gap: 15,
+    gap: 14,
   },
   linkButton: {
     flexDirection: "row",
     gap: 5,
   },
   linkTextPrefix: {
-    color: DEFAULT_COLORS.grays._100,
+    color: DEFAULT_COLORS.textMutedLight,
     fontSize: 14,
   },
   linkText: {
-    color: DEFAULT_COLORS.tertiary,
+    color: DEFAULT_COLORS.purpleBright,
     fontWeight: "bold",
     fontSize: 14,
-    textDecorationLine: "underline",
   },
   forgotText: {
-    color: DEFAULT_COLORS.grays._300,
+    color: DEFAULT_COLORS.textMuted,
     fontSize: 13,
   },
 });

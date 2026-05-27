@@ -28,6 +28,7 @@ import {
 } from "@/src/features/users/schemas/auth.schema";
 import LogoIcon from "@/src/assets/images/logo2.png";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 const normalizeCode = (value: string) =>
   value.replace(/\D/g, "").slice(0, RECOVERY_CODE_LENGTH);
@@ -379,7 +380,7 @@ export default function RecoverPasswordScreen() {
                         textContentType="oneTimeCode"
                         maxLength={RECOVERY_CODE_LENGTH}
                         editable={!isBusy}
-                        selectionColor={DEFAULT_COLORS.tertiary}
+                        selectionColor={DEFAULT_COLORS.purpleBright}
                       />
                     ))}
                   </View>
@@ -502,37 +503,33 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: DEFAULT_COLORS.primary,
+    backgroundColor: SURFACES.card,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: DEFAULT_COLORS.tertiary,
-    shadowColor: DEFAULT_COLORS.tertiary,
+    borderWidth: 1,
+    borderColor: BORDERS.highlightStrong,
+    shadowColor: DEFAULT_COLORS.purpleBright,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
+    shadowOpacity: 0.45,
+    shadowRadius: 12,
     elevation: 10,
   },
   logoImage: { width: 70, height: 70 },
-  title: { fontSize: 32, marginTop: 16 },
+  title: { fontSize: 32, marginTop: 16, color: DEFAULT_COLORS.white },
   subtitle: {
     textAlign: "center",
     marginTop: 8,
-    opacity: 0.7,
+    color: DEFAULT_COLORS.textMutedLight,
     fontSize: 14,
   },
   formCard: {
-    backgroundColor: "rgba(26, 26, 46, 0.85)",
+    backgroundColor: SURFACES.card,
     padding: 24,
-    borderRadius: 20,
+    borderRadius: RADII.xl,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.2)",
+    borderColor: BORDERS.highlight,
     gap: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 5,
+    ...SHADOWS.card,
   },
   stepsContainer: {
     flexDirection: "row",
@@ -541,17 +538,17 @@ const styles = StyleSheet.create({
   },
   stepBar: {
     width: 70,
-    height: 8,
-    borderRadius: 99,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    height: 6,
+    borderRadius: RADII.pill,
+    backgroundColor: DEFAULT_COLORS.white_10,
   },
   stepBarActive: {
-    backgroundColor: DEFAULT_COLORS.secondary,
+    backgroundColor: DEFAULT_COLORS.purpleBright,
   },
   instructionText: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: DEFAULT_COLORS.grays._100,
+    fontSize: 14,
+    lineHeight: 20,
+    color: DEFAULT_COLORS.textMutedLight,
     textAlign: "center",
   },
   fieldContainer: {
@@ -566,16 +563,16 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   codeInput: {
-    width: 44,
-    height: 56,
-    borderRadius: 12,
+    width: 46,
+    height: 58,
+    borderRadius: RADII.md,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.35)",
+    borderColor: BORDERS.highlightStrong,
     color: DEFAULT_COLORS.white,
     textAlign: "center",
     fontSize: 26,
     fontWeight: "700",
-    backgroundColor: "rgba(255,255,255,0.04)",
+    backgroundColor: SURFACES.fill,
   },
   codeInputInvalid: {
     borderColor: DEFAULT_COLORS.danger,
@@ -591,32 +588,32 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   stepLinkText: {
-    color: DEFAULT_COLORS.grays._100,
+    color: DEFAULT_COLORS.textMutedLight,
     fontSize: 13,
   },
   stepLinkTextHighlight: {
-    color: DEFAULT_COLORS.secondary,
+    color: DEFAULT_COLORS.purpleBright,
     fontSize: 13,
     fontWeight: "700",
   },
   validatingText: {
     textAlign: "center",
-    color: DEFAULT_COLORS.grays._100,
+    color: DEFAULT_COLORS.textMuted,
     fontSize: 12,
   },
   footerLinks: {
-    marginTop: 30,
+    marginTop: 28,
     alignItems: "center",
   },
   backButton: {
     padding: 10,
   },
   linkText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMutedLight,
     fontSize: 14,
   },
   linkTextBold: {
-    color: DEFAULT_COLORS.tertiary,
+    color: DEFAULT_COLORS.purpleBright,
     fontWeight: "bold",
   },
 });

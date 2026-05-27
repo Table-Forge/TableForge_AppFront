@@ -10,6 +10,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
 import { Input } from "@/src/components/input/input";
 import { Button } from "@/src/components/button/button";
@@ -232,43 +233,46 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: DEFAULT_COLORS.primary,
+    backgroundColor: SURFACES.card,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: DEFAULT_COLORS.tertiary,
-    shadowColor: DEFAULT_COLORS.tertiary,
-    shadowRadius: 10,
-    shadowOpacity: 0.3,
+    borderWidth: 1,
+    borderColor: BORDERS.highlightStrong,
+    shadowColor: DEFAULT_COLORS.purpleBright,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 12,
+    elevation: 10,
   },
   logoImage: { width: 60, height: 60 },
-  title: { fontSize: 28, marginTop: 15 },
+  title: { fontSize: 28, marginTop: 15, color: DEFAULT_COLORS.white },
   subtitle: {
     textAlign: "center",
     marginTop: 8,
-    opacity: 0.7,
+    color: DEFAULT_COLORS.textMutedLight,
     fontSize: 14,
     paddingHorizontal: 30,
   },
   formCard: {
-    backgroundColor: "rgba(26, 26, 46, 0.85)",
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.xl,
+    padding: 22,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.2)",
+    borderColor: BORDERS.highlight,
     gap: 16,
+    ...SHADOWS.card,
   },
   sectionTitle: {
-    fontSize: 12,
-    color: DEFAULT_COLORS.secondary,
-    letterSpacing: 1.5,
-    marginBottom: 5,
+    fontSize: 11,
+    color: DEFAULT_COLORS.purpleBright,
+    letterSpacing: 2,
+    marginBottom: 4,
     textTransform: "uppercase",
   },
   fieldContainer: { width: "100%" },
   divider: {
     height: 1,
-    backgroundColor: "rgba(126, 135, 226, 0.1)",
+    backgroundColor: BORDERS.divider,
     marginVertical: 10,
   },
   submitButton: {
@@ -276,15 +280,15 @@ const styles = StyleSheet.create({
     height: 56,
   },
   footerLink: {
-    marginTop: 25,
+    marginTop: 24,
     alignItems: "center",
   },
   footerText: {
-    color: DEFAULT_COLORS.grays._100,
+    color: DEFAULT_COLORS.textMutedLight,
     fontSize: 14,
   },
   footerLinkBold: {
-    color: DEFAULT_COLORS.tertiary,
+    color: DEFAULT_COLORS.purpleBright,
     fontWeight: "bold",
   },
 });

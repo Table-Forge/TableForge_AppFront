@@ -129,8 +129,8 @@ export const styles = StyleSheet.create({
   },
 
   pill: {
-    minWidth: 150,
-    maxWidth: 245,
+    minWidth: 160,
+    maxWidth: 300,
     height: 52,
     borderRadius: 999,
   },
@@ -155,8 +155,8 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     justifyContent: "flex-start",
     paddingLeft: 6,
-    paddingRight: 18,
-    gap: 10,
+    paddingRight: 16,
+    gap: 8,
   },
 
   activeBorder: {
@@ -186,7 +186,7 @@ export const styles = StyleSheet.create({
   label: {
     flex: 1,
     color: DEFAULT_COLORS.white,
-    fontSize: 14,
+    fontSize: 13,
     letterSpacing: 0.2,
     ...fonts.medium,
   },

@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: SURFACES.background },
   banner: {
     width: "100%",
-    height: width * 0.72,
+    height: width * 1.05,
     justifyContent: "space-between",
     backgroundColor: SURFACES.card,
   },

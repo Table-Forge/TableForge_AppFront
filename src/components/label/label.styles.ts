@@ -9,8 +9,9 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   label: {
-    fontSize: 14,
-    color: DEFAULT_COLORS.white,
+    fontSize: 13,
+    color: DEFAULT_COLORS.textMutedLight,
+    letterSpacing: 0.3,
   },
   iconContainer: {
     justifyContent: "center",

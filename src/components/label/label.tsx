@@ -36,7 +36,7 @@ export const Label = ({ text, style, infoText }: ILabelProps) => {
           <Ionicons
             name="help-circle-outline"
             size={18}
-            color={DEFAULT_COLORS.tertiary}
+            color={DEFAULT_COLORS.purpleBright}
           />
         </TouchableOpacity>
       )}

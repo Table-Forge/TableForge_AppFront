@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { TextInput, TextInputProps, View } from "react-native";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
+
+import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { styles } from "./text-input.styles";
 
 interface DefaultTextInputProps extends TextInputProps {
@@ -36,13 +38,13 @@ export const DefaultTextInput = ({
         <FontAwesome6
           name="location-dot"
           size={20}
-          color="rgba(255,255,255,0.7)"
+          color={DEFAULT_COLORS.textMutedLight}
           style={styles.icon}
         />
       )}
       <TextInput
         style={styles.input}
-        placeholderTextColor={"rgba(255,255,255,0.3)"}
+        placeholderTextColor={DEFAULT_COLORS.white_35}
         editable={type !== "location"}
         onFocus={(event) => {
           setIsFocused(true);

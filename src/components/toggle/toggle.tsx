@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
   interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
+
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { ErrorMessage } from "@/src/components/error-message/error-message";
 
@@ -42,12 +43,12 @@ export const Toggle = ({ value, onValueChange, error, disabled }: IProps) => {
     backgroundColor: interpolateColor(
       translateX.value,
       [0, 1],
-      ["rgba(255, 255, 255, 0.05)", "rgba(251, 69, 1, 0.15)"],
+      [DEFAULT_COLORS.white_08, DEFAULT_COLORS.purpleBright],
     ),
     borderColor: interpolateColor(
       translateX.value,
       [0, 1],
-      ["rgba(255, 255, 255, 0.2)", DEFAULT_COLORS.tertiary],
+      [DEFAULT_COLORS.white_16, DEFAULT_COLORS.purpleBorder_65],
     ),
   }));
 
@@ -93,14 +94,14 @@ const styles = StyleSheet.create({
     width: 19,
     height: 19,
     borderRadius: 10,
-    backgroundColor: DEFAULT_COLORS.grays._300,
+    backgroundColor: DEFAULT_COLORS.textMutedLight,
   },
   thumbActive: {
     backgroundColor: DEFAULT_COLORS.white,
-    shadowColor: DEFAULT_COLORS.tertiary,
+    shadowColor: DEFAULT_COLORS.purpleBright,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
-    shadowRadius: 5,
+    shadowRadius: 6,
     elevation: 4,
   },
 });

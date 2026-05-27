@@ -1,9 +1,11 @@
 import React from "react";
-import { ActivityIndicator, StyleSheet, Pressable } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
+import * as Haptics from "expo-haptics";
+
 import { ThemedText } from "../themed-text/themed-text";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import * as Haptics from "expo-haptics";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 interface ButtonProps {
   text?: string;
@@ -30,6 +32,12 @@ export const Button = ({
     tertiary: styles.tertiary,
   };
 
+  const variantTextStyles = {
+    primary: styles.textPrimary,
+    secondary: styles.textSecondary,
+    tertiary: styles.textTertiary,
+  };
+
   const sizeStyles = {
     sm: styles.sm,
     md: styles.md,
@@ -53,17 +61,20 @@ export const Button = ({
         styles.button,
         variantStyles[variant],
         sizeStyles[size],
+        variant === "tertiary" && !disabled && SHADOWS.glow,
         (disabled || isLoading) && styles.disabled,
-        pressed && { opacity: 0.9, transform: [{ scale: 0.97 }] },
+        pressed && { opacity: 0.92, transform: [{ scale: 0.97 }] },
       ]}
       onPress={handlePress}
       disabled={disabled || isLoading}
-      android_ripple={{ color: DEFAULT_COLORS.tertiary_20, borderless: false }}
+      android_ripple={{ color: DEFAULT_COLORS.white_10, borderless: false }}
     >
       {isLoading ? (
-        <ActivityIndicator color="#f8f8f8" />
+        <ActivityIndicator color={DEFAULT_COLORS.white} />
       ) : text ? (
-        <ThemedText style={[styles.text, textSizeStyles[size]]}>
+        <ThemedText
+          style={[styles.text, variantTextStyles[variant], textSizeStyles[size]]}
+        >
           {text}
         </ThemedText>
       ) : (
@@ -75,53 +86,65 @@ export const Button = ({
 
 export const styles = StyleSheet.create({
   button: {
-    paddingHorizontal: 16,
-    borderRadius: 16,
+    paddingHorizontal: 18,
+    borderRadius: RADII.pill,
     alignItems: "center",
     justifyContent: "center",
     minHeight: 48,
     borderWidth: 1,
   },
   primary: {
-    backgroundColor: DEFAULT_COLORS.primary,
-    borderColor: DEFAULT_COLORS.secondary,
+    backgroundColor: SURFACES.fill,
+    borderColor: BORDERS.highlight,
   },
   secondary: {
     backgroundColor: DEFAULT_COLORS.secondary,
-    borderColor: DEFAULT_COLORS.primary,
+    borderColor: BORDERS.highlightStrong,
   },
   tertiary: {
-    backgroundColor: DEFAULT_COLORS.tertiary,
-    borderColor: DEFAULT_COLORS.primary,
+    backgroundColor: DEFAULT_COLORS.orange,
+    borderColor: BORDERS.cta,
   },
   sm: {
     minHeight: 40,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+    paddingHorizontal: 14,
+    borderRadius: RADII.pill,
   },
   md: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     minHeight: 48,
   },
   lg: {
-    paddingHorizontal: 16,
-    minHeight: 58,
+    paddingHorizontal: 22,
+    minHeight: 56,
   },
   disabled: {
-    backgroundColor: DEFAULT_COLORS.grays._100,
+    backgroundColor: DEFAULT_COLORS.white_08,
+    borderColor: DEFAULT_COLORS.white_10,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   text: {
-    color: DEFAULT_COLORS.white,
     ...fonts.bold,
     textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  textPrimary: {
+    color: DEFAULT_COLORS.white,
+  },
+  textSecondary: {
+    color: DEFAULT_COLORS.white,
+  },
+  textTertiary: {
+    color: DEFAULT_COLORS.white,
   },
   textSm: {
-    fontSize: 14,
+    fontSize: 13,
   },
   textMd: {
-    fontSize: 16,
+    fontSize: 15,
   },
   textLg: {
-    fontSize: 20,
+    fontSize: 18,
   },
 });

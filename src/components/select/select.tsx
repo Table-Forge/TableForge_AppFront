@@ -1,19 +1,20 @@
 import React, { useMemo, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
   FlatList,
+  Modal,
   StyleSheet,
-  TouchableWithoutFeedback,
+  Text,
   TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 import { TOptions, TPrimitives } from "@/src/interfaces";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 import { ThemedText } from "../themed-text/themed-text";
 import { ErrorMessage } from "@/src/components/error-message/error-message";
 import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
@@ -90,7 +91,7 @@ export const Select: React.FC<IProps> = ({
           scrollToFocusedInput(containerRef);
           handleVisibleChange(true);
         }}
-        activeOpacity={0.8}
+        activeOpacity={0.85}
       >
         <View style={styles.triggerContent}>
           <View
@@ -108,7 +109,7 @@ export const Select: React.FC<IProps> = ({
               color={
                 hasValue || visible
                   ? DEFAULT_COLORS.white
-                  : "rgba(255, 255, 255, 0.42)"
+                  : DEFAULT_COLORS.white_35
               }
             />
           </View>
@@ -128,7 +129,7 @@ export const Select: React.FC<IProps> = ({
         <MaterialCommunityIcons
           name={visible ? "chevron-up" : "chevron-down"}
           size={20}
-          color={disabled ? "rgba(255,255,255,0.2)" : DEFAULT_COLORS.white}
+          color={disabled ? DEFAULT_COLORS.white_25 : DEFAULT_COLORS.white}
         />
       </TouchableOpacity>
 
@@ -154,13 +155,13 @@ export const Select: React.FC<IProps> = ({
                   <MaterialCommunityIcons
                     name="magnify"
                     size={20}
-                    color="rgba(255, 255, 255, 0.52)"
+                    color={DEFAULT_COLORS.textMutedLight}
                   />
                   <TextInput
                     value={search}
                     onChangeText={setSearch}
                     placeholder="Pesquisar"
-                    placeholderTextColor="rgba(255, 255, 255, 0.42)"
+                    placeholderTextColor={DEFAULT_COLORS.white_35}
                     style={styles.searchInput}
                     autoCapitalize="none"
                     autoCorrect={false}
@@ -170,7 +171,7 @@ export const Select: React.FC<IProps> = ({
                       <MaterialCommunityIcons
                         name="close-circle"
                         size={20}
-                        color="rgba(255, 255, 255, 0.52)"
+                        color={DEFAULT_COLORS.textMutedLight}
                       />
                     </TouchableOpacity>
                   )}
@@ -208,7 +209,7 @@ export const Select: React.FC<IProps> = ({
                           <MaterialCommunityIcons
                             name="check-decagram"
                             size={18}
-                            color={DEFAULT_COLORS.tertiary}
+                            color={DEFAULT_COLORS.purpleBright}
                           />
                         )}
                       </TouchableOpacity>
@@ -232,48 +233,39 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.035)",
+    backgroundColor: SURFACES.fill,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.45)",
-    borderRadius: 16,
-    paddingHorizontal: 15,
+    borderColor: BORDERS.highlight,
+    borderRadius: RADII.md,
+    paddingHorizontal: 16,
     height: 52,
-    shadowColor: DEFAULT_COLORS.secondary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 1,
   },
   triggerActive: {
-    borderColor: DEFAULT_COLORS.tertiary,
-    backgroundColor: "rgba(255, 255, 255, 0.055)",
-    shadowColor: DEFAULT_COLORS.tertiary,
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 3,
+    borderColor: BORDERS.highlightStrong,
+    backgroundColor: SURFACES.fillStrong,
   },
   triggerFilled: {
-    borderColor: "rgba(251, 69, 1, 0.65)",
+    borderColor: BORDERS.highlightStrong,
   },
   triggerDisabled: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderColor: "rgba(255, 255, 255, 0.2)",
-    opacity: 0.7,
+    backgroundColor: DEFAULT_COLORS.white_05,
+    borderColor: DEFAULT_COLORS.white_10,
+    opacity: 0.75,
   },
   borderError: {
     borderColor: DEFAULT_COLORS.danger,
   },
   triggerText: {
-    fontSize: 16,
+    fontSize: 15,
     color: DEFAULT_COLORS.white,
     ...fonts.regular,
     flex: 1,
   },
   placeholder: {
-    color: "rgba(255, 255, 255, 0.4)",
+    color: DEFAULT_COLORS.white_35,
   },
   textDisabled: {
-    color: "rgba(255, 255, 255, 0.4)",
+    color: DEFAULT_COLORS.white_35,
   },
   triggerContent: {
     flex: 1,
@@ -288,16 +280,16 @@ const styles = StyleSheet.create({
     marginRight: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(126, 135, 226, 0.16)",
+    backgroundColor: DEFAULT_COLORS.white_06,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.35)",
+    borderColor: BORDERS.highlight,
   },
   statusMarkActive: {
-    backgroundColor: "rgba(251, 69, 1, 0.22)",
-    borderColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.white_08,
+    borderColor: BORDERS.highlightStrong,
   },
   statusMarkFilled: {
-    backgroundColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.purpleBright,
     borderColor: DEFAULT_COLORS.white,
   },
   statusMarkError: {
@@ -305,28 +297,28 @@ const styles = StyleSheet.create({
     borderColor: DEFAULT_COLORS.danger,
   },
   statusMarkDisabled: {
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: DEFAULT_COLORS.white_08,
+    borderColor: DEFAULT_COLORS.white_08,
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: SURFACES.overlayStrong,
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: "#1A1A2E",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    borderTopWidth: 2,
-    borderTopColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: SURFACES.card,
+    borderTopLeftRadius: RADII.xxl,
+    borderTopRightRadius: RADII.xxl,
+    borderWidth: 1,
+    borderColor: BORDERS.highlight,
     paddingHorizontal: 20,
     paddingBottom: 40,
     maxHeight: "50%",
   },
   handle: {
-    width: 40,
+    width: 44,
     height: 4,
-    backgroundColor: "rgba(126, 135, 226, 0.3)",
+    backgroundColor: DEFAULT_COLORS.white_25,
     borderRadius: 2,
     alignSelf: "center",
     marginVertical: 12,
@@ -334,21 +326,21 @@ const styles = StyleSheet.create({
   sheetTitle: {
     fontSize: 12,
     textAlign: "center",
-    color: DEFAULT_COLORS.tertiary,
+    color: DEFAULT_COLORS.purpleBright,
     letterSpacing: 2,
-    marginBottom: 20,
+    marginBottom: 16,
     textTransform: "uppercase",
   },
   searchContainer: {
     height: 48,
-    borderRadius: 14,
+    borderRadius: RADII.md,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.35)",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderColor: BORDERS.highlight,
+    backgroundColor: SURFACES.fill,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     marginBottom: 12,
   },
   searchInput: {
@@ -362,18 +354,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 18,
+    paddingVertical: 16,
     gap: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(126, 135, 226, 0.1)",
+    borderBottomColor: BORDERS.subtle,
   },
   selectedOption: {
-    backgroundColor: "rgba(251, 69, 1, 0.05)",
+    backgroundColor: DEFAULT_COLORS.secondary_10,
   },
   optionText: {
     ...fonts.regular,
-    fontSize: 16,
-    color: "rgba(255, 255, 255, 0.7)",
+    fontSize: 15,
+    color: DEFAULT_COLORS.white_70,
     textAlign: "center",
   },
   selectedOptionText: {
@@ -382,7 +374,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: "rgba(255, 255, 255, 0.48)",
+    color: DEFAULT_COLORS.white_35,
     textAlign: "center",
     paddingVertical: 24,
   },

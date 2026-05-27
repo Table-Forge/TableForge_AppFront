@@ -1,16 +1,18 @@
 import React, { forwardRef, useRef, useState } from "react";
 import {
-  View,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  TextInputProps,
   StyleProp,
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+  TouchableOpacity,
+  View,
   ViewStyle,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 import { ErrorMessage } from "@/src/components/error-message/error-message";
 import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
 
@@ -72,7 +74,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             ref={ref}
             style={[styles.input, style, disabled && styles.inputTextDisabled]}
             placeholderTextColor={
-              disabled ? "rgba(153, 153, 153, 0.4)" : "#999"
+              disabled ? DEFAULT_COLORS.white_25 : DEFAULT_COLORS.white_35
             }
             secureTextEntry={showPassword}
             editable={!disabled}
@@ -98,7 +100,7 @@ export const Input = forwardRef<TextInput, InputProps>(
               <Ionicons
                 name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={20}
-                color={DEFAULT_COLORS.white}
+                color={DEFAULT_COLORS.textMutedLight}
               />
             </TouchableOpacity>
           )}
@@ -108,7 +110,7 @@ export const Input = forwardRef<TextInput, InputProps>(
               <Ionicons
                 name="lock-closed-outline"
                 size={18}
-                color="rgba(255,255,255,0.3)"
+                color={DEFAULT_COLORS.white_35}
               />
             </View>
           )}
@@ -129,43 +131,34 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.035)",
+    backgroundColor: SURFACES.fill,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.45)",
-    borderRadius: 16,
-    paddingHorizontal: 15,
+    borderColor: BORDERS.highlight,
+    borderRadius: RADII.md,
+    paddingHorizontal: 16,
     height: 52,
-    shadowColor: DEFAULT_COLORS.secondary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 1,
   },
   inputFocused: {
-    borderColor: DEFAULT_COLORS.tertiary,
-    backgroundColor: "rgba(255, 255, 255, 0.055)",
-    shadowColor: DEFAULT_COLORS.tertiary,
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 3,
+    borderColor: BORDERS.highlightStrong,
+    backgroundColor: SURFACES.fillStrong,
   },
   input: {
     flex: 1,
     color: DEFAULT_COLORS.white,
     ...fonts.regular,
-    fontSize: 16,
+    fontSize: 15,
     height: "100%",
   },
   inputError: {
     borderColor: DEFAULT_COLORS.danger,
   },
   inputDisabled: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderColor: "rgba(255, 255, 255, 0.2)",
-    opacity: 0.7,
+    backgroundColor: DEFAULT_COLORS.white_05,
+    borderColor: DEFAULT_COLORS.white_10,
+    opacity: 0.75,
   },
   inputTextDisabled: {
-    color: "rgba(255, 255, 255, 0.4)",
+    color: DEFAULT_COLORS.white_35,
   },
   icon: {
     marginLeft: 10,
@@ -176,12 +169,12 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginRight: 10,
     alignSelf: "center",
-    backgroundColor: "rgba(126, 135, 226, 0.5)",
+    backgroundColor: DEFAULT_COLORS.purpleBorder_35,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.18)",
+    borderColor: DEFAULT_COLORS.purpleBorder_65,
   },
   statusMarkFocused: {
-    backgroundColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.purpleBright,
     borderColor: DEFAULT_COLORS.white,
   },
   statusMarkError: {
@@ -189,7 +182,7 @@ const styles = StyleSheet.create({
     borderColor: DEFAULT_COLORS.danger,
   },
   statusMarkDisabled: {
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: DEFAULT_COLORS.white_10,
+    borderColor: DEFAULT_COLORS.white_08,
   },
 });

@@ -122,7 +122,7 @@ export default function MyAccountScreen() {
               <View style={styles.fieldContainer}>
                 <Label
                   text="Nome de Usuário"
-                  infoText="Seu @único. Se mudar aqui, outros aventureiros podem ter dificuldade em te achar."
+                  infoText="Seu @único. Ele não pode ser alterado depois da criação da conta."
                 />
                 <ControlledInput
                   hookForm={hookForm}
@@ -130,7 +130,7 @@ export default function MyAccountScreen() {
                   placeholder="ex.: avalon_mestre"
                   autoCapitalize="none"
                   removeSpaces
-                  disabled={isLoadingUser}
+                  disabled
                 />
               </View>
 

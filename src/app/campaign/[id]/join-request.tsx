@@ -17,9 +17,12 @@ import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { MainContainer } from "@/src/components/main-container/main-container";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
+import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
+import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-campaign-members";
 import { useCharacters } from "@/src/features/characters/hooks/use-characters";
 import { ICharacter } from "@/src/features/characters/schemas/character.schema";
 import { useJoinRequestsMutation } from "@/src/features/join-requests/hooks/use-join-requests-mutations";
+import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
@@ -42,6 +45,8 @@ export default function CampaignJoinRequestScreen() {
     size: 100,
     enabled: !!userId,
   });
+  const { data: campaign } = useCampaign(campaignId);
+  const { data: members = [] } = useCampaignMembers({ campaignId });
   const { createJoinRequestMutation, isCreatingJoinRequest } =
     useJoinRequestsMutation(campaignId);
 
@@ -70,7 +75,20 @@ export default function CampaignJoinRequestScreen() {
         message: message.trim(),
       },
       {
-        onSuccess: () => handleBack(),
+        onSuccess: (createdJoinRequest) => {
+          if (campaign) {
+            const masterIds = members
+              .filter((member) => member.role === "Master")
+              .map((member) => member.userId);
+            notify.joinRequestReceived({
+              masterIds: [campaign.creatorId, ...masterIds],
+              requesterName: user?.nickname || user?.username || "Aventureiro",
+              campaignTitle: campaign.title,
+              joinRequestId: createdJoinRequest.id,
+            });
+          }
+          handleBack();
+        },
       },
     );
   };

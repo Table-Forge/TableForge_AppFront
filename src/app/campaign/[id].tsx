@@ -29,6 +29,7 @@ import { useJoinRequests } from "@/src/features/join-requests/hooks/use-join-req
 import { useJoinRequestsMutation } from "@/src/features/join-requests/hooks/use-join-requests-mutations";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
+import { notify } from "@/src/features/notifications/helpers/notify";
 import { CallendarTab } from "@/src/pages-components/campaign/callendar-tab";
 import { HomeTab } from "@/src/pages-components/campaign/home-tab";
 import { MembersTab } from "@/src/pages-components/campaign/members-tab";
@@ -292,18 +293,44 @@ export default function CampaignDetails() {
                         params: { id: requestId },
                       } as any)
                     }
-                    onApproveJoinRequest={(requestId) =>
-                      updateJoinRequestStatusMutation.mutate({
-                        id: requestId,
-                        status: "Approved",
-                      })
-                    }
-                    onRejectJoinRequest={(requestId) =>
-                      updateJoinRequestStatusMutation.mutate({
-                        id: requestId,
-                        status: "Rejected",
-                      })
-                    }
+                    onApproveJoinRequest={(requestId) => {
+                      const request = pendingJoinRequests.find(
+                        (item) => item.id === requestId,
+                      );
+                      updateJoinRequestStatusMutation.mutate(
+                        { id: requestId, status: "Approved" },
+                        {
+                          onSuccess: () => {
+                            if (request) {
+                              notify.joinRequestApproved({
+                                requesterId: request.userId,
+                                campaignId,
+                                campaignTitle: campaign.title,
+                              });
+                            }
+                          },
+                        },
+                      );
+                    }}
+                    onRejectJoinRequest={(requestId) => {
+                      const request = pendingJoinRequests.find(
+                        (item) => item.id === requestId,
+                      );
+                      updateJoinRequestStatusMutation.mutate(
+                        { id: requestId, status: "Rejected" },
+                        {
+                          onSuccess: () => {
+                            if (request) {
+                              notify.joinRequestRejected({
+                                requesterId: request.userId,
+                                campaignId,
+                                campaignTitle: campaign.title,
+                              });
+                            }
+                          },
+                        },
+                      );
+                    }}
                   />
                 ),
               },

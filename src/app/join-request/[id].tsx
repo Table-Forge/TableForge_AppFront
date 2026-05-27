@@ -9,9 +9,11 @@ import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { InfoCard } from "@/src/components/info-card/info-card";
 import { MainContainer } from "@/src/components/main-container/main-container";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
 import { useCharacter } from "@/src/features/characters/hooks/use-character";
 import { useJoinRequest } from "@/src/features/join-requests/hooks/use-join-request";
 import { useJoinRequestsMutation } from "@/src/features/join-requests/hooks/use-join-requests-mutations";
+import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
@@ -30,6 +32,7 @@ export default function JoinRequestDetailsScreen() {
   const { data: character, isLoading: isLoadingCharacter } = useCharacter(
     joinRequest?.characterId ?? undefined,
   );
+  const { data: campaign } = useCampaign(joinRequest?.campaignId);
   const { updateJoinRequestStatusMutation, isUpdatingJoinRequest } =
     useJoinRequestsMutation(joinRequest?.campaignId);
 
@@ -42,7 +45,21 @@ export default function JoinRequestDetailsScreen() {
         status,
       },
       {
-        onSuccess: () => handleBack(),
+        onSuccess: () => {
+          if (campaign) {
+            const payload = {
+              requesterId: joinRequest.userId,
+              campaignId: campaign.id,
+              campaignTitle: campaign.title,
+            };
+            if (status === "Approved") {
+              notify.joinRequestApproved(payload);
+            } else {
+              notify.joinRequestRejected(payload);
+            }
+          }
+          handleBack();
+        },
       },
     );
   };

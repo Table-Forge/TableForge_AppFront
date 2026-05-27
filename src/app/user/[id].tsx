@@ -1,6 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, Image, ScrollView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
@@ -11,6 +17,7 @@ import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 export default function PublicUserProfileScreen() {
   const { handleBack } = useBackRouter();
@@ -21,7 +28,7 @@ export default function PublicUserProfileScreen() {
   if (isLoading) {
     return (
       <MainContainer style={styles.centerContainer}>
-        <ActivityIndicator color={DEFAULT_COLORS.tertiary} />
+        <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
         <ThemedText style={styles.feedbackText}>Carregando perfil...</ThemedText>
       </MainContainer>
     );
@@ -30,7 +37,9 @@ export default function PublicUserProfileScreen() {
   if (isError || !user) {
     return (
       <MainContainer style={styles.centerContainer}>
-        <ThemedText style={styles.feedbackText}>Perfil não encontrado.</ThemedText>
+        <ThemedText style={styles.feedbackText}>
+          Perfil não encontrado.
+        </ThemedText>
       </MainContainer>
     );
   }
@@ -64,10 +73,11 @@ export default function PublicUserProfileScreen() {
               <Ionicons
                 name="person-circle-outline"
                 size={96}
-                color="rgba(255,255,255,0.35)"
+                color={DEFAULT_COLORS.white_35}
               />
             )}
           </View>
+          <ThemedText style={styles.eyebrow}>Aventureiro</ThemedText>
           <ThemedText weight="bold" style={styles.nickname}>
             {user.nickname || user.username}
           </ThemedText>
@@ -96,12 +106,14 @@ const InfoRow = ({ label, value }: { label: string; value: string }) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: SURFACES.background,
   },
   centerContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     gap: 12,
+    backgroundColor: SURFACES.background,
   },
   headerTitle: {
     flex: 1,
@@ -119,8 +131,8 @@ const styles = StyleSheet.create({
   },
   profileHeader: {
     alignItems: "center",
-    gap: 8,
-    paddingVertical: 16,
+    gap: 6,
+    paddingVertical: 20,
   },
   avatarWrapper: {
     width: 112,
@@ -129,49 +141,61 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: SURFACES.fill,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.25)",
+    borderColor: BORDERS.highlightStrong,
+    marginBottom: 10,
+    ...SHADOWS.glow,
+    shadowColor: DEFAULT_COLORS.purpleBright,
   },
   avatar: {
     width: "100%",
     height: "100%",
   },
+  eyebrow: {
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 11,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    ...fonts.bold,
+  },
   nickname: {
-    marginTop: 8,
     fontSize: 24,
     color: DEFAULT_COLORS.white,
   },
   username: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
+    fontSize: 13,
   },
   card: {
-    borderRadius: 8,
     marginBottom: 0,
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderColor: "rgba(126, 135, 226, 0.1)",
+    backgroundColor: SURFACES.card,
+    borderColor: BORDERS.highlight,
   },
   moduleTitle: {
-    color: DEFAULT_COLORS.tertiary,
-    fontSize: 12,
-    letterSpacing: 1,
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 11,
+    letterSpacing: 2,
     textTransform: "uppercase",
     ...fonts.bold,
   },
   infoRow: {
     gap: 4,
     paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: BORDERS.divider,
   },
   infoLabel: {
-    color: "rgba(255,255,255,0.48)",
+    color: DEFAULT_COLORS.textMuted,
     fontSize: 12,
+    letterSpacing: 0.3,
   },
   infoValue: {
     color: DEFAULT_COLORS.white,
-    fontSize: 16,
+    fontSize: 15,
   },
   feedbackText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
     textAlign: "center",
   },
 });

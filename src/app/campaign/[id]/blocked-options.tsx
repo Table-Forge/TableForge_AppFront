@@ -25,6 +25,7 @@ import { useBackRouter } from "@/src/hooks/use-back-route";
 import { TOptions } from "@/src/interfaces";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 type BlockedOptionsType = "classes" | "races";
 
@@ -174,33 +175,42 @@ export default function CampaignBlockedOptionsScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {isLoading ? (
           <View style={styles.loadingWrapper}>
-            <ActivityIndicator color={DEFAULT_COLORS.tertiary} />
+            <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
             <ThemedText style={styles.emptyText}>Carregando...</ThemedText>
           </View>
         ) : (
           <View style={styles.optionsCard}>
-            {options.map((option) => {
+            {options.map((option, index) => {
               const optionId = Number(option.value);
               const isSelected = selectedIds.includes(optionId);
+              const isLast = index === options.length - 1;
 
               return (
                 <Pressable
                   key={String(option.value)}
                   style={[
                     styles.optionItem,
+                    isLast && styles.optionItemLast,
                     isSelected && styles.optionItemSelected,
                   ]}
                   onPress={() => handleToggleOption(optionId)}
                 >
-                  <ThemedText style={styles.optionText}>
+                  <ThemedText
+                    style={[
+                      styles.optionText,
+                      isSelected && styles.optionTextSelected,
+                    ]}
+                  >
                     {option.name}
                   </ThemedText>
                   {isSelected && (
-                    <FontAwesome5
-                      name="check"
-                      size={14}
-                      color={DEFAULT_COLORS.tertiary}
-                    />
+                    <View style={styles.checkBadge}>
+                      <FontAwesome5
+                        name="check"
+                        size={11}
+                        color={DEFAULT_COLORS.white}
+                      />
+                    </View>
                   )}
                 </Pressable>
               );
@@ -225,6 +235,7 @@ export default function CampaignBlockedOptionsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: SURFACES.background,
   },
   headerTitle: {
     flex: 1,
@@ -237,7 +248,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   loadingWrapper: {
     alignItems: "center",
@@ -245,34 +256,50 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   emptyText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
   },
   optionsCard: {
-    borderRadius: 8,
+    borderRadius: RADII.lg,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.1)",
-    backgroundColor: "rgba(255,255,255,0.03)",
+    borderColor: BORDERS.highlight,
+    backgroundColor: SURFACES.card,
     overflow: "hidden",
+    ...SHADOWS.soft,
   },
   optionItem: {
-    minHeight: 52,
-    paddingHorizontal: 16,
+    minHeight: 54,
+    paddingHorizontal: 18,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(126, 135, 226, 0.1)",
+    borderBottomColor: BORDERS.divider,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
   },
+  optionItemLast: {
+    borderBottomWidth: 0,
+  },
   optionItemSelected: {
-    backgroundColor: "rgba(251, 69, 1, 0.08)",
+    backgroundColor: DEFAULT_COLORS.orangeGlow_07,
   },
   optionText: {
     flex: 1,
     color: DEFAULT_COLORS.white,
     fontSize: 15,
     ...fonts.regular,
+  },
+  optionTextSelected: {
+    color: DEFAULT_COLORS.white,
+    ...fonts.bold,
+  },
+  checkBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: DEFAULT_COLORS.orange,
+    alignItems: "center",
+    justifyContent: "center",
   },
   footer: {
     position: "absolute",

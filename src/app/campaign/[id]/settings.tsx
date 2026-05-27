@@ -17,6 +17,8 @@ import { useCampaignsMutation } from "@/src/features/campaigns/hooks/use-campaig
 import { useClassesSelect } from "@/src/features/classes/hooks/use-classes-select";
 import { useRacesSelect } from "@/src/features/races/hooks/use-races-select";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 
 type ToggleConfirmation = {
@@ -107,8 +109,13 @@ export default function CampaignSettings() {
                   params: { id: campaign.id.toString() },
                 })
               }
+              style={styles.editIcon}
             >
-              <FontAwesome5 name="pen" size={14} color={DEFAULT_COLORS.white} />
+              <FontAwesome5
+                name="pen"
+                size={12}
+                color={DEFAULT_COLORS.purpleBright}
+              />
             </TouchableOpacity>
           </View>
 
@@ -218,8 +225,12 @@ const SettingItem = ({
     <View style={styles.settingHeader}>
       <ThemedText style={styles.settingLabel}>{label}</ThemedText>
       {onEdit && (
-        <TouchableOpacity onPress={onEdit}>
-          <FontAwesome5 name="pen" size={12} color={DEFAULT_COLORS.white} />
+        <TouchableOpacity onPress={onEdit} style={styles.editIcon}>
+          <FontAwesome5
+            name="pen"
+            size={11}
+            color={DEFAULT_COLORS.purpleBright}
+          />
         </TouchableOpacity>
       )}
     </View>
@@ -228,16 +239,17 @@ const SettingItem = ({
 );
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: SURFACES.background },
   headerTitle: { fontSize: 20, color: DEFAULT_COLORS.white },
-  content: { padding: 20, gap: 20, paddingBottom: 60 },
+  content: { padding: 20, gap: 18, paddingBottom: 60 },
   module: {
-    padding: 16,
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderRadius: 8,
+    padding: 18,
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.lg,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.1)",
-    gap: 16,
+    borderColor: BORDERS.highlight,
+    gap: 14,
+    ...SHADOWS.soft,
   },
   moduleHeader: {
     flexDirection: "row",
@@ -245,10 +257,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   moduleTitle: {
-    fontSize: 12,
-    color: DEFAULT_COLORS.tertiary,
-    letterSpacing: 1,
+    fontSize: 11,
+    color: DEFAULT_COLORS.purpleBright,
+    letterSpacing: 2,
     textTransform: "uppercase",
+    ...fonts.bold,
   },
   settingItem: { gap: 4 },
   settingHeader: {
@@ -257,11 +270,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
-  settingLabel: { fontSize: 12, color: "rgba(255,255,255,0.5)" },
+  settingLabel: {
+    fontSize: 12,
+    color: DEFAULT_COLORS.textMuted,
+    letterSpacing: 0.4,
+  },
   settingValue: { fontSize: 15, color: DEFAULT_COLORS.white },
   switchItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  editIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: RADII.pill,
+    backgroundColor: SURFACES.fill,
+    borderWidth: 1,
+    borderColor: BORDERS.highlight,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

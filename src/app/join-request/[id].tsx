@@ -15,6 +15,7 @@ import { useJoinRequestsMutation } from "@/src/features/join-requests/hooks/use-
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 export default function JoinRequestDetailsScreen() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function JoinRequestDetailsScreen() {
   if (isLoading) {
     return (
       <MainContainer style={styles.centerContainer}>
-        <ActivityIndicator color={DEFAULT_COLORS.tertiary} />
+        <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
         <ThemedText style={styles.feedbackText}>Carregando...</ThemedText>
       </MainContainer>
     );
@@ -96,9 +97,17 @@ export default function JoinRequestDetailsScreen() {
           <ThemedText weight="bold" style={styles.playerName}>
             {joinRequest.username || `Usuário ${joinRequest.userId}`}
           </ThemedText>
-          <ThemedText style={styles.statusText}>
-            Status: {translateJoinStatus(joinRequest.status)}
-          </ThemedText>
+          <View
+            style={[
+              styles.statusBadge,
+              joinRequest.status === "Approved" && styles.statusBadgeApproved,
+              joinRequest.status === "Rejected" && styles.statusBadgeRejected,
+            ]}
+          >
+            <ThemedText style={styles.statusText}>
+              {translateJoinStatus(joinRequest.status)}
+            </ThemedText>
+          </View>
         </InfoCard>
 
         <InfoCard style={styles.card}>
@@ -117,6 +126,7 @@ export default function JoinRequestDetailsScreen() {
               <ActionButton
                 variant="pill"
                 label="Ver ficha"
+                active
                 icon={
                   <Ionicons
                     name="open-outline"
@@ -124,7 +134,6 @@ export default function JoinRequestDetailsScreen() {
                     color={DEFAULT_COLORS.white}
                   />
                 }
-                backgroundColor={DEFAULT_COLORS.tertiary}
                 onPress={() =>
                   router.push({
                     pathname: "/character/[id]",
@@ -138,7 +147,7 @@ export default function JoinRequestDetailsScreen() {
           {character ? (
             <CharacterItem
               data={character}
-              cardColor={DEFAULT_COLORS.background}
+              cardColor={DEFAULT_COLORS.cardImageDark}
               onPress={() =>
                 router.push({
                   pathname: "/character/[id]",
@@ -158,7 +167,7 @@ export default function JoinRequestDetailsScreen() {
         <View style={styles.footer}>
           <View style={styles.footerButton}>
             <Button
-              variant="secondary"
+              variant="primary"
               text="Rejeitar"
               onPress={() => handleStatusUpdate("Rejected")}
               isLoading={isUpdatingJoinRequest}
@@ -181,9 +190,9 @@ export default function JoinRequestDetailsScreen() {
 function translateJoinStatus(status: string) {
   const labels: Record<string, string> = {
     None: "nenhum",
-    Pending: "pendente",
-    Approved: "aprovada",
-    Rejected: "rejeitada",
+    Pending: "Pendente",
+    Approved: "Aprovada",
+    Rejected: "Rejeitada",
   };
   return labels[status] ?? status;
 }
@@ -191,12 +200,14 @@ function translateJoinStatus(status: string) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: SURFACES.background,
   },
   centerContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     gap: 12,
+    backgroundColor: SURFACES.background,
   },
   headerTitle: {
     flex: 1,
@@ -209,19 +220,18 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 120,
-    gap: 16,
+    paddingBottom: 140,
+    gap: 14,
   },
   card: {
-    borderRadius: 8,
     marginBottom: 0,
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderColor: "rgba(126, 135, 226, 0.1)",
+    backgroundColor: SURFACES.card,
+    borderColor: BORDERS.highlight,
   },
   moduleTitle: {
-    color: DEFAULT_COLORS.tertiary,
-    fontSize: 12,
-    letterSpacing: 1,
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 11,
+    letterSpacing: 2,
     textTransform: "uppercase",
     ...fonts.bold,
   },
@@ -229,12 +239,35 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.white,
     fontSize: 20,
   },
+  statusBadge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: RADII.pill,
+    backgroundColor: DEFAULT_COLORS.secondary_24,
+    borderWidth: 1,
+    borderColor: BORDERS.highlightStrong,
+    marginTop: 6,
+  },
+  statusBadgeApproved: {
+    backgroundColor: DEFAULT_COLORS.orangeGlow_25,
+    borderColor: BORDERS.cta,
+  },
+  statusBadgeRejected: {
+    backgroundColor: DEFAULT_COLORS.tertiary_30,
+    borderColor: DEFAULT_COLORS.danger,
+  },
   statusText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.white,
+    fontSize: 11,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+    ...fonts.bold,
   },
   messageText: {
-    color: DEFAULT_COLORS.white,
+    color: DEFAULT_COLORS.white_70,
     lineHeight: 22,
+    fontSize: 14,
   },
   characterHeader: {
     flexDirection: "row",
@@ -244,7 +277,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   feedbackText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
     textAlign: "center",
   },
   footer: {

@@ -23,6 +23,7 @@ import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 export default function CampaignChatScreen() {
   const { campaignId } = useLocalSearchParams();
@@ -72,9 +73,13 @@ export default function CampaignChatScreen() {
           onPress={handleBack}
         />
         <View style={styles.headerTextContainer}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-             <FontAwesome5 name="beer" size={16} color={DEFAULT_COLORS.white} />
-             <ThemedText style={styles.headerTitle}>Taverna</ThemedText>
+          <View style={styles.headerTitleRow}>
+            <FontAwesome5
+              name="beer"
+              size={14}
+              color={DEFAULT_COLORS.purpleBright}
+            />
+            <ThemedText style={styles.headerEyebrow}>Taverna</ThemedText>
           </View>
           <ThemedText style={styles.headerSubtitle} numberOfLines={1}>
             {campaign?.title || "Campanha"}
@@ -115,6 +120,7 @@ export default function CampaignChatScreen() {
           </View>
           <ActionButton
             variant="circle"
+            active
             icon={
               <Ionicons
                 name="send"
@@ -148,7 +154,7 @@ const MessageBubble = ({
 }) => (
   <View style={[styles.messageRow, isMine && styles.myMessageRow]}>
     <View style={[styles.bubble, isMine && styles.myBubble]}>
-      <ThemedText style={styles.username}>
+      <ThemedText style={[styles.username, isMine && styles.usernameMine]}>
         {isMine ? "Você" : item.username || `Usuário ${item.userId}`}
       </ThemedText>
       <ThemedText style={styles.messageText}>{item.content}</ThemedText>
@@ -158,21 +164,29 @@ const MessageBubble = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: DEFAULT_COLORS.background,
+    backgroundColor: SURFACES.background,
   },
   headerTextContainer: {
     flex: 1,
     alignItems: "center",
   },
-  headerTitle: {
-    fontSize: 18,
+  headerTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  headerEyebrow: {
+    fontSize: 11,
+    color: DEFAULT_COLORS.purpleBright,
+    letterSpacing: 2,
+    textTransform: "uppercase",
     ...fonts.bold,
-    color: DEFAULT_COLORS.white,
   },
   headerSubtitle: {
     marginTop: 2,
-    fontSize: 12,
-    color: DEFAULT_COLORS.grays._300,
+    fontSize: 14,
+    color: DEFAULT_COLORS.white,
+    ...fonts.bold,
   },
   headerSpacer: {
     width: 45,
@@ -185,32 +199,38 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     flexGrow: 1,
     justifyContent: "flex-end",
+    gap: 6,
   },
   messageRow: {
     width: "100%",
     alignItems: "flex-start",
-    marginBottom: 10,
+    marginBottom: 6,
   },
   myMessageRow: {
     alignItems: "flex-end",
   },
   bubble: {
     maxWidth: "82%",
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    padding: 14,
+    borderRadius: RADII.lg,
+    backgroundColor: SURFACES.card,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.15)",
+    borderColor: BORDERS.subtle,
   },
   myBubble: {
-    backgroundColor: DEFAULT_COLORS.tertiary_30,
-    borderColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.orangeGlow_25,
+    borderColor: DEFAULT_COLORS.orange,
   },
   username: {
     fontSize: 11,
-    color: DEFAULT_COLORS.tertiary,
-    marginBottom: 4,
+    color: DEFAULT_COLORS.purpleBright,
+    marginBottom: 6,
+    letterSpacing: 1,
+    textTransform: "uppercase",
     ...fonts.bold,
+  },
+  usernameMine: {
+    color: DEFAULT_COLORS.crown,
   },
   messageText: {
     fontSize: 15,
@@ -222,10 +242,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     paddingHorizontal: 12,
-    paddingTop: 8,
-    paddingBottom: 12,
+    paddingTop: 10,
+    paddingBottom: 14,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.06)",
+    borderTopColor: BORDERS.divider,
+    backgroundColor: SURFACES.cardAlt,
   },
   inputWrapper: {
     flex: 1,
@@ -236,6 +257,6 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 40,
     textAlign: "center",
-    color: DEFAULT_COLORS.grays._300,
+    color: DEFAULT_COLORS.textMuted,
   },
 });

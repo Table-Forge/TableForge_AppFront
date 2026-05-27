@@ -33,6 +33,8 @@ import { CallendarTab } from "@/src/pages-components/campaign/callendar-tab";
 import { HomeTab } from "@/src/pages-components/campaign/home-tab";
 import { MembersTab } from "@/src/pages-components/campaign/members-tab";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
+import { BORDERS, SURFACES } from "@/src/theme/tokens";
 import { useCampaignDifficultyLevelEnum } from "@/src/features/campaigns/hooks/enums/use-campaign-difficulty-level-enum";
 
 const { width } = Dimensions.get("window");
@@ -180,6 +182,7 @@ export default function CampaignDetails() {
           source={campaign.bannerUrl ? { uri: campaign.bannerUrl } : undefined}
           style={styles.banner}
         >
+          <View style={styles.bannerScrim} />
           <HeaderActions padding={10}>
             <ActionButton
               variant="circle"
@@ -235,6 +238,7 @@ export default function CampaignDetails() {
           </HeaderActions>
 
           <View style={styles.titleOverlay}>
+            <ThemedText style={styles.eyebrow}>Campanha</ThemedText>
             <ThemedText weight="bold" style={styles.title}>
               {campaign.title}
             </ThemedText>
@@ -358,26 +362,41 @@ export default function CampaignDetails() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: SURFACES.background },
   banner: {
     width: "100%",
-    height: width * 0.7,
+    height: width * 0.72,
     justifyContent: "space-between",
-    backgroundColor: DEFAULT_COLORS.primary,
+    backgroundColor: SURFACES.card,
+  },
+  bannerScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: DEFAULT_COLORS.overlayDark_45,
   },
   titleOverlay: {
-    padding: 20,
-    backgroundColor: "rgba(26, 26, 46, 0.85)",
-    borderTopWidth: 2,
-    borderTopColor: DEFAULT_COLORS.tertiary,
+    padding: 22,
+    backgroundColor: DEFAULT_COLORS.homeSurface_95,
+    borderTopWidth: 1,
+    borderTopColor: BORDERS.highlight,
+    gap: 4,
+  },
+  eyebrow: {
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 11,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    ...fonts.bold,
   },
   title: {
     fontSize: 26,
     color: DEFAULT_COLORS.white,
-    textShadowColor: "black",
-    textShadowRadius: 10,
+    lineHeight: 30,
   },
-  masterText: { fontSize: 14, color: DEFAULT_COLORS.grays._200, marginTop: 4 },
+  masterText: {
+    fontSize: 13,
+    color: DEFAULT_COLORS.textMuted,
+    marginTop: 4,
+  },
   content: { padding: 20, gap: 20 },
   footer: {
     position: "absolute",
@@ -385,9 +404,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: DEFAULT_COLORS.background,
+    backgroundColor: DEFAULT_COLORS.homeSurface_95,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.05)",
+    borderTopColor: BORDERS.highlight,
   },
 });
 

@@ -27,6 +27,7 @@ import { CampaignAnnouncementCreateSchema } from "@/src/features/campaign-announ
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, SURFACES } from "@/src/theme/tokens";
 
 type ICampaignAnnouncementCreateInput = z.input<
   typeof CampaignAnnouncementCreateSchema
@@ -146,7 +147,7 @@ export default function CreateCampaignAnnouncementScreen() {
 
 const styles = StyleSheet.create({
   screen: {
-    backgroundColor: DEFAULT_COLORS.background,
+    backgroundColor: SURFACES.background,
   },
   keyboardWrapper: {
     flex: 1,
@@ -160,13 +161,13 @@ const styles = StyleSheet.create({
     width: 45,
   },
   scrollContent: {
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
     paddingBottom: 40,
-    paddingTop: 30,
+    paddingTop: 24,
   },
   formCard: {
-    backgroundColor: "rgba(26, 26, 46, 0.95)",
-    borderColor: "rgba(126, 135, 226, 0.2)",
+    backgroundColor: SURFACES.card,
+    borderColor: BORDERS.highlight,
     gap: 18,
     marginBottom: 18,
   },

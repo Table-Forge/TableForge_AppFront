@@ -23,6 +23,7 @@ import { useJoinRequestsMutation } from "@/src/features/join-requests/hooks/use-
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 export default function CampaignJoinRequestScreen() {
   const router = useRouter();
@@ -102,8 +103,9 @@ export default function CampaignJoinRequestScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.sectionHeader}>
+          <ThemedText style={styles.eyebrow}>Solicitação</ThemedText>
           <ThemedText style={styles.sectionTitle}>
-            Solicitação de entrada
+            Quero entrar nessa mesa
           </ThemedText>
           <ThemedText style={styles.sectionDescription}>
             Escolha um personagem para submeter à mesa.
@@ -111,9 +113,7 @@ export default function CampaignJoinRequestScreen() {
         </View>
 
         <View style={styles.charactersHeader}>
-          <ThemedText weight="bold" style={styles.moduleTitle}>
-            Seus personagens
-          </ThemedText>
+          <ThemedText style={styles.moduleTitle}>Seus personagens</ThemedText>
           <ActionButton
             variant="pill"
             label="Criar"
@@ -129,13 +129,13 @@ export default function CampaignJoinRequestScreen() {
                 },
               } as any)
             }
-            backgroundColor={DEFAULT_COLORS.tertiary}
+            active
           />
         </View>
 
         {isLoading ? (
           <View style={styles.feedbackWrapper}>
-            <ActivityIndicator color={DEFAULT_COLORS.tertiary} />
+            <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
             <ThemedText style={styles.feedbackText}>Carregando...</ThemedText>
           </View>
         ) : characters.length ? (
@@ -165,7 +165,7 @@ export default function CampaignJoinRequestScreen() {
             value={message}
             onChangeText={setMessage}
             placeholder="Conte por que esse personagem combina com a mesa."
-            placeholderTextColor="rgba(255,255,255,0.35)"
+            placeholderTextColor={DEFAULT_COLORS.white_35}
             multiline
             style={styles.messageInput}
             textAlignVertical="top"
@@ -224,17 +224,20 @@ const SelectableCharacterCard = ({
     style={({ pressed }) => [
       styles.characterCard,
       isSelected && styles.characterCardSelected,
-      pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] },
+      pressed && { opacity: 0.92, transform: [{ scale: 0.98 }] },
     ]}
   >
     <View style={styles.characterImageWrapper}>
       {character.imageUrl ? (
-        <Image source={{ uri: character.imageUrl }} style={styles.characterImage} />
+        <Image
+          source={{ uri: character.imageUrl }}
+          style={styles.characterImage}
+        />
       ) : (
         <Ionicons
           name="person-circle-outline"
           size={54}
-          color="rgba(255,255,255,0.35)"
+          color={DEFAULT_COLORS.white_35}
         />
       )}
       {isSelected && (
@@ -258,7 +261,7 @@ const SelectableCharacterCard = ({
 );
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: SURFACES.background },
   headerTitle: {
     flex: 1,
     fontSize: 20,
@@ -270,11 +273,18 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 120,
+    paddingBottom: 140,
     gap: 18,
   },
   sectionHeader: {
-    gap: 6,
+    gap: 4,
+  },
+  eyebrow: {
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 11,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    ...fonts.bold,
   },
   sectionTitle: {
     fontSize: 22,
@@ -282,8 +292,9 @@ const styles = StyleSheet.create({
     ...fonts.bold,
   },
   sectionDescription: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMutedLight,
     lineHeight: 20,
+    fontSize: 14,
   },
   charactersHeader: {
     flexDirection: "row",
@@ -292,10 +303,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   moduleTitle: {
-    color: DEFAULT_COLORS.tertiary,
-    fontSize: 12,
-    letterSpacing: 1,
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 11,
+    letterSpacing: 2,
     textTransform: "uppercase",
+    ...fonts.bold,
   },
   characterGrid: {
     flexDirection: "row",
@@ -304,22 +316,23 @@ const styles = StyleSheet.create({
   },
   characterCard: {
     width: "48%",
-    minHeight: 220,
-    borderRadius: 8,
+    minHeight: 228,
+    borderRadius: RADII.lg,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.2)",
-    backgroundColor: "rgba(255,255,255,0.04)",
+    borderColor: BORDERS.highlight,
+    backgroundColor: SURFACES.card,
+    ...SHADOWS.soft,
   },
   characterCardSelected: {
-    borderColor: DEFAULT_COLORS.tertiary,
-    backgroundColor: "rgba(251, 69, 1, 0.12)",
+    borderColor: BORDERS.cta,
+    backgroundColor: DEFAULT_COLORS.orangeGlow_07,
   },
   characterImageWrapper: {
-    height: 132,
+    height: 140,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: DEFAULT_COLORS.cardImageDark,
   },
   characterImage: {
     width: "100%",
@@ -327,25 +340,29 @@ const styles = StyleSheet.create({
   },
   selectedBadge: {
     position: "absolute",
-    top: 8,
-    right: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    top: 10,
+    right: 10,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.orange,
+    borderWidth: 1,
+    borderColor: BORDERS.cta,
   },
   characterContent: {
     padding: 12,
     gap: 3,
+    backgroundColor: SURFACES.cardAlt,
+    flex: 1,
   },
   characterName: {
     color: DEFAULT_COLORS.white,
     fontSize: 15,
   },
   characterMeta: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
     fontSize: 12,
   },
   feedbackWrapper: {
@@ -353,31 +370,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    borderRadius: 8,
+    borderRadius: RADII.lg,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.12)",
-    backgroundColor: "rgba(255,255,255,0.03)",
+    borderColor: BORDERS.subtle,
+    backgroundColor: SURFACES.fill,
   },
   feedbackText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
     textAlign: "center",
   },
   messageWrapper: {
     gap: 8,
   },
   inputLabel: {
-    color: "rgba(255,255,255,0.55)",
-    fontSize: 12,
+    color: DEFAULT_COLORS.textMutedLight,
+    fontSize: 13,
+    letterSpacing: 0.3,
   },
   messageInput: {
-    minHeight: 96,
-    borderRadius: 8,
+    minHeight: 110,
+    borderRadius: RADII.md,
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.35)",
-    backgroundColor: "rgba(255,255,255,0.04)",
+    borderColor: BORDERS.highlight,
+    backgroundColor: SURFACES.fill,
     color: DEFAULT_COLORS.white,
     paddingHorizontal: 14,
     paddingVertical: 12,
+    fontSize: 15,
     ...fonts.regular,
   },
   termsWrapper: {
@@ -390,19 +409,21 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.5)",
+    borderColor: BORDERS.highlightStrong,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 2,
+    backgroundColor: SURFACES.fill,
   },
   checkboxOn: {
-    backgroundColor: DEFAULT_COLORS.tertiary,
-    borderColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.purpleBright,
+    borderColor: DEFAULT_COLORS.purpleBright,
   },
   termsText: {
     flex: 1,
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMutedLight,
     lineHeight: 19,
+    fontSize: 13,
   },
   footer: {
     position: "absolute",

@@ -163,7 +163,7 @@ export default function Profile() {
                 {
                   label: "Perfil",
                   value: "Perfil",
-                  component: <ProfileTab data={data} />,
+                  component: <ProfileTab data={data} editable />,
                 },
                 {
                   label: "Personagens",

@@ -7,12 +7,16 @@ import { IUser } from "@/src/features/users/schemas/user.schema";
 
 interface IProps {
   data?: IUser;
+  editable?: boolean;
 }
 
-export const ProfileTab = ({ data }: IProps) => {
+export const ProfileTab = ({ editable = false }: IProps) => {
   return (
     <>
-      <InfoCard title="Preferências de Jogo" onEdit={() => {}}>
+      <InfoCard
+        title="Preferências de Jogo"
+        onEdit={editable ? () => {} : undefined}
+      >
         <View style={infoCardStyles.cardContentItem}>
           <ThemedText style={infoCardStyles.cardContentLabel}>
             Sistema

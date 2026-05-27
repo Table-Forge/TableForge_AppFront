@@ -29,6 +29,7 @@ import { ProfileTab } from "@/src/pages-components/profile/profile-tab";
 import { CharactersTab } from "@/src/pages-components/profile/characters-tab";
 import { CampaignsTab } from "@/src/pages-components/profile/campaigns-tab";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
 import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
 import { Mail } from "lucide-react-native";
@@ -69,8 +70,8 @@ export default function Profile() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={DEFAULT_COLORS.tertiary}
-              colors={[DEFAULT_COLORS.tertiary]}
+              tintColor={DEFAULT_COLORS.purpleBright}
+              colors={[DEFAULT_COLORS.purpleBright]}
             />
           }
         >
@@ -90,6 +91,7 @@ export default function Profile() {
             <View style={styles.groupedIcons}>
               <ActionButton
                 variant="circle"
+                active
                 icon={
                   <MaterialDesignIcons
                     name="crown"
@@ -98,7 +100,6 @@ export default function Profile() {
                   />
                 }
                 onPress={() => navigation.navigate("my-plan")}
-                backgroundColor={DEFAULT_COLORS.tertiary}
               />
               <ActionButton
                 variant="circle"
@@ -159,7 +160,7 @@ export default function Profile() {
                 options={[
                   {
                     label: "Enviar Mensagem",
-                    icon: <Mail size={18} color={DEFAULT_COLORS.tertiary} />,
+                    icon: <Mail size={18} color={DEFAULT_COLORS.purpleBright} />,
                     onPress: () => {},
                   },
                   {
@@ -168,7 +169,7 @@ export default function Profile() {
                       <Ionicons
                         name="person-remove-outline"
                         size={18}
-                        color={DEFAULT_COLORS.tertiary}
+                        color={DEFAULT_COLORS.purpleBright}
                       />
                     ),
                     onPress: () => {},
@@ -179,7 +180,7 @@ export default function Profile() {
                       <MaterialDesignIcons
                         name="block-helper"
                         size={18}
-                        color={DEFAULT_COLORS.tertiary}
+                        color={DEFAULT_COLORS.danger}
                       />
                     ),
                     onPress: () => {},
@@ -189,10 +190,13 @@ export default function Profile() {
             </View>
 
             <View style={styles.profileInfo}>
-              <ThemedText style={{ ...fonts.bold }}>
+              <ThemedText style={styles.profileEyebrow}>Aventureiro</ThemedText>
+              <ThemedText style={styles.profileNickname}>
                 {data?.nickname}
               </ThemedText>
-              <ThemedText style={{ opacity: 0.7 }}>{data?.username}</ThemedText>
+              <ThemedText style={styles.profileUsername}>
+                @{data?.username}
+              </ThemedText>
             </View>
 
             <Tabs<ITabs>
@@ -228,57 +232,51 @@ export default function Profile() {
 const styles = StyleSheet.create({
   contentBody: {
     marginTop: 50,
-    backgroundColor: DEFAULT_COLORS.primary,
-    borderRadius: 20,
-
-    borderWidth: 2,
-    borderColor: DEFAULT_COLORS.tertiary_30,
-
-    paddingHorizontal: 10,
-    paddingTop: 68,
+    backgroundColor: SURFACES.card,
+    borderRadius: RADII.xxl,
+    borderWidth: 1,
+    borderColor: BORDERS.highlight,
+    paddingHorizontal: 14,
+    paddingTop: 70,
     paddingBottom: 20,
     position: "relative",
+    ...SHADOWS.soft,
   },
   avatarContainer: {
     alignSelf: "center",
     position: "absolute",
-    top: -50,
+    top: -56,
   },
   avatarContainerPressed: {
-    opacity: 0.85,
+    opacity: 0.92,
     transform: [{ scale: 0.98 }],
   },
   avatarImage: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderWidth: 3,
-    borderColor: DEFAULT_COLORS.tertiary,
-    backgroundColor: DEFAULT_COLORS.grays._300,
-
-    shadowColor: DEFAULT_COLORS.tertiary,
+    borderWidth: 2,
+    borderColor: BORDERS.highlightStrong,
+    backgroundColor: SURFACES.fill,
+    shadowColor: DEFAULT_COLORS.purpleBright,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 10,
-
+    shadowOpacity: 0.5,
+    shadowRadius: 14,
     elevation: 12,
   },
-
   avatarPlaceholder: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: DEFAULT_COLORS.background,
-    borderWidth: 3,
-    borderColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: SURFACES.cardAlt,
+    borderWidth: 2,
+    borderColor: BORDERS.highlightStrong,
     alignItems: "center",
     justifyContent: "center",
-
-    shadowColor: DEFAULT_COLORS.tertiary,
+    shadowColor: DEFAULT_COLORS.purpleBright,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 10,
-
+    shadowOpacity: 0.5,
+    shadowRadius: 14,
     elevation: 12,
   },
   avatarEditBadge: {
@@ -288,16 +286,34 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: DEFAULT_COLORS.tertiary,
+    backgroundColor: DEFAULT_COLORS.orange,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: DEFAULT_COLORS.primary,
+    borderColor: SURFACES.card,
   },
   profileInfo: {
     alignItems: "center",
     marginTop: 10,
-    marginBottom: 20,
+    marginBottom: 22,
+    gap: 2,
+  },
+  profileEyebrow: {
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    ...fonts.bold,
+    marginBottom: 2,
+  },
+  profileNickname: {
+    fontSize: 20,
+    color: DEFAULT_COLORS.white,
+    ...fonts.bold,
+  },
+  profileUsername: {
+    fontSize: 13,
+    color: DEFAULT_COLORS.textMuted,
   },
   groupedIcons: {
     flexDirection: "row",

@@ -10,6 +10,7 @@ import { useInfiniteCampaigns } from "@/src/features/campaigns/hooks/use-infinit
 import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 export default function Messages() {
   const router = useRouter();
@@ -84,7 +85,11 @@ const CampaignChatItem = ({
     onPress={onPress}
   >
     <View style={styles.avatarContainer}>
-      <FontAwesome5 name="dice-d20" size={20} color={DEFAULT_COLORS.tertiary} />
+      <FontAwesome5
+        name="dice-d20"
+        size={20}
+        color={DEFAULT_COLORS.purpleBright}
+      />
     </View>
 
     <View style={styles.content}>
@@ -95,7 +100,7 @@ const CampaignChatItem = ({
         <Ionicons
           name="chevron-forward"
           size={18}
-          color={DEFAULT_COLORS.grays._400}
+          color={DEFAULT_COLORS.textMuted}
         />
       </View>
       <ThemedText style={styles.lastMessage} numberOfLines={1}>
@@ -121,25 +126,26 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 20,
+    paddingTop: 6,
     flexGrow: 1,
   },
   messageCard: {
     width: "100%",
     paddingHorizontal: 16,
-    paddingVertical: 15,
+    paddingVertical: 14,
     flexDirection: "row",
     alignItems: "center",
   },
   avatarContainer: {
     width: 48,
     height: 48,
-    borderRadius: 12,
-    backgroundColor: DEFAULT_COLORS.background,
+    borderRadius: RADII.md,
+    backgroundColor: SURFACES.fill,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary_30,
+    borderColor: BORDERS.highlight,
   },
   content: {
     flex: 1,
@@ -152,25 +158,25 @@ const styles = StyleSheet.create({
   },
   campaignTitle: {
     ...fonts.bold,
-    fontSize: 16,
+    fontSize: 15,
     color: DEFAULT_COLORS.white,
     flex: 1,
     marginRight: 10,
   },
   lastMessage: {
-    fontSize: 14,
-    color: DEFAULT_COLORS.grays._300,
+    fontSize: 13,
+    color: DEFAULT_COLORS.textMuted,
     lineHeight: 18,
   },
   separator: {
     height: 1,
-    backgroundColor: DEFAULT_COLORS.white_05,
+    backgroundColor: BORDERS.divider,
     width: "90%",
     alignSelf: "center",
   },
   emptyText: {
     textAlign: "center",
     marginTop: 40,
-    color: DEFAULT_COLORS.grays._300,
+    color: DEFAULT_COLORS.textMuted,
   },
 });

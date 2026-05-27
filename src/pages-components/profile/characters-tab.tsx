@@ -9,6 +9,7 @@ import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
 import { useCharacters } from "@/src/features/characters/hooks/use-characters";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
 
 export const CharactersTab = () => {
   const router = useRouter();
@@ -28,10 +29,7 @@ export const CharactersTab = () => {
     <>
       <View style={styles.titleWrapper}>
         <View>
-          <ThemedText fontSize={16} weight="bold">
-            Personagens
-          </ThemedText>
-
+          <ThemedText style={styles.sectionTitle}>Personagens</ThemedText>
           <ThemedText style={styles.counterText}>
             {characters.length}/{characters.length}
           </ThemedText>
@@ -40,14 +38,14 @@ export const CharactersTab = () => {
         <ActionButton
           variant="pill"
           label="Criar"
+          active
           icon={<Entypo name="plus" size={20} color={DEFAULT_COLORS.white} />}
           onPress={() => router.push("/character/create")}
-          backgroundColor={DEFAULT_COLORS.tertiary}
         />
       </View>
 
       {isLoading ? (
-        <ActivityIndicator color={DEFAULT_COLORS.tertiary} size="small" />
+        <ActivityIndicator color={DEFAULT_COLORS.purpleBright} size="small" />
       ) : characters.length ? (
         <ScrollView
           horizontal
@@ -58,7 +56,7 @@ export const CharactersTab = () => {
             <View key={item.id}>
               <CharacterItem
                 data={item}
-                cardColor={DEFAULT_COLORS.background}
+                cardColor={DEFAULT_COLORS.cardImageDark}
               />
             </View>
           ))}
@@ -83,15 +81,21 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
   },
+  sectionTitle: {
+    fontSize: 16,
+    color: DEFAULT_COLORS.white,
+    ...fonts.bold,
+  },
   counterText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
     marginTop: 2,
+    fontSize: 12,
   },
   scrollContainer: {
     paddingRight: 20,
     gap: 12,
   },
   feedbackText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
   },
 });

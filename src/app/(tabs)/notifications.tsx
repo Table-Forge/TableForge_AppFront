@@ -19,6 +19,7 @@ import { useNotificationsMutation } from "@/src/features/notifications/hooks/use
 import { INotification } from "@/src/features/notifications/schemas/notification.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 export default function Notifications() {
   const { user } = useAuth();
@@ -76,7 +77,9 @@ export default function Notifications() {
       JoinRequestApproved: (
         <Ionicons name="checkmark-circle-outline" {...iconProps} />
       ),
-      JoinRequestRejected: <Ionicons name="close-circle-outline" {...iconProps} />,
+      JoinRequestRejected: (
+        <Ionicons name="close-circle-outline" {...iconProps} />
+      ),
       NewChatMessage: isRead ? (
         <MailOpen {...iconProps} />
       ) : (
@@ -111,21 +114,22 @@ export default function Notifications() {
           <View
             style={[
               styles.iconContainer,
-              isSelected && { borderColor: DEFAULT_COLORS.tertiary },
+              !item.read && styles.iconContainerUnread,
+              isSelected && styles.iconContainerSelected,
             ]}
           >
             {isSelected ? (
               <Ionicons
                 name="checkmark-circle"
                 size={24}
-                color={DEFAULT_COLORS.tertiary}
+                color={DEFAULT_COLORS.orange}
               />
             ) : (
               renderIcon(
                 item.type,
                 !item.read
-                  ? DEFAULT_COLORS.tertiary
-                  : DEFAULT_COLORS.grays._400,
+                  ? DEFAULT_COLORS.orange
+                  : DEFAULT_COLORS.purpleBright,
                 item.read,
               )
             )}
@@ -166,13 +170,15 @@ export default function Notifications() {
               hasSelection ? "close-circle-outline" : "checkmark-done-outline"
             }
             size={18}
-            color={DEFAULT_COLORS.tertiary}
+            color={DEFAULT_COLORS.purpleBright}
           />
         ),
         onPress: () =>
           hasSelection
             ? setSelectedIds([])
-            : setSelectedIds(notifications.map((notification) => notification.id)),
+            : setSelectedIds(
+                notifications.map((notification) => notification.id),
+              ),
       },
       {
         label: allSelectedAreRead ? "Marcar como não lida" : "Marcar como lida",
@@ -180,7 +186,7 @@ export default function Notifications() {
           <MaterialCommunityIcons
             name={allSelectedAreRead ? "email-outline" : "email-open-outline"}
             size={18}
-            color={DEFAULT_COLORS.tertiary}
+            color={DEFAULT_COLORS.purpleBright}
           />
         ),
         onPress: () => handleMarkReadStatus(!allSelectedAreRead),
@@ -229,13 +235,7 @@ export default function Notifications() {
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         contentContainerStyle={[styles.listContent, { flexGrow: 1 }]}
         ListEmptyComponent={
-          <ThemedText
-            style={{
-              textAlign: "center",
-              marginTop: 40,
-              color: DEFAULT_COLORS.grays._300,
-            }}
-          >
+          <ThemedText style={styles.emptyText}>
             {notificationsQuery.isError
               ? "Não foi possível carregar as notificações."
               : "Nenhuma notificação por aqui."}
@@ -276,17 +276,17 @@ function formatNotificationDate(date?: string) {
 
 const styles = StyleSheet.create({
   headerTitle: { fontSize: 20, ...fonts.bold, color: DEFAULT_COLORS.white },
-  listContent: { paddingBottom: 20 },
+  listContent: { paddingBottom: 20, paddingTop: 6 },
   notificationCard: {
     width: "100%",
     paddingHorizontal: 16,
-    paddingVertical: 15,
+    paddingVertical: 14,
     backgroundColor: "transparent",
   },
   unreadCard: {
-    backgroundColor: DEFAULT_COLORS.tertiary_20,
+    backgroundColor: DEFAULT_COLORS.orangeGlow_07,
     borderLeftWidth: 3,
-    borderLeftColor: DEFAULT_COLORS.tertiary,
+    borderLeftColor: DEFAULT_COLORS.orange,
   },
   selectedCard: {
     backgroundColor: DEFAULT_COLORS.secondary_10,
@@ -295,13 +295,20 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 12,
-    backgroundColor: DEFAULT_COLORS.background,
+    borderRadius: RADII.md,
+    backgroundColor: SURFACES.fill,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary_20,
+    borderColor: BORDERS.highlight,
+  },
+  iconContainerUnread: {
+    borderColor: BORDERS.ctaSoft,
+    backgroundColor: DEFAULT_COLORS.orangeGlow_07,
+  },
+  iconContainerSelected: {
+    borderColor: BORDERS.cta,
   },
   content: { flex: 1 },
   headerRow: {
@@ -310,17 +317,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 2,
   },
-  title: { ...fonts.bold, fontSize: 16, color: DEFAULT_COLORS.white },
-  time: { fontSize: 12, color: DEFAULT_COLORS.grays._400 },
+  title: { ...fonts.bold, fontSize: 15, color: DEFAULT_COLORS.white },
+  time: { fontSize: 11, color: DEFAULT_COLORS.textMuted, letterSpacing: 0.3 },
   description: {
-    fontSize: 14,
-    color: DEFAULT_COLORS.grays._300,
+    fontSize: 13,
+    color: DEFAULT_COLORS.textMutedLight,
     lineHeight: 18,
   },
   separator: {
     height: 1,
-    backgroundColor: DEFAULT_COLORS.white_05,
+    backgroundColor: BORDERS.divider,
     width: "90%",
     alignSelf: "center",
+  },
+  emptyText: {
+    textAlign: "center",
+    marginTop: 40,
+    color: DEFAULT_COLORS.textMuted,
   },
 });

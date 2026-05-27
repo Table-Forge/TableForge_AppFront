@@ -8,6 +8,8 @@ import {
   useInfiniteCampaigns,
 } from "@/src/features/campaigns/hooks/use-infinite-campaigns";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { fonts } from "@/src/theme/fonts";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 import { Entypo } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useMemo } from "react";
@@ -42,10 +44,7 @@ export const CampaignsTab = () => {
     <>
       <View style={styles.titleWrapper}>
         <View>
-          <ThemedText fontSize={16} weight="bold">
-            Campanhas
-          </ThemedText>
-
+          <ThemedText style={styles.sectionTitle}>Campanhas</ThemedText>
           <ThemedText style={styles.counterText}>
             {campaigns.length}/{filteredItems}
           </ThemedText>
@@ -54,15 +53,15 @@ export const CampaignsTab = () => {
         <ActionButton
           variant="pill"
           label="Criar"
+          active
           icon={<Entypo name="plus" size={20} color={DEFAULT_COLORS.white} />}
           onPress={() => router.push("/campaign/create")}
-          backgroundColor={DEFAULT_COLORS.tertiary}
         />
       </View>
 
       {isLoading ? (
         <View style={styles.feedbackWrapper}>
-          <ActivityIndicator color={DEFAULT_COLORS.tertiary} size="small" />
+          <ActivityIndicator color={DEFAULT_COLORS.purpleBright} size="small" />
           <ThemedText style={styles.feedbackText}>
             Carregando campanhas...
           </ThemedText>
@@ -71,7 +70,7 @@ export const CampaignsTab = () => {
         <View style={styles.listWrapper}>
           {campaigns.map((item) => (
             <View key={item.id} style={styles.itemWrapper}>
-              <CampaignItem data={item} cardColor={DEFAULT_COLORS.background} />
+              <CampaignItem data={item} />
             </View>
           ))}
 
@@ -107,9 +106,15 @@ export const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 16,
   },
+  sectionTitle: {
+    fontSize: 16,
+    color: DEFAULT_COLORS.white,
+    ...fonts.bold,
+  },
   counterText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
     marginTop: 2,
+    fontSize: 12,
   },
   listWrapper: {
     width: "100%",
@@ -120,15 +125,15 @@ export const styles = StyleSheet.create({
   feedbackWrapper: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "rgba(126, 135, 226, 0.2)",
-    borderRadius: 12,
-    padding: 16,
+    borderColor: BORDERS.highlight,
+    borderRadius: RADII.lg,
+    padding: 18,
     alignItems: "center",
     gap: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    backgroundColor: SURFACES.fill,
   },
   feedbackText: {
-    color: DEFAULT_COLORS.grays._200,
+    color: DEFAULT_COLORS.textMuted,
     textAlign: "center",
   },
 });

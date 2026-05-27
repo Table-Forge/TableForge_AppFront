@@ -15,5 +15,6 @@ export const useChatMessages = ({
   useQuery({
     queryKey: CHAT_MESSAGE_KEYS.byCampaign(campaignId ?? 0),
     queryFn: () => ChatMessageService.getByCampaign(campaignId ?? 0),
+    select: (data) => data.items,
     enabled: enabled && !!campaignId,
   });

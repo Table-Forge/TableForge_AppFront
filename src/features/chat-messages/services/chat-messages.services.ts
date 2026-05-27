@@ -3,11 +3,14 @@ import {
   IChatMessage,
   IChatMessageCreate,
 } from "@/src/features/chat-messages/schemas/chat-message.schema";
+import { IPaginatedApiResponse } from "@/src/interfaces";
 
 const ENDPOINT = "/api/chatmessages";
 
 export const ChatMessageService = {
-  getByCampaign: async (campaignId: number): Promise<IChatMessage[]> => {
+  getByCampaign: async (
+    campaignId: number,
+  ): Promise<IPaginatedApiResponse<IChatMessage>> => {
     const { data } = await api.get(`${ENDPOINT}/campaign/${campaignId}`);
 
     return data;

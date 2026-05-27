@@ -183,9 +183,21 @@ export default function Campaigns() {
             </View>
 
             <View style={styles.metaRow}>
-              <ThemedText style={styles.swipeHint}>
-                Deslize para esquerda ou direita
-              </ThemedText>
+              <View style={styles.swipeIndicator}>
+                <FontAwesome6
+                  name="chevron-left"
+                  size={12}
+                  color={DEFAULT_COLORS.purpleBright}
+                />
+                <ThemedText style={styles.counterText}>
+                  {Math.min(activeIndex + 1, campaigns.length)} / {campaigns.length}
+                </ThemedText>
+                <FontAwesome6
+                  name="chevron-right"
+                  size={12}
+                  color={DEFAULT_COLORS.purpleBright}
+                />
+              </View>
 
               {isFetchingNextPage ? (
                 <ThemedText style={styles.loadingMoreText}>
@@ -293,9 +305,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minHeight: 20,
   },
-  swipeHint: {
-    color: DEFAULT_COLORS.grays?._200 || DEFAULT_COLORS.white_65,
+  swipeIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: DEFAULT_COLORS.white_06,
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.purpleBorder_35,
+  },
+  counterText: {
+    color: DEFAULT_COLORS.white,
     fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.4,
   },
   loadingMoreText: {
     color: DEFAULT_COLORS.tertiary,

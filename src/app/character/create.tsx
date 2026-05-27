@@ -5,7 +5,7 @@ import {
   useLocalSearchParams,
   useRouter,
 } from "expo-router";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import { useEffect, useRef } from "react";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
@@ -20,6 +20,7 @@ import { ControlledSelect } from "@/src/components/select/select.controlled";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
 import { ScrollToFocusedInputProvider } from "@/src/context/scroll-to-focused-input";
+import { useCharacter } from "@/src/features/characters/hooks/use-character";
 import { useCharactersMutation } from "@/src/features/characters/hooks/use-characters-mutations";
 import {
   CharacterCreateSchema,
@@ -36,13 +37,22 @@ import { BORDERS, SURFACES } from "@/src/theme/tokens";
 export default function CreateCharacterScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const { returnTo, campaignId } = useLocalSearchParams();
+  const { returnTo, campaignId, editId } = useLocalSearchParams();
   const { handleBack } = useBackRouter();
   const scrollViewRef = useRef<ScrollView>(null);
-  const { createCharacterMutation, isCreatingCharacter } =
-    useCharactersMutation();
+  const {
+    createCharacterMutation,
+    updateCharacterMutation,
+    isCreatingCharacter,
+    isUpdatingCharacter,
+  } = useCharactersMutation();
   const { classOptions, isLoadingClassesSelect } = useClassesSelect();
   const { raceOptions, isLoadingRacesSelect } = useRacesSelect();
+
+  const editingId = editId ? Number(editId) : undefined;
+  const isEditMode = !!editingId;
+  const { data: existingCharacter, isPending: isLoadingExisting } =
+    useCharacter(editingId);
 
   const hookForm = useForm<ICharacterCreateInput, unknown, ICharacterCreate>({
     resolver: zodResolver(CharacterCreateSchema),
@@ -56,7 +66,7 @@ export default function CreateCharacterScreen() {
       userId: user?.id ?? 0,
     },
   });
-  const { handleSubmit, setValue } = hookForm;
+  const { handleSubmit, setValue, reset } = hookForm;
 
   useEffect(() => {
     if (!user?.id) return;
@@ -64,7 +74,31 @@ export default function CreateCharacterScreen() {
     setValue("userId", user.id);
   }, [setValue, user?.id]);
 
+  useEffect(() => {
+    if (!isEditMode || !existingCharacter) return;
+
+    reset({
+      name: existingCharacter.name,
+      classId: String(existingCharacter.classId),
+      raceId: String(existingCharacter.raceId),
+      alignment: existingCharacter.alignment ?? "",
+      bio: existingCharacter.bio ?? "",
+      imageUrl: existingCharacter.imageUrl ?? "",
+      userId: existingCharacter.userId,
+    });
+  }, [existingCharacter, isEditMode, reset]);
+
+  const isSubmitting = isCreatingCharacter || isUpdatingCharacter;
+
   const onSubmit: SubmitHandler<ICharacterCreate> = (data) => {
+    if (isEditMode && existingCharacter) {
+      updateCharacterMutation.mutate(
+        { ...existingCharacter, ...data },
+        { onSuccess: () => handleBack() },
+      );
+      return;
+    }
+
     createCharacterMutation.mutate(data, {
       onSuccess: (createdCharacter) => {
         if (returnTo === "campaignJoinRequest" && campaignId) {
@@ -99,19 +133,32 @@ export default function CreateCharacterScreen() {
               }
               onPress={handleBack}
             />
-            <ThemedText style={styles.headerTitle}>Criar personagem</ThemedText>
+            <ThemedText style={styles.headerTitle}>
+              {isEditMode ? "Editar personagem" : "Criar personagem"}
+            </ThemedText>
             <View style={styles.headerSpacer} />
           </HeaderActions>
         </Screen.Header>
 
-        <ScrollView
-          ref={scrollViewRef}
-          style={{ flex: 1 }}
-          contentContainerStyle={styles.scrollContent}
-          bounces={false}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+        {isEditMode && isLoadingExisting ? (
+          <View style={styles.loadingWrapper}>
+            <ActivityIndicator
+              color={DEFAULT_COLORS.purpleBright}
+              size="large"
+            />
+            <ThemedText style={styles.loadingText}>
+              Carregando personagem...
+            </ThemedText>
+          </View>
+        ) : (
+          <ScrollView
+            ref={scrollViewRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.scrollContent}
+            bounces={false}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             <View style={styles.sectionHeader}>
               <ThemedText style={styles.sectionTitle}>
                 Dados do personagem
@@ -191,10 +238,11 @@ export default function CreateCharacterScreen() {
             <Button
               variant="tertiary"
               onPress={handleSubmit(onSubmit)}
-              isLoading={isCreatingCharacter}
-              text="Criar personagem"
+              isLoading={isSubmitting}
+              text={isEditMode ? "Salvar alterações" : "Criar personagem"}
             />
-        </ScrollView>
+          </ScrollView>
+        )}
       </ScrollToFocusedInputProvider>
     </Screen>
   );
@@ -254,5 +302,15 @@ const styles = StyleSheet.create({
   multilineInput: {
     height: 110,
     paddingTop: 14,
+  },
+  loadingWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+  },
+  loadingText: {
+    color: DEFAULT_COLORS.textMuted,
+    fontSize: 13,
   },
 });

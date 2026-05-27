@@ -1,6 +1,6 @@
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { CampaignItem } from "@/src/components/campaign-item/campaign-item";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/src/constants/screen-size";
 import {
@@ -20,7 +20,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   View,
 } from "react-native";
@@ -83,8 +82,8 @@ export default function Campaigns() {
   }, [refetch]);
 
   return (
-    <MainContainer style={styles.container}>
-      <View style={styles.topWrapper}>
+    <Screen style={styles.container}>
+      <Screen.Header style={styles.topWrapper}>
         <View style={styles.locationWrapper}>
           <ThemedText weight="bold" style={styles.locationLabel}>
             Região rastreada
@@ -125,9 +124,10 @@ export default function Campaigns() {
             style={styles.headerButton}
           />
         </View>
-      </View>
+      </Screen.Header>
 
-      <ScrollView
+      <Screen.Body
+        scroll
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -189,8 +189,8 @@ export default function Campaigns() {
             </ThemedText>
           </View>
         )}
-      </ScrollView>
-    </MainContainer>
+      </Screen.Body>
+    </Screen>
   );
 }
 
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 6,
     paddingBottom: 6,
   },
   locationWrapper: {

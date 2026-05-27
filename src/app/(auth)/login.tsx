@@ -3,9 +3,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +21,7 @@ import { BrandName } from "@/src/components/brand-name/brand-name";
 import { useRouter } from "expo-router";
 import { Label } from "@/src/components/label/label";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 
 export default function LoginScreen() {
   const { loginMutation, isLoadingLoginMutation } = useUsersMutation();
@@ -44,16 +41,13 @@ export default function LoginScreen() {
   };
 
   return (
-    <MainContainer>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+    <Screen keyboardAware>
+      <Screen.Body
+        scroll
+        contentContainerStyle={styles.scrollContainer}
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          bounces={false}
-          keyboardShouldPersistTaps="handled"
-        >
           <View style={styles.header}>
             <View style={styles.logoWrapper}>
               <Image
@@ -133,9 +127,8 @@ export default function LoginScreen() {
               </ThemedText>
             </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </MainContainer>
+      </Screen.Body>
+    </Screen>
   );
 }
 

@@ -1,7 +1,7 @@
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/src/constants/screen-size";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 
 import { Button } from "@/src/components/button/button";
 import { advantages, carousel } from "@/src/data/mock";
@@ -22,8 +22,8 @@ export default function Home() {
   const { user } = useAuth();
 
   return (
-    <MainContainer>
-      <View style={styles.screen}>
+    <Screen style={styles.screen}>
+      <Screen.Header>
         <HeaderActions>
           <ActionButton
             variant="pill"
@@ -54,11 +54,9 @@ export default function Home() {
             onPress={() => navigation.navigate("notifications")}
           />
         </HeaderActions>
+      </Screen.Header>
 
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
+      <Screen.Body scroll showsVerticalScrollIndicator={false}>
           <View style={styles.heroWrapper}>
             <Carousel
               width={SCREEN_WIDTH}
@@ -198,9 +196,8 @@ export default function Home() {
               text="Quero Assinar!"
             />
           </View>
-        </ScrollView>
-      </View>
-    </MainContainer>
+      </Screen.Body>
+    </Screen>
   );
 }
 
@@ -212,7 +209,6 @@ export const styles = StyleSheet.create({
 
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 120,
   },
 
   avatar: {

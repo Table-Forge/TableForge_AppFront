@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useInfiniteCampaigns } from "@/src/features/campaigns/hooks/use-infinite-campaigns";
 import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
@@ -34,41 +34,45 @@ export default function Messages() {
   };
 
   return (
-    <MainContainer>
-      <HeaderActions>
-        <ThemedText style={styles.headerTitle}>Mensagens</ThemedText>
-        <View style={styles.headerSpacer} />
-      </HeaderActions>
+    <Screen>
+      <Screen.Header>
+        <HeaderActions>
+          <ThemedText style={styles.headerTitle}>Mensagens</ThemedText>
+          <View style={styles.headerSpacer} />
+        </HeaderActions>
+      </Screen.Header>
 
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        style={styles.list}
-        data={chatCampaigns}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <CampaignChatItem
-            item={item}
-            onPress={() =>
-              router.push({
-                pathname: "/campaign-chat/[campaignId]",
-                params: { campaignId: item.id },
-              })
-            }
-          />
-        )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <ThemedText style={styles.emptyText}>
-            Nenhum chat disponível por aqui.
-          </ThemedText>
-        }
-        refreshing={isLoading}
-        onRefresh={refetch}
-        onEndReached={handleEndReached}
-        onEndReachedThreshold={0.4}
-      />
-    </MainContainer>
+      <Screen.Body>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          style={styles.list}
+          data={chatCampaigns}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <CampaignChatItem
+              item={item}
+              onPress={() =>
+                router.push({
+                  pathname: "/campaign-chat/[campaignId]",
+                  params: { campaignId: item.id },
+                })
+              }
+            />
+          )}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <ThemedText style={styles.emptyText}>
+              Nenhum chat disponível por aqui.
+            </ThemedText>
+          }
+          refreshing={isLoading}
+          onRefresh={refetch}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.4}
+        />
+      </Screen.Body>
+    </Screen>
   );
 }
 

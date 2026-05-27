@@ -2,7 +2,7 @@ import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { KnightHeadIcon } from "@/src/components/icons";
 
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
 import { useBackRouter } from "@/src/hooks/use-back-route";
@@ -11,7 +11,6 @@ import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  ScrollView,
   View,
   StyleSheet,
   RefreshControl,
@@ -60,49 +59,51 @@ export default function Profile() {
 
   return (
     <>
-      <MainContainer>
-        <HeaderActions>
-          <ActionButton
-            variant="circle"
-            icon={
-              <Ionicons
-                name="arrow-back"
-                size={24}
-                color={DEFAULT_COLORS.white}
-              />
-            }
-            onPress={handleBack}
-          />
-
-          <View style={styles.groupedIcons}>
-            <ActionButton
-              variant="circle"
-              active
-              icon={
-                <MaterialDesignIcons
-                  name="crown"
-                  size={28}
-                  color={DEFAULT_COLORS.white}
-                />
-              }
-              onPress={() => navigation.navigate("my-plan")}
-            />
+      <Screen>
+        <Screen.Header>
+          <HeaderActions>
             <ActionButton
               variant="circle"
               icon={
-                <FontAwesome
-                  name="gear"
+                <Ionicons
+                  name="arrow-back"
                   size={24}
                   color={DEFAULT_COLORS.white}
                 />
               }
-              onPress={() => navigation.navigate("settings")}
+              onPress={handleBack}
             />
-          </View>
-        </HeaderActions>
 
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+            <View style={styles.groupedIcons}>
+              <ActionButton
+                variant="circle"
+                active
+                icon={
+                  <MaterialDesignIcons
+                    name="crown"
+                    size={28}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                onPress={() => navigation.navigate("my-plan")}
+              />
+              <ActionButton
+                variant="circle"
+                icon={
+                  <FontAwesome
+                    name="gear"
+                    size={24}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                onPress={() => navigation.navigate("settings")}
+              />
+            </View>
+          </HeaderActions>
+        </Screen.Header>
+
+        <Screen.Body
+          scroll
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -135,7 +136,10 @@ export default function Profile() {
 
               <View style={styles.avatarEditBadge}>
                 {isUpdatingAvatar ? (
-                  <ActivityIndicator size="small" color={DEFAULT_COLORS.white} />
+                  <ActivityIndicator
+                    size="small"
+                    color={DEFAULT_COLORS.white}
+                  />
                 ) : (
                   <Ionicons
                     name="camera"
@@ -178,8 +182,8 @@ export default function Profile() {
               ]}
             />
           </View>
-        </ScrollView>
-      </MainContainer>
+        </Screen.Body>
+      </Screen>
 
       {isPending && !refreshing && <LoadingOverlay />}
     </>
@@ -188,7 +192,7 @@ export default function Profile() {
 
 const styles = StyleSheet.create({
   contentBody: {
-    marginTop: 50,
+    marginTop: 60,
     backgroundColor: SURFACES.card,
     borderRadius: RADII.xxl,
     borderWidth: 1,

@@ -10,7 +10,7 @@ import { Mail, MailOpen } from "lucide-react-native";
 
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { WizardTowerIcon } from "@/src/components/icons";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
@@ -206,45 +206,49 @@ export default function Notifications() {
   };
 
   return (
-    <MainContainer>
-      <HeaderActions>
-        <ThemedText style={styles.headerTitle}>
-          {isSelectionMode
-            ? `${selectedIds.length} selecionada(s)`
-            : "Notificações"}
-        </ThemedText>
-
-        <MenuPopup
-          trigger={
-            <MaterialDesignIcons
-              name="dots-vertical-circle-outline"
-              size={32}
-              color={DEFAULT_COLORS.white}
-            />
-          }
-          options={menuOptions()}
-        />
-      </HeaderActions>
-
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        style={{ width: "100%" }}
-        data={notifications}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        contentContainerStyle={[styles.listContent, { flexGrow: 1 }]}
-        ListEmptyComponent={
-          <ThemedText style={styles.emptyText}>
-            {notificationsQuery.isError
-              ? "Não foi possível carregar as notificações."
-              : "Nenhuma notificação por aqui."}
+    <Screen>
+      <Screen.Header>
+        <HeaderActions>
+          <ThemedText style={styles.headerTitle}>
+            {isSelectionMode
+              ? `${selectedIds.length} selecionada(s)`
+              : "Notificações"}
           </ThemedText>
-        }
-        refreshing={notificationsQuery.isRefetching}
-        onRefresh={notificationsQuery.refetch}
-      />
-    </MainContainer>
+
+          <MenuPopup
+            trigger={
+              <MaterialDesignIcons
+                name="dots-vertical-circle-outline"
+                size={32}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            options={menuOptions()}
+          />
+        </HeaderActions>
+      </Screen.Header>
+
+      <Screen.Body>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          style={{ width: "100%" }}
+          data={notifications}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          contentContainerStyle={[styles.listContent, { flexGrow: 1 }]}
+          ListEmptyComponent={
+            <ThemedText style={styles.emptyText}>
+              {notificationsQuery.isError
+                ? "Não foi possível carregar as notificações."
+                : "Nenhuma notificação por aqui."}
+            </ThemedText>
+          }
+          refreshing={notificationsQuery.isRefetching}
+          onRefresh={notificationsQuery.refetch}
+        />
+      </Screen.Body>
+    </Screen>
   );
 }
 

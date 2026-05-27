@@ -5,9 +5,6 @@ import { Controller, useForm } from "react-hook-form";
 import {
   Animated,
   Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -18,7 +15,7 @@ import { Button } from "@/src/components/button/button";
 import { BrandName } from "@/src/components/brand-name/brand-name";
 import { Input } from "@/src/components/input/input";
 import { Label } from "@/src/components/label/label";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
 import {
@@ -271,16 +268,13 @@ export default function RecoverPasswordScreen() {
     updateRecoveryPasswordMutation.isPending;
 
   return (
-    <MainContainer>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+    <Screen keyboardAware>
+      <Screen.Body
+        scroll
+        contentContainerStyle={styles.scrollContainer}
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          bounces={false}
-          keyboardShouldPersistTaps="handled"
-        >
           <View style={styles.header}>
             <View style={styles.logoWrapper}>
               <Image
@@ -483,9 +477,8 @@ export default function RecoverPasswordScreen() {
               </ThemedText>
             </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </MainContainer>
+      </Screen.Body>
+    </Screen>
   );
 }
 

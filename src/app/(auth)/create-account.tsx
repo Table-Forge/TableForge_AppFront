@@ -3,9 +3,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +17,7 @@ import { useRouter } from "expo-router";
 import { IUser, UserSchema } from "@/src/features/users/schemas/user.schema";
 import { DateInput } from "@/src/components/input/input.date";
 import { Label } from "@/src/components/label/label";
-import { MainContainer } from "@/src/components/main-container/main-container";
+import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 
 export default function CreateAccountScreen() {
@@ -48,17 +45,14 @@ export default function CreateAccountScreen() {
   };
 
   return (
-    <MainContainer>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+    <Screen keyboardAware>
+      <Screen.Body
+        scroll
+        contentContainerStyle={styles.scrollContainer}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          bounces={false}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
           <View style={styles.header}>
             <View style={styles.logoWrapper}>
               <Image
@@ -212,9 +206,8 @@ export default function CreateAccountScreen() {
               <ThemedText style={styles.footerLinkBold}>Faça login!</ThemedText>
             </ThemedText>
           </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </MainContainer>
+      </Screen.Body>
+    </Screen>
   );
 }
 

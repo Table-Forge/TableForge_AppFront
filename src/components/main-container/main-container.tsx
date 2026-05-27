@@ -16,7 +16,7 @@ export const MainContainer = ({ children, style }: IProps) => {
       <View
         style={[
           styles.container,
-          !hasBottomTabs && styles.containerWithoutBottomPadding,
+          hasBottomTabs && styles.containerWithBottomMargin,
           { flex: 1 },
         ]}
       >
@@ -29,11 +29,9 @@ export const MainContainer = ({ children, style }: IProps) => {
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
-    paddingBottom: 40,
     gap: 20,
   },
-  containerWithoutBottomPadding: {
-    paddingBottom: 0,
+  containerWithBottomMargin: {
+    marginBottom: 40,
   },
 });

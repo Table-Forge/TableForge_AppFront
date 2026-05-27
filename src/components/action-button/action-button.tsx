@@ -1,7 +1,9 @@
-import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
+import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
+  ColorValue,
   Pressable,
   StyleProp,
   ViewStyle,
@@ -17,6 +19,8 @@ interface IProps {
   variant?: "pill" | "circle";
   style?: StyleProp<ViewStyle>;
   backgroundColor?: string;
+  active?: boolean;
+  glow?: boolean;
 }
 
 export const ActionButton = ({
@@ -26,85 +30,168 @@ export const ActionButton = ({
   variant = "circle",
   style,
   backgroundColor,
+  active = false,
+  glow = false,
 }: IProps) => {
-  const shadowColor = backgroundColor || DEFAULT_COLORS.primary;
+  const isPill = variant === "pill";
+
+  const gradientColors: [ColorValue, ColorValue] = backgroundColor
+    ? [backgroundColor, backgroundColor]
+    : active
+      ? [DEFAULT_COLORS.orange, DEFAULT_COLORS.orangeDark]
+      : [DEFAULT_COLORS.homeSurfaceLight_95, DEFAULT_COLORS.homeSurface_95];
+
+  const shadowColor =
+    active || backgroundColor
+      ? DEFAULT_COLORS.orange
+      : DEFAULT_COLORS.purpleBright;
 
   return (
     <Pressable
       onPress={onPress}
       android_ripple={{
-        color: "rgba(0,0,0,0.1)",
+        color: DEFAULT_COLORS.white_08,
         borderless: variant === "circle",
       }}
       style={({ pressed }) => [
-        styles.base,
-        { shadowColor: shadowColor },
+        styles.pressable,
         styles[variant],
-        backgroundColor ? { backgroundColor } : styles.defaultBg,
-        pressed && { opacity: 0.8, transform: [{ scale: 0.96 }] },
+        {
+          shadowColor,
+        },
+        glow && styles.glow,
+        pressed && styles.pressed,
         style,
       ]}
     >
-      {icon && (
-        <View
-          style={[styles.iconContainer, variant === "pill" && styles.iconPill]}
-        >
-          {icon}
-        </View>
-      )}
+      <LinearGradient
+        colors={gradientColors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[
+          styles.gradient,
+          styles[`${variant}Gradient`],
+          active && styles.activeBorder,
+        ]}
+      >
+        {icon && (
+          <View
+            style={[
+              styles.iconContainer,
+              isPill && styles.iconPill,
+              active && isPill && styles.iconPillActive,
+            ]}
+          >
+            {icon}
+          </View>
+        )}
 
-      {variant === "pill" && label && <Text style={styles.label}>{label}</Text>}
+        {isPill && label && (
+          <Text
+            numberOfLines={1}
+            style={[styles.label, active && styles.activeLabel]}
+          >
+            {label}
+          </Text>
+        )}
+      </LinearGradient>
     </Pressable>
   );
 };
 
 export const styles = StyleSheet.create({
-  base: {
+  pressable: {
+    alignItems: "center",
+    justifyContent: "center",
+
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
+
+    elevation: 8,
+  },
+
+  pressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.96 }],
+  },
+
+  glow: {
+    shadowOpacity: 0.42,
+    shadowRadius: 18,
+    elevation: 12,
+  },
+
+  circle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+  },
+
+  pill: {
+    minWidth: 150,
+    maxWidth: 245,
+    height: 52,
+    borderRadius: 999,
+  },
+
+  gradient: {
+    width: "100%",
+    height: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
 
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.purpleBorder_35,
+    overflow: "hidden",
+  },
 
-    elevation: 8,
+  circleGradient: {
+    borderRadius: 26,
   },
-  defaultBg: {
-    backgroundColor: DEFAULT_COLORS.primary,
-  },
-  circle: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-  },
-  pill: {
-    paddingRight: 20,
-    paddingLeft: 4,
-    height: 45,
-    borderRadius: 25,
+
+  pillGradient: {
+    borderRadius: 999,
+    justifyContent: "flex-start",
+    paddingLeft: 6,
+    paddingRight: 18,
     gap: 10,
   },
+
+  activeBorder: {
+    borderColor: DEFAULT_COLORS.orangeBorder_85,
+  },
+
   iconContainer: {
     alignItems: "center",
     justifyContent: "center",
-    color: DEFAULT_COLORS.white,
   },
-  iconPill: {
-    width: 38,
-    height: 38,
-    backgroundColor: "rgba(0,0,0,0.2)",
-    color: DEFAULT_COLORS.white,
-    aspectRatio: 1,
-    borderRadius: 50,
-    overflow: "hidden",
 
+  iconPill: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: "hidden",
+    backgroundColor: DEFAULT_COLORS.black_22,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.tertiary,
+    borderColor: DEFAULT_COLORS.purpleBorder_65,
   },
+
+  iconPillActive: {
+    backgroundColor: DEFAULT_COLORS.black_25,
+    borderColor: DEFAULT_COLORS.white_25,
+  },
+
   label: {
+    flex: 1,
     color: DEFAULT_COLORS.white,
     fontSize: 14,
+    letterSpacing: 0.2,
     ...fonts.medium,
+  },
+
+  activeLabel: {
+    color: DEFAULT_COLORS.white,
   },
 });

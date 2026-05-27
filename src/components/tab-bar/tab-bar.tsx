@@ -25,8 +25,10 @@ export const TabBar = ({
         preserveAspectRatio="none"
       >
         <Path
-          d="M0,0 H160 C150,100 250,100 240,0 H400 V100 H0 Z"
-          fill={DEFAULT_COLORS.primary}
+          d="M28,0 H160 C150,100 250,100 240,0 H372 Q400,0 400,28 V100 H0 V28 Q0,0 28,0 Z"
+          fill={DEFAULT_COLORS.primary_78}
+          stroke={DEFAULT_COLORS.secondary_24}
+          strokeWidth={1}
         />
       </Svg>
 
@@ -113,9 +115,9 @@ export const styles = StyleSheet.create({
   containerWrapper: {
     position: "absolute",
     bottom: 0,
-    left: 0,
-    right: 0,
-    height: Platform.OS === "ios" ? 85 : 70,
+    left: 10,
+    right: 10,
+    height: Platform.OS === "ios" ? 88 : 74,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "transparent",
@@ -127,6 +129,11 @@ export const styles = StyleSheet.create({
     bottom: 0,
     width: "100%",
     height: "100%",
+    shadowColor: DEFAULT_COLORS.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.26,
+    shadowRadius: 14,
+    elevation: 10,
     zIndex: 0,
   },
   container: {
@@ -157,13 +164,13 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: DEFAULT_COLORS.secondary,
-    width: 65,
-    height: 65,
-    borderRadius: 35,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     position: "absolute",
     left: "50%",
-    marginLeft: -32.5,
-    top: -55,
+    marginLeft: -34,
+    top: Platform.OS === "ios" ? -50 : -48,
 
     shadowColor: DEFAULT_COLORS.black,
     shadowOffset: { width: 0, height: 5 },
@@ -172,11 +179,11 @@ export const styles = StyleSheet.create({
     elevation: 8,
 
     borderWidth: 2,
-    borderColor: DEFAULT_COLORS.primary,
+    borderColor: DEFAULT_COLORS.secondary_28,
   },
   searchItemButtonFocused: {
     backgroundColor: DEFAULT_COLORS.primary,
-    borderColor: DEFAULT_COLORS.tertiary,
+    borderColor: DEFAULT_COLORS.secondary_42,
     borderWidth: 1,
   },
 });

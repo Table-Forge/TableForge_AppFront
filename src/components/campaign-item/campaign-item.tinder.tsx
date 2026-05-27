@@ -1,6 +1,7 @@
 import { SwordDiceIcon } from "@/src/components/icons";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { useRouter } from "expo-router";
+import { useRef } from "react";
 import {
   GestureResponderEvent,
   Image,
@@ -14,11 +15,14 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { ThemedText } from "../themed-text/themed-text";
 import { ICampaignItemProps } from "./campaign-item.types";
 
+const TAP_MOVE_THRESHOLD = 8;
+
 export const CampaignItemTinder = ({
   data,
   cardColor = DEFAULT_COLORS.primary,
 }: ICampaignItemProps) => {
   const router = useRouter();
+  const touchStart = useRef({ x: 0, y: 0 });
   const bannerUrl = data.bannerUrl || "";
   const gameMaster = data.creatorUsername || "Mestre Desconhecido";
   const location = data.locationName || data.address || "-";
@@ -41,9 +45,24 @@ export const CampaignItemTinder = ({
     } as any);
   };
 
+  const handlePressIn = (event: GestureResponderEvent) => {
+    touchStart.current = {
+      x: event.nativeEvent.pageX,
+      y: event.nativeEvent.pageY,
+    };
+  };
+
+  const handlePress = (event: GestureResponderEvent) => {
+    const dx = Math.abs(event.nativeEvent.pageX - touchStart.current.x);
+    const dy = Math.abs(event.nativeEvent.pageY - touchStart.current.y);
+    if (dx > TAP_MOVE_THRESHOLD || dy > TAP_MOVE_THRESHOLD) return;
+    openCampaign();
+  };
+
   return (
     <Pressable
-      onPress={openCampaign}
+      onPressIn={handlePressIn}
+      onPress={handlePress}
       style={({ pressed }) => [
         styles.wrapper,
         pressed && { transform: [{ scale: 0.985 }], opacity: 0.92 },

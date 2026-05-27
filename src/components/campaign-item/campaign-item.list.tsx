@@ -1,7 +1,9 @@
 import { SwordDiceIcon } from "@/src/components/icons";
+import { useAuth } from "@/src/context/auth";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
   GestureResponderEvent,
@@ -24,6 +26,9 @@ export const CampaignItemList = ({
   tagColor = DEFAULT_COLORS.purpleBright,
 }: ICampaignItemProps) => {
   const router = useRouter();
+  const { user } = useAuth();
+  const currentUserId = user?.id ? Number(user.id) : undefined;
+  const isOwner = currentUserId === data.creatorId;
   const bannerUrl = data.bannerUrl || "";
   const gameMaster = data.creatorUsername || "Mestre Desconhecido";
   const location = data.locationName || data.address || "-";
@@ -43,6 +48,14 @@ export const CampaignItemList = ({
     router.push({
       pathname: "/user/[id]",
       params: { id: data.creatorId.toString() },
+    } as any);
+  };
+
+  const openSettings = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+    router.push({
+      pathname: "/campaign/[id]/settings",
+      params: { id: data.id.toString() },
     } as any);
   };
 
@@ -79,15 +92,33 @@ export const CampaignItemList = ({
             <ThemedText style={styles.masterText}>Mestre {gameMaster}</ThemedText>
           </Pressable>
         </View>
-        <View style={styles.listDifficultyBadge}>
-          <MaterialCommunityIcons
-            name="sword-cross"
-            size={13}
-            color={DEFAULT_COLORS.white}
-          />
-          <ThemedText style={styles.difficultyBadgeText} numberOfLines={1}>
-            {difficulty}
-          </ThemedText>
+        <View style={styles.rightColumn}>
+          <View style={styles.listDifficultyBadge}>
+            <MaterialCommunityIcons
+              name="sword-cross"
+              size={13}
+              color={DEFAULT_COLORS.white}
+            />
+            <ThemedText style={styles.difficultyBadgeText} numberOfLines={1}>
+              {difficulty}
+            </ThemedText>
+          </View>
+          {isOwner && (
+            <Pressable
+              onPress={openSettings}
+              hitSlop={6}
+              style={({ pressed }) => [
+                styles.editButton,
+                pressed && { opacity: 0.85, transform: [{ scale: 0.95 }] },
+              ]}
+            >
+              <Ionicons
+                name="create-outline"
+                size={16}
+                color={DEFAULT_COLORS.white}
+              />
+            </Pressable>
+          )}
         </View>
       </View>
 
@@ -191,6 +222,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: DEFAULT_COLORS.white_64,
   },
+  rightColumn: {
+    alignItems: "flex-end",
+    gap: 8,
+  },
   listDifficultyBadge: {
     maxWidth: 120,
     minHeight: 30,
@@ -203,6 +238,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
+  },
+  editButton: {
+    width: 30,
+    height: 30,
+    borderRadius: RADII.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: DEFAULT_COLORS.primary_78,
+    borderWidth: 1,
+    borderColor: BORDERS.highlightStrong,
   },
   difficultyBadgeText: {
     color: DEFAULT_COLORS.white,

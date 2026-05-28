@@ -32,7 +32,11 @@ export default function CampaignChatScreen() {
   const { data: members = [] } = useCampaignMembers({
     campaignId: parsedCampaignId,
   });
-  const { data = [], isLoading, refetch } = useChatMessages({
+  const {
+    data = [],
+    isLoading,
+    refetch,
+  } = useChatMessages({
     campaignId: parsedCampaignId,
   });
   const { createChatMessageMutation, isCreatingChatMessage } =
@@ -110,9 +114,8 @@ export default function CampaignChatScreen() {
 
       <Screen.Body style={styles.content}>
         <View style={styles.sectionHeader}>
-          <ThemedText weight="bold" style={styles.sectionTitle}>
-            Histórico
-          </ThemedText>
+          <View style={styles.sectionLine} />
+          <ThemedText style={styles.sectionTitle}>15 Fev</ThemedText>
           <View style={styles.sectionLine} />
         </View>
 
@@ -134,39 +137,33 @@ export default function CampaignChatScreen() {
             </View>
           }
         />
+      </Screen.Body>
 
-        <View style={styles.inputBar}>
-          <View style={styles.inputWrapper}>
-            <Input
-              value={message}
-              onChangeText={setMessage}
-              placeholder="Escreva uma mensagem"
-              editable={!isCreatingChatMessage}
-            />
-          </View>
-          <ActionButton
-            variant="circle"
-            active
-            icon={
-              <Ionicons
-                name="send"
-                size={20}
-                color={DEFAULT_COLORS.white}
-              />
-            }
-            onPress={
-              isCreatingChatMessage || !message.trim()
-                ? undefined
-                : handleSendMessage
-            }
-            style={
-              isCreatingChatMessage || !message.trim()
-                ? styles.sendButtonDisabled
-                : null
-            }
+      <Screen.Footer style={styles.inputBar}>
+        <View style={styles.inputWrapper}>
+          <Input
+            value={message}
+            onChangeText={setMessage}
+            placeholder="Escreva uma mensagem"
+            editable={!isCreatingChatMessage}
           />
         </View>
-      </Screen.Body>
+        <ActionButton
+          variant="circle"
+          active
+          icon={<Ionicons name="send" size={20} color={DEFAULT_COLORS.white} />}
+          onPress={
+            isCreatingChatMessage || !message.trim()
+              ? undefined
+              : handleSendMessage
+          }
+          style={
+            isCreatingChatMessage || !message.trim()
+              ? styles.sendButtonDisabled
+              : null
+          }
+        />
+      </Screen.Footer>
     </Screen>
   );
 }
@@ -179,12 +176,19 @@ const MessageBubble = ({
   isMine: boolean;
 }) => (
   <View style={[styles.messageRow, isMine && styles.myMessageRow]}>
-    <View style={[styles.bubble, isMine && styles.myBubble]}>
+    {!isMine && <View style={styles.avatarDot} />}
+    <View style={[styles.messageStack, isMine && styles.myMessageStack]}>
       <ThemedText style={[styles.username, isMine && styles.usernameMine]}>
         {isMine ? "Você" : item.username || `Usuário ${item.userId}`}
       </ThemedText>
-      <ThemedText style={styles.messageText}>{item.content}</ThemedText>
+      <View style={[styles.bubble, isMine && styles.myBubble]}>
+        <ThemedText style={styles.messageText}>{item.content}</ThemedText>
+      </View>
+      <ThemedText style={[styles.messageTime, isMine && styles.myMessageTime]}>
+        23:59
+      </ThemedText>
     </View>
+    {isMine && <View style={styles.avatarDot} />}
   </View>
 );
 
@@ -249,24 +253,53 @@ const styles = StyleSheet.create({
     backgroundColor: DEFAULT_COLORS.tertiary_20,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: 12,
+    paddingTop: 22,
+    paddingBottom: 18,
     flexGrow: 1,
     justifyContent: "flex-end",
-    gap: 8,
+    gap: 14,
   },
   messageRow: {
     width: "100%",
-    alignItems: "flex-start",
-    marginBottom: 4,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 8,
   },
   myMessageRow: {
+    justifyContent: "flex-end",
+  },
+  messageStack: {
+    maxWidth: "82%",
+  },
+  myMessageStack: {
     alignItems: "flex-end",
   },
+  username: {
+    marginBottom: 4,
+    fontSize: 10,
+    color: DEFAULT_COLORS.tertiary,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    ...fonts.bold,
+  },
+  usernameMine: {
+    color: DEFAULT_COLORS.crown,
+    textAlign: "right",
+  },
+  avatarDot: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: DEFAULT_COLORS.primary_80,
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.secondary_30,
+    marginBottom: 12,
+  },
   bubble: {
-    maxWidth: "82%",
-    padding: 14,
-    borderRadius: RADII.lg,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: RADII.xs,
     backgroundColor: SURFACES.card,
     borderWidth: 1,
     borderColor: BORDERS.highlight,
@@ -276,21 +309,18 @@ const styles = StyleSheet.create({
     backgroundColor: DEFAULT_COLORS.orangeGlow_25,
     borderColor: BORDERS.cta,
   },
-  username: {
-    fontSize: 11,
-    color: DEFAULT_COLORS.tertiary,
-    marginBottom: 6,
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
-    ...fonts.bold,
-  },
-  usernameMine: {
-    color: DEFAULT_COLORS.crown,
-  },
   messageText: {
-    fontSize: 15,
+    fontSize: 13,
     color: DEFAULT_COLORS.white,
-    lineHeight: 20,
+    lineHeight: 17,
+  },
+  messageTime: {
+    marginTop: 2,
+    fontSize: 10,
+    color: DEFAULT_COLORS.textMuted,
+  },
+  myMessageTime: {
+    textAlign: "right",
   },
   inputBar: {
     flexDirection: "row",
@@ -298,7 +328,6 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 14,
     borderTopWidth: 1,
     borderTopColor: BORDERS.divider,
     backgroundColor: SURFACES.cardAlt,

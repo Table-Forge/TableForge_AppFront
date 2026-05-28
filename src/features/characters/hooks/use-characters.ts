@@ -5,6 +5,7 @@ import { CharacterService } from "@/src/features/characters/services/characters.
 import { IGetPaginatedParams } from "@/src/interfaces";
 
 type IUseCharactersParams = IGetPaginatedParams & {
+  userId?: number;
   enabled?: boolean;
 };
 

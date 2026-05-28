@@ -7,14 +7,19 @@ import { api } from "@/src/features/api";
 
 const ENDPOINT = "/api/characters";
 
+type IGetCharactersParams = IGetPaginatedParams & {
+  userId?: number;
+};
+
 export const CharacterService = {
   getPaginated: async ({
     page = 1,
     size = 20,
     search,
-  }: IGetPaginatedParams = {}): Promise<IPaginatedApiResponse<ICharacter>> => {
+    userId,
+  }: IGetCharactersParams = {}): Promise<IPaginatedApiResponse<ICharacter>> => {
     const { data } = await api.get(ENDPOINT, {
-      params: { page, size, search },
+      params: { page, size, search, userId },
     });
 
     return data;

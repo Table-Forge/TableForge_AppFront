@@ -17,6 +17,7 @@ import { useAuth } from "@/src/context/auth";
 import { useCharacter } from "@/src/features/characters/hooks/use-character";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
+import { useDebouncedCallback } from "@/src/hooks/use-debounced-callback";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
@@ -38,9 +39,12 @@ export default function CharacterScreen() {
   } = useCharacter(characterId);
   const { data: owner, refetch: refetchOwner } = useUser(data?.userId);
 
-  const handleRefresh = async () => {
-    await Promise.all([refetch(), data?.userId ? refetchOwner() : Promise.resolve()]);
-  };
+  const handleRefresh = useDebouncedCallback(() => {
+    Promise.all([
+      refetch(),
+      data?.userId ? refetchOwner() : Promise.resolve(),
+    ]);
+  }, 300);
   const currentUserId = currentUser?.id ? Number(currentUser.id) : undefined;
   const isOwner = !!data && currentUserId === data.userId;
 

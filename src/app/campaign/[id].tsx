@@ -31,6 +31,7 @@ import { useCharacters } from "@/src/features/characters/hooks/use-characters";
 import { useJoinRequests } from "@/src/features/join-requests/hooks/use-join-requests";
 import { useJoinRequestsMutation } from "@/src/features/join-requests/hooks/use-join-requests-mutations";
 import { useBackRouter } from "@/src/hooks/use-back-route";
+import { useDebouncedCallback } from "@/src/hooks/use-debounced-callback";
 import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
 import { notify } from "@/src/features/notifications/helpers/notify";
 import { CallendarTab } from "@/src/pages-components/campaign/callendar-tab";
@@ -134,8 +135,8 @@ export default function CampaignDetails() {
     isRefetchingSessions ||
     isRefetchingCharacters;
 
-  const handleRefresh = useCallback(async () => {
-    await Promise.all([
+  const refreshAll = useCallback(() => {
+    Promise.all([
       refetchCampaign(),
       refetchMembers(),
       refetchJoinRequests(),
@@ -152,6 +153,8 @@ export default function CampaignDetails() {
     refetchMembers,
     refetchSessions,
   ]);
+
+  const handleRefresh = useDebouncedCallback(refreshAll, 300);
 
   if (isLoading) return <ThemedText>Carregando campanha...</ThemedText>;
 

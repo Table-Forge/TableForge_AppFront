@@ -7,16 +7,21 @@ import { IGetPaginatedParams, IPaginatedApiResponse } from "@/src/interfaces";
 
 const ENDPOINT = "/campaignsessions";
 
+type IGetCampaignSessionsParams = IGetPaginatedParams & {
+  campaignId?: number;
+};
+
 export const CampaignSessionService = {
   getPaginated: async ({
     page = 1,
     size = 20,
     search,
-  }: IGetPaginatedParams = {}): Promise<
+    campaignId,
+  }: IGetCampaignSessionsParams = {}): Promise<
     IPaginatedApiResponse<ICampaignSession>
   > => {
     const { data } = await api.get(ENDPOINT, {
-      params: { page, size, search },
+      params: { page, size, search, campaignId },
     });
 
     return data;

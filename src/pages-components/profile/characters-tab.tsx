@@ -21,17 +21,14 @@ export const CharactersTab = ({ userId: userIdProp }: IProps = {}) => {
   const currentUserId = user?.id ? Number(user.id) : undefined;
   const targetUserId = userIdProp ?? currentUserId;
   const isCurrentUser = !userIdProp || userIdProp === currentUserId;
-  const { data, isLoading, isError } = useCharacters({ page: 1, size: 100 });
+  const { data, isLoading, isError } = useCharacters({
+    page: 1,
+    size: 100,
+    userId: targetUserId,
+    enabled: !!targetUserId,
+  });
 
-  const characters = useMemo(
-    () =>
-      targetUserId
-        ? (data?.items ?? []).filter(
-            (character) => character.userId === targetUserId,
-          )
-        : [],
-    [data?.items, targetUserId],
-  );
+  const characters = useMemo(() => data?.items ?? [], [data?.items]);
 
   return (
     <>

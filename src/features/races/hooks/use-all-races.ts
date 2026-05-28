@@ -15,4 +15,6 @@ export const useAllRaces = ({
     queryKey: RACE_KEYS.list(filters),
     queryFn: () => RaceService.getAll(filters),
     enabled,
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60,
   });

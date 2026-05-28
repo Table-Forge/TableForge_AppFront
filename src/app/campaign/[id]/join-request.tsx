@@ -42,6 +42,7 @@ export default function CampaignJoinRequestScreen() {
   const { data, isLoading, isError } = useCharacters({
     page: 1,
     size: 100,
+    userId,
     enabled: !!userId,
   });
   const { data: campaign } = useCampaign(campaignId);
@@ -49,13 +50,7 @@ export default function CampaignJoinRequestScreen() {
   const { createJoinRequestMutation, isCreatingJoinRequest } =
     useJoinRequestsMutation(campaignId);
 
-  const characters = useMemo(
-    () =>
-      userId
-        ? (data?.items ?? []).filter((character) => character.userId === userId)
-        : [],
-    [data?.items, userId],
-  );
+  const characters = useMemo(() => data?.items ?? [], [data?.items]);
 
   useEffect(() => {
     if (!Number.isFinite(parsedSelectedCharacterId)) return;

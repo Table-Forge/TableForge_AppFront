@@ -6,7 +6,10 @@ import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
-import { useInfiniteCampaigns } from "@/src/features/campaigns/hooks/use-infinite-campaigns";
+import {
+  CAMPAIGNS_PAGE_SIZE,
+  useInfiniteCampaigns,
+} from "@/src/features/campaigns/hooks/use-infinite-campaigns";
 import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
@@ -15,9 +18,7 @@ import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 export default function Messages() {
   const router = useRouter();
   const { data, isLoading, refetch, fetchNextPage, hasNextPage } =
-    useInfiniteCampaigns({
-      size: 50,
-    });
+    useInfiniteCampaigns({ size: CAMPAIGNS_PAGE_SIZE });
 
   const chatCampaigns = useMemo(
     () =>

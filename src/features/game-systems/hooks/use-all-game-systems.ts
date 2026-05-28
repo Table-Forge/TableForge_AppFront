@@ -15,4 +15,6 @@ export const useAllGameSystems = ({
     queryKey: GAME_SYSTEM_KEYS.list(filters),
     queryFn: () => GameSystemService.getAll(filters),
     enabled,
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60,
   });

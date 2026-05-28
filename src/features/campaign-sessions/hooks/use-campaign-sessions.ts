@@ -16,17 +16,7 @@ export const useCampaignSessions = ({
 }: IUseCampaignSessionsParams = {}) =>
   useQuery({
     queryKey: [...CAMPAIGN_SESSION_KEYS.list(filters), campaignId] as const,
-    queryFn: async () => {
-      const response = await CampaignSessionService.getPaginated(filters);
-
-      if (!campaignId) return response;
-
-      return {
-        ...response,
-        items: response.items.filter(
-          (session) => session.campaignId === campaignId,
-        ),
-      };
-    },
+    queryFn: () =>
+      CampaignSessionService.getPaginated({ ...filters, campaignId }),
     enabled,
   });

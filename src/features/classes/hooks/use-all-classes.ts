@@ -15,4 +15,6 @@ export const useAllClasses = ({
     queryKey: CLASS_KEYS.list(filters),
     queryFn: () => ClassService.getAll(filters),
     enabled,
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60,
   });

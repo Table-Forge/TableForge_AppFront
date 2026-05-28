@@ -10,6 +10,6 @@ export function useUser(id?: number) {
       return UserService.getById(id);
     },
     enabled: id !== undefined && !isNaN(id),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 30,
   });
 }

@@ -4,29 +4,59 @@ import Toast from "react-native-toast-message";
 import { CAMPAIGN_MEMBER_KEYS } from "@/src/features/campaign-members/hooks/query-key";
 import { JOIN_REQUEST_KEYS } from "@/src/features/join-requests/hooks/query-key";
 import {
+  IJoinRequest,
   IJoinRequestCreate,
   IJoinRequestStatusUpdate,
 } from "@/src/features/join-requests/schemas/join-request.schema";
 import { JoinRequestService } from "@/src/features/join-requests/services/join-requests.services";
+import { IPaginatedApiResponse } from "@/src/interfaces";
+
+type JoinRequestPage = IPaginatedApiResponse<IJoinRequest>;
 
 export const useJoinRequestsMutation = (campaignId?: number) => {
   const queryClient = useQueryClient();
 
-  const invalidateJoinRequests = () => {
+  const upsertJoinRequestInCache = (joinRequest: IJoinRequest) => {
     if (!campaignId) return;
-    queryClient.invalidateQueries({
-      queryKey: JOIN_REQUEST_KEYS.byCampaign(campaignId),
-    });
-    queryClient.invalidateQueries({
-      queryKey: CAMPAIGN_MEMBER_KEYS.byCampaign(campaignId),
-    });
+
+    queryClient.setQueriesData<JoinRequestPage>(
+      { queryKey: [...JOIN_REQUEST_KEYS.all, "campaign", campaignId], exact: false },
+      (data) => {
+        if (!data?.items) return data;
+
+        const exists = data.items.some((item) => item.id === joinRequest.id);
+        const items = exists
+          ? data.items.map((item) =>
+              item.id === joinRequest.id ? { ...item, ...joinRequest } : item,
+            )
+          : [joinRequest, ...data.items];
+
+        return { ...data, items };
+      },
+    );
+  };
+
+  const removeJoinRequestFromCache = (id: number) => {
+    if (!campaignId) return;
+
+    queryClient.setQueriesData<JoinRequestPage>(
+      { queryKey: [...JOIN_REQUEST_KEYS.all, "campaign", campaignId], exact: false },
+      (data) => {
+        if (!data?.items) return data;
+
+        return {
+          ...data,
+          items: data.items.filter((item) => item.id !== id),
+        };
+      },
+    );
   };
 
   const createJoinRequestMutation = useMutation({
     mutationFn: (payload: IJoinRequestCreate) =>
       JoinRequestService.create(payload),
-    onSuccess: () => {
-      invalidateJoinRequests();
+    onSuccess: (created) => {
+      upsertJoinRequestInCache(created);
       Toast.show({
         type: "success",
         text1: "Solicitação enviada.",
@@ -43,12 +73,22 @@ export const useJoinRequestsMutation = (campaignId?: number) => {
   const updateJoinRequestStatusMutation = useMutation({
     mutationFn: (payload: IJoinRequestStatusUpdate) =>
       JoinRequestService.updateStatus(payload),
-    onSuccess: invalidateJoinRequests,
+    onSuccess: (updated) => {
+      upsertJoinRequestInCache(updated);
+
+      if (campaignId && updated.status === "Approved") {
+        queryClient.invalidateQueries({
+          queryKey: CAMPAIGN_MEMBER_KEYS.byCampaign(campaignId),
+        });
+      }
+    },
   });
 
   const deleteJoinRequestMutation = useMutation({
     mutationFn: (id: number) => JoinRequestService.delete(id),
-    onSuccess: invalidateJoinRequests,
+    onSuccess: (_data, id) => {
+      removeJoinRequestFromCache(id);
+    },
   });
 
   return {

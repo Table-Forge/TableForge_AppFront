@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 
@@ -7,8 +7,11 @@ import {
   ICampaignCreate,
 } from "@/src/features/campaigns/schemas/campaign.schema";
 import { CampaignService } from "@/src/features/campaigns/services/campaigns.services";
+import { IPaginatedApiResponse } from "@/src/interfaces";
 
 import { CAMPAIGNS } from "./query-key";
+
+type CampaignInfiniteData = InfiniteData<IPaginatedApiResponse<ICampaign>>;
 
 export const useCampaignsMutation = () => {
   const queryClient = useQueryClient();
@@ -17,7 +20,10 @@ export const useCampaignsMutation = () => {
   const createCampaignMutation = useMutation({
     mutationFn: (payload: ICampaignCreate) => CampaignService.create(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [CAMPAIGNS] });
+      queryClient.invalidateQueries({
+        queryKey: [CAMPAIGNS],
+        refetchType: "active",
+      });
       Toast.show({
         type: "success",
         text1: "Campanha criada com sucesso!",
@@ -55,8 +61,29 @@ export const useCampaignsMutation = () => {
   const updateCampaignMutation = useMutation({
     mutationFn: (payload: Partial<ICampaign> & { id: number }) =>
       CampaignService.update(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [CAMPAIGNS] });
+    onSuccess: (updated, variables) => {
+      const campaignId = updated?.id ?? variables.id;
+
+      queryClient.setQueryData<ICampaign>([CAMPAIGNS, campaignId], (current) =>
+        current ? { ...current, ...updated } : updated,
+      );
+
+      queryClient.setQueriesData<CampaignInfiniteData>(
+        { queryKey: [CAMPAIGNS], exact: false },
+        (data) => {
+          if (!data?.pages) return data;
+          return {
+            ...data,
+            pages: data.pages.map((page) => ({
+              ...page,
+              items: page.items.map((item) =>
+                item.id === campaignId ? { ...item, ...updated } : item,
+              ),
+            })),
+          };
+        },
+      );
+
       Toast.show({
         type: "success",
         text1: "Campanha atualizada com sucesso!",

@@ -1,5 +1,6 @@
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
+
+import { authTokenStore } from "@/src/features/auth-token-store";
 
 const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -12,16 +13,15 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
-    const authDataSerialized = await SecureStore.getItemAsync("auth_data");
+    let token = authTokenStore.getToken();
 
-    if (authDataSerialized) {
-      const authData = JSON.parse(authDataSerialized);
+    if (!token) {
+      await authTokenStore.hydrate();
+      token = authTokenStore.getToken();
+    }
 
-      const tokenValue = authData.token?.value;
-
-      if (tokenValue) {
-        config.headers.Authorization = `Bearer ${tokenValue}`;
-      }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     if (__DEV__) {

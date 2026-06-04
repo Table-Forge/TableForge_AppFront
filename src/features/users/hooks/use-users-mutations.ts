@@ -26,11 +26,19 @@ type TUpdateRecoveryPasswordParams = {
 
 const getErrorMessage = (error: unknown, fallback: string) => {
   const err = error as {
-    response?: { data?: { Message?: string; message?: string } };
+    response?: {
+      status?: number;
+      data?: { Message?: string; message?: string };
+    };
+    status?: number;
     data?: { Message?: string; message?: string };
     Message?: string;
     message?: string;
   };
+
+  if ((err?.response?.status ?? err?.status) === 413) {
+    return "Imagem muito grande. O tamanho máximo é de 2 MB.";
+  }
 
   const backendMessage =
     err?.response?.data?.Message ??

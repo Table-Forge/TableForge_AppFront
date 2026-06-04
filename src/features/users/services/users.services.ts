@@ -32,13 +32,14 @@ export const UserService = {
   },
 
   updateAvatar: async (payload: IUserAvatarPayload) => {
+    const formData = new FormData();
+    formData.append("Id", String(payload.id));
+    formData.append("File", payload.file as unknown as Blob);
+
     const { data } = await api.request({
       url: `${ENDPOINT}/avatar`,
       method: "PUT",
-      data: {
-        id: payload.id,
-        content: payload.content,
-      },
+      data: formData,
     });
 
     return data;

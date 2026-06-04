@@ -11,12 +11,18 @@ import Toast from "react-native-toast-message";
 
 import { ErrorMessage } from "@/src/components/error-message/error-message";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { IImageFile } from "@/src/features/images/schemas/image.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
+import {
+  MAX_IMAGE_SIZE_BYTES,
+  assetToImageFile,
+  validateImagePickerAsset,
+} from "@/src/utils/image";
 
 export type ImageInputValue = {
-  content: string;
   uri: string;
+  file: IImageFile;
 };
 
 interface ImageInputProps {
@@ -25,6 +31,7 @@ interface ImageInputProps {
   error?: string;
   height?: number;
   isLoading?: boolean;
+  maxSizeBytes?: number;
   onChange: (value: ImageInputValue) => void;
   placeholder?: string;
   quality?: number;
@@ -39,6 +46,7 @@ export const InputImage = ({
   error,
   height = 170,
   isLoading = false,
+  maxSizeBytes = MAX_IMAGE_SIZE_BYTES,
   onChange,
   placeholder = "Toque para selecionar uma imagem",
   quality = 0.85,
@@ -61,14 +69,13 @@ export const InputImage = ({
       allowsEditing: true,
       aspect,
       quality,
-      base64: true,
     });
 
     if (result.canceled) return;
 
     const asset = result.assets[0];
 
-    if (!asset?.base64) {
+    if (!asset?.uri) {
       Toast.show({
         type: "error",
         text1: "Imagem inválida",
@@ -77,9 +84,22 @@ export const InputImage = ({
       return;
     }
 
+    const validationError = validateImagePickerAsset(asset, {
+      maxSize: maxSizeBytes,
+    });
+
+    if (validationError) {
+      Toast.show({
+        type: "error",
+        text1: "Imagem inválida",
+        text2: validationError,
+      });
+      return;
+    }
+
     onChange({
       uri: asset.uri,
-      content: `data:${asset.mimeType ?? "image/jpeg"};base64,${asset.base64}`,
+      file: assetToImageFile(asset),
     });
   };
 

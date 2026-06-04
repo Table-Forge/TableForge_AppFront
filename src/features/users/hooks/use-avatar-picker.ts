@@ -1,6 +1,11 @@
 import * as ImagePicker from "expo-image-picker";
 import Toast from "react-native-toast-message";
 
+import {
+  MAX_AVATAR_SIZE_BYTES,
+  assetToImageFile,
+  validateImagePickerAsset,
+} from "@/src/utils/image";
 import { useUsersMutation } from "./use-users-mutations";
 
 type IUseAvatarPickerParams = {
@@ -39,13 +44,12 @@ export const useAvatarPicker = ({
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
-      base64: true,
     });
 
     if (result.canceled) return;
 
     const asset = result.assets[0];
-    if (!asset?.base64) {
+    if (!asset?.uri) {
       Toast.show({
         type: "error",
         text1: "Imagem inválida",
@@ -54,12 +58,21 @@ export const useAvatarPicker = ({
       return;
     }
 
-    const content = `data:${asset.mimeType ?? "image/jpeg"};base64,${
-      asset.base64
-    }`;
+    const validationError = validateImagePickerAsset(asset, {
+      maxSize: MAX_AVATAR_SIZE_BYTES,
+    });
+
+    if (validationError) {
+      Toast.show({
+        type: "error",
+        text1: "Imagem inválida",
+        text2: validationError,
+      });
+      return;
+    }
 
     onPreview?.(asset.uri);
-    updateAvatarMutation.mutate({ id: userId, content });
+    updateAvatarMutation.mutate({ id: userId, file: assetToImageFile(asset) });
   };
 
   return {

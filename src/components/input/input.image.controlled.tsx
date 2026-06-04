@@ -11,7 +11,7 @@ import {
   type ImageInputProps,
 } from "@/src/components/input/input.image";
 
-type ImageInputValueMode = "content" | "image" | "uri";
+type ImageInputValueMode = "image" | "uri";
 
 interface ControlledImageInputProps<TFieldValues extends FieldValues>
   extends Omit<ImageInputProps, "error" | "onChange" | "value"> {
@@ -56,11 +56,6 @@ export function ControlledImageInput<
       value={resolvedValue}
       onChange={(image) => {
         onImageChange?.(image);
-
-        if (valueMode === "content") {
-          onChange(image.content);
-          return;
-        }
 
         if (valueMode === "uri") {
           onChange(image.uri);

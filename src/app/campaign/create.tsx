@@ -37,8 +37,12 @@ import { BORDERS, SURFACES } from "@/src/theme/tokens";
 const CampaignCreateFormSchema = CampaignCreateSchema.extend({
   bannerImage: z
     .object({
-      content: z.string(),
       uri: z.string(),
+      file: z.object({
+        uri: z.string(),
+        name: z.string(),
+        type: z.string(),
+      }),
     })
     .optional(),
 });
@@ -143,7 +147,7 @@ export default function CreateCampaignScreen() {
     bannerImage,
     ...data
   }) => {
-    if (!isEditing && !bannerImage?.content) {
+    if (!isEditing && !bannerImage?.uri) {
       Toast.show({
         type: "error",
         text1: "Banner obrigatório",
@@ -184,20 +188,27 @@ export default function CreateCampaignScreen() {
 
     let bannerId = data.bannerId;
 
-    if (bannerImage?.content) {
+    if (bannerImage?.file) {
       let imageResponse: unknown;
 
       try {
         imageResponse = await createImageMutation.mutateAsync({
           type: "CampaignBanner",
           name: `${data.title || "campanha"}-banner`,
-          content: bannerImage.content,
+          file: bannerImage.file,
         });
-      } catch {
+      } catch (error) {
+        const status =
+          (error as { response?: { status?: number } })?.response?.status ??
+          (error as { status?: number })?.status;
+
         Toast.show({
           type: "error",
           text1: "Erro ao enviar banner",
-          text2: "Não foi possível cadastrar a imagem da campanha.",
+          text2:
+            status === 413
+              ? "Imagem muito grande. O tamanho máximo é de 8 MB."
+              : "Não foi possível cadastrar a imagem da campanha.",
         });
         return;
       }

@@ -1,3 +1,4 @@
+import { IImageFile } from "@/src/features/images/schemas/image.schema";
 import {
   dateOptional,
   dateRequired,
@@ -102,7 +103,7 @@ export const UpdatePasswordSchema = z
 
 export type IUserAvatarPayload = {
   id: number;
-  content: string;
+  file: IImageFile;
 };
 
 export type IUser = z.infer<typeof UserSchema>;

@@ -28,6 +28,7 @@ import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, SURFACES } from "@/src/theme/tokens";
+import { MAX_AVATAR_SIZE_BYTES } from "@/src/utils/image";
 
 export default function MyAccountScreen() {
   const { user } = useAuth();
@@ -101,13 +102,14 @@ export default function MyAccountScreen() {
                   disabled={isLoadingUser}
                   height={170}
                   isLoading={isUpdatingAvatar}
+                  maxSizeBytes={MAX_AVATAR_SIZE_BYTES}
                   placeholder="Toque para selecionar sua foto"
                   valueMode="uri"
                   onImageChange={(image) => {
                     if (!userId) return;
                     updateAvatarMutation.mutate({
                       id: userId,
-                      content: image.content,
+                      file: image.file,
                     });
                   }}
                 />

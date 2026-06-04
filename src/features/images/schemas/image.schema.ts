@@ -1,5 +1,11 @@
 export type TImageType = "CampaignBanner" | "UserProfile" | "GameSystem";
 
+export type IImageFile = {
+  uri: string;
+  name: string;
+  type: string;
+};
+
 export type IImage = {
   id?: number;
   userId?: number;
@@ -7,7 +13,7 @@ export type IImage = {
   uuid?: string;
   type: TImageType;
   name: string;
-  content: string;
+  file: IImageFile;
   createdAt?: string | Date;
   updatedAt?: string | Date;
   url?: string;

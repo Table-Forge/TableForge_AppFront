@@ -117,7 +117,6 @@ export default function PasswordAndSecurityScreen() {
                       value={value}
                       onChangeText={onChange}
                       autoCapitalize="none"
-                      sanitizePassword
                       error={errors?.newPassword?.message?.toString()}
                     />
                     <PasswordRequirements value={value} />
@@ -137,7 +136,6 @@ export default function PasswordAndSecurityScreen() {
                       value={value}
                       onChangeText={onChange}
                       autoCapitalize="none"
-                      sanitizePassword
                       error={errors?.confirmPassword?.message?.toString()}
                     />
                   </View>

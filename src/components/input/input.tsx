@@ -23,7 +23,6 @@ interface InputProps extends TextInputProps {
   isPassword?: boolean;
   disabled?: boolean;
   removeSpaces?: boolean;
-  sanitizePassword?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
@@ -35,7 +34,6 @@ export const Input = forwardRef<TextInput, InputProps>(
       style,
       disabled,
       removeSpaces = false,
-      sanitizePassword = false,
       onChangeText,
       containerStyle,
       onFocus,
@@ -51,7 +49,7 @@ export const Input = forwardRef<TextInput, InputProps>(
 
     const handleChangeText = (value: string) => {
       let sanitizedValue = value;
-      if (sanitizePassword) {
+      if (isPassword) {
         sanitizedValue = sanitizePasswordValue(value);
       } else if (removeSpaces) {
         sanitizedValue = value.replace(/\s+/g, "");

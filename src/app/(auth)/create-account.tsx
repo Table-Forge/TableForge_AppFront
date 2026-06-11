@@ -164,7 +164,6 @@ export default function CreateAccountScreen() {
                     value={value}
                     onChangeText={onChange}
                     autoCapitalize="none"
-                    sanitizePassword
                     error={errors?.password?.message?.toString()}
                   />
                   <PasswordRequirements value={value} />
@@ -184,7 +183,6 @@ export default function CreateAccountScreen() {
                     value={value}
                     onChangeText={onChange}
                     autoCapitalize="none"
-                    sanitizePassword
                     error={errors?.confirmPassword?.message?.toString()}
                   />
                 </View>

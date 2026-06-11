@@ -480,7 +480,6 @@ export default function RecoverPasswordScreen() {
                         value={value}
                         onChangeText={onChange}
                         autoCapitalize="none"
-                        sanitizePassword
                         error={errors.newPassword?.message?.toString()}
                         disabled={isBusy}
                       />

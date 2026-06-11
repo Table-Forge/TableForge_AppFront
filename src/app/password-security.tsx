@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
 import { Input } from "@/src/components/input/input";
+import { PasswordRequirements } from "@/src/components/input/password-requirements";
 import { Button } from "@/src/components/button/button";
 import { Label } from "@/src/components/label/label";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
@@ -116,9 +117,10 @@ export default function PasswordAndSecurityScreen() {
                       value={value}
                       onChangeText={onChange}
                       autoCapitalize="none"
-                      removeSpaces
+                      sanitizePassword
                       error={errors?.newPassword?.message?.toString()}
                     />
+                    <PasswordRequirements value={value} />
                   </View>
                 )}
               />
@@ -135,7 +137,7 @@ export default function PasswordAndSecurityScreen() {
                       value={value}
                       onChangeText={onChange}
                       autoCapitalize="none"
-                      removeSpaces
+                      sanitizePassword
                       error={errors?.confirmPassword?.message?.toString()}
                     />
                   </View>

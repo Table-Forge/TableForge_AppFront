@@ -10,6 +10,7 @@ import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
 import { Input } from "@/src/components/input/input";
+import { PasswordRequirements } from "@/src/components/input/password-requirements";
 import { Button } from "@/src/components/button/button";
 import LogoIcon from "@/src/assets/images/logo2.png";
 import { BrandName } from "@/src/components/brand-name/brand-name";
@@ -163,9 +164,10 @@ export default function CreateAccountScreen() {
                     value={value}
                     onChangeText={onChange}
                     autoCapitalize="none"
-                    removeSpaces
+                    sanitizePassword
                     error={errors?.password?.message?.toString()}
                   />
+                  <PasswordRequirements value={value} />
                 </View>
               )}
             />
@@ -182,7 +184,7 @@ export default function CreateAccountScreen() {
                     value={value}
                     onChangeText={onChange}
                     autoCapitalize="none"
-                    removeSpaces
+                    sanitizePassword
                     error={errors?.confirmPassword?.message?.toString()}
                   />
                 </View>

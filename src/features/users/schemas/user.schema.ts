@@ -1,5 +1,6 @@
 import { IImageFile } from "@/src/features/images/schemas/image.schema";
 import {
+  createPasswordSchema,
   dateOptional,
   dateRequired,
   emailRequired,
@@ -19,10 +20,7 @@ const emailWithoutSpaces = emailRequired.refine(
   "O e-mail não pode conter espaços.",
 );
 
-const passwordWithMinLength = z
-  .string()
-  .min(6, "A senha deve ter pelo menos 6 caracteres")
-  .refine(hasNoSpaces, "A senha não pode conter espaços.");
+const passwordWithMinLength = createPasswordSchema();
 
 const BaseUserSchema = z.object({
   id: z.number().optional(),
@@ -82,10 +80,7 @@ export const UpdatePasswordSchema = z
       .string()
       .min(1, "O segredo atual é obrigatório para sua segurança.")
       .refine(hasNoSpaces, "A senha não pode conter espaços."),
-    newPassword: z
-      .string()
-      .min(6, "O novo segredo deve ter pelo menos 6 caracteres.")
-      .refine(hasNoSpaces, "A senha não pode conter espaços."),
+    newPassword: createPasswordSchema(),
     confirmPassword: z
       .string()
       .min(1, "A confirmação do segredo é obrigatória.")

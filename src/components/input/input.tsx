@@ -16,12 +16,14 @@ import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 import { ErrorMessage } from "@/src/components/error-message/error-message";
 import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
+import { sanitizePasswordValue } from "@/src/utils/custom-schema-validations";
 
 interface InputProps extends TextInputProps {
   error?: string;
   isPassword?: boolean;
   disabled?: boolean;
   removeSpaces?: boolean;
+  sanitizePassword?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
 }
 
@@ -33,6 +35,7 @@ export const Input = forwardRef<TextInput, InputProps>(
       style,
       disabled,
       removeSpaces = false,
+      sanitizePassword = false,
       onChangeText,
       containerStyle,
       onFocus,
@@ -47,7 +50,12 @@ export const Input = forwardRef<TextInput, InputProps>(
     const { scrollToFocusedInput } = useScrollToFocusedInput();
 
     const handleChangeText = (value: string) => {
-      const sanitizedValue = removeSpaces ? value.replace(/\s+/g, "") : value;
+      let sanitizedValue = value;
+      if (sanitizePassword) {
+        sanitizedValue = sanitizePasswordValue(value);
+      } else if (removeSpaces) {
+        sanitizedValue = value.replace(/\s+/g, "");
+      }
       onChangeText?.(sanitizedValue);
     };
 

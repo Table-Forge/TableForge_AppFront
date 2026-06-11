@@ -1,5 +1,8 @@
 import { UserSchema } from "@/src/features/users/schemas/user.schema";
-import { emailRequired } from "@/src/utils/custom-schema-validations";
+import {
+  emailRequired,
+  getPasswordError,
+} from "@/src/utils/custom-schema-validations";
 import { z } from "zod";
 
 const hasNoSpaces = (value: string) => !/\s/.test(value);
@@ -65,18 +68,15 @@ export const PasswordRecoveryFormSchema = z
           message: "Campo obrigatório.",
           path: ["newPassword"],
         });
-      } else if (!hasNoSpaces(normalizedPassword)) {
-        ctx.addIssue({
-          code: "custom",
-          message: "A senha não pode conter espaços.",
-          path: ["newPassword"],
-        });
-      } else if (normalizedPassword.length < 6) {
-        ctx.addIssue({
-          code: "custom",
-          message: "A senha deve ter ao menos 6 caracteres.",
-          path: ["newPassword"],
-        });
+      } else {
+        const passwordError = getPasswordError(normalizedPassword);
+        if (passwordError) {
+          ctx.addIssue({
+            code: "custom",
+            message: passwordError,
+            path: ["newPassword"],
+          });
+        }
       }
     }
   });

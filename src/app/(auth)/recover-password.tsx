@@ -14,9 +14,11 @@ import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/button/button";
 import { BrandName } from "@/src/components/brand-name/brand-name";
 import { Input } from "@/src/components/input/input";
+import { PasswordRequirements } from "@/src/components/input/password-requirements";
 import { Label } from "@/src/components/label/label";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { useCountdown } from "@/src/hooks/use-countdown";
 import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
 import {
   IPasswordRecoveryForm,
@@ -27,8 +29,16 @@ import LogoIcon from "@/src/assets/images/logo2.png";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
+const RESEND_COOLDOWN_SECONDS = 120;
+
 const normalizeCode = (value: string) =>
   value.replace(/\D/g, "").slice(0, RECOVERY_CODE_LENGTH);
+
+const formatCooldown = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remaining = seconds % 60;
+  return `${minutes}:${String(remaining).padStart(2, "0")}`;
+};
 
 export default function RecoverPasswordScreen() {
   const router = useRouter();
@@ -40,6 +50,8 @@ export default function RecoverPasswordScreen() {
 
   const [isCodeInvalid, setIsCodeInvalid] = useState(false);
   const [lastAttemptedCode, setLastAttemptedCode] = useState("");
+
+  const resendCooldown = useCountdown();
 
   const codeInputRefs = useRef<(TextInput | null)[]>([]);
   const shakeAnimation = useRef(new Animated.Value(0)).current;
@@ -180,10 +192,36 @@ export default function RecoverPasswordScreen() {
           position: "top",
         });
 
+        resendCooldown.start(RESEND_COOLDOWN_SECONDS);
         setTimeout(() => codeInputRefs.current[0]?.focus(), 100);
       },
     });
   });
+
+  const onResendCode = () => {
+    if (resendCooldown.isActive) return;
+
+    resendCooldown.start(RESEND_COOLDOWN_SECONDS);
+    sendRecoveryCodeMutation.mutate(email.trim(), {
+      onSuccess: () => {
+        Toast.show({
+          type: "success",
+          text1: "Código reenviado!",
+          text2: "Confira novamente seu e-mail.",
+          position: "top",
+        });
+      },
+      onError: (error) => {
+        const status =
+          (error as { response?: { status?: number }; status?: number })
+            ?.response?.status ??
+          (error as { status?: number })?.status;
+        if (status === 400) {
+          resendCooldown.reset();
+        }
+      },
+    });
+  };
 
   const onSavePassword = handleSubmit(async () => {
     setValue("step", 3, { shouldDirty: false, shouldTouch: false });
@@ -400,22 +438,18 @@ export default function RecoverPasswordScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    onPress={() =>
-                      sendRecoveryCodeMutation.mutate(email.trim(), {
-                        onSuccess: () => {
-                          Toast.show({
-                            type: "success",
-                            text1: "Código reenviado!",
-                            text2: "Confira novamente seu e-mail.",
-                            position: "top",
-                          });
-                        },
-                      })
-                    }
-                    disabled={isBusy}
+                    onPress={onResendCode}
+                    disabled={isBusy || resendCooldown.isActive}
                   >
-                    <ThemedText style={styles.stepLinkTextHighlight}>
-                      Reenviar código
+                    <ThemedText
+                      style={[
+                        styles.stepLinkTextHighlight,
+                        resendCooldown.isActive && styles.stepLinkTextDisabled,
+                      ]}
+                    >
+                      {resendCooldown.isActive
+                        ? `Reenviar em ${formatCooldown(resendCooldown.secondsLeft)}`
+                        : "Reenviar código"}
                     </ThemedText>
                   </TouchableOpacity>
                 </View>
@@ -446,10 +480,11 @@ export default function RecoverPasswordScreen() {
                         value={value}
                         onChangeText={onChange}
                         autoCapitalize="none"
-                        removeSpaces
+                        sanitizePassword
                         error={errors.newPassword?.message?.toString()}
                         disabled={isBusy}
                       />
+                      <PasswordRequirements value={value} />
                     </View>
                   )}
                 />
@@ -588,6 +623,9 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.purpleBright,
     fontSize: 13,
     fontWeight: "700",
+  },
+  stepLinkTextDisabled: {
+    color: DEFAULT_COLORS.textMuted,
   },
   validatingText: {
     textAlign: "center",

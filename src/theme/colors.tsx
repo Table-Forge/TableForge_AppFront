@@ -63,6 +63,7 @@ export const DEFAULT_COLORS = {
   orangeGlow_25: "rgba(255, 91, 24, 0.25)",
   crown: "#FFB25B",
   danger: "#be0300",
+  success: "#3BA55D",
   grays: {
     _50: "#F1F1F1",
     _100: "#D1D1D1",

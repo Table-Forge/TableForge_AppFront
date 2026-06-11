@@ -19,12 +19,15 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { Tag } from "../tag/tag";
 import { ThemedText } from "../themed-text/themed-text";
 import { ICampaignItemProps } from "./campaign-item.types";
+import { useCampaignDifficultyLevelEnum } from "@/src/features/campaigns/hooks/enums/use-campaign-difficulty-level-enum";
 
 export const CampaignItemList = ({
   data,
   cardColor,
   tagColor = DEFAULT_COLORS.purpleBright,
 }: ICampaignItemProps) => {
+  const { difficultyLevelEnum } = useCampaignDifficultyLevelEnum();
+
   const router = useRouter();
   const { user } = useAuth();
   const currentUserId = user?.id ? Number(user.id) : undefined;
@@ -34,7 +37,9 @@ export const CampaignItemList = ({
   const location = data.locationName || data.address || "-";
   const system = data.gameSystemName || `Sistema ${data.gameSystemId}`;
   const partySize = `0/${data.playersLimit}`;
-  const difficulty = data.difficulty || "-";
+  const difficulty = data.difficulty
+    ? difficultyLevelEnum.find((item) => item.value === data.difficulty)?.name
+    : "-";
   const summary = data.description || "Sem sinopse cadastrada.";
 
   const openCampaign = () =>
@@ -89,7 +94,9 @@ export const CampaignItemList = ({
             <View style={styles.masterAvatar}>
               <SwordDiceIcon size={16} color={DEFAULT_COLORS.purpleBright} />
             </View>
-            <ThemedText style={styles.masterText}>Mestre {gameMaster}</ThemedText>
+            <ThemedText style={styles.masterText}>
+              Mestre {gameMaster}
+            </ThemedText>
           </Pressable>
         </View>
         <View style={styles.rightColumn}>

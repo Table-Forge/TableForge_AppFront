@@ -1,12 +1,14 @@
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { CampaignItem } from "@/src/components/campaign-item/campaign-item";
+import { FilterChips } from "@/src/components/filter-chips/filter-chips";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@/src/constants/screen-size";
+import { useCampaignRelationshipEnum } from "@/src/features/campaigns/hooks/enums/use-campaign-relationship-enum";
 import {
-  CAMPAIGNS_PAGE_SIZE,
-  useInfiniteCampaigns,
-} from "@/src/features/campaigns/hooks/use-infinite-campaigns";
+  PLAYER_CAMPAIGNS_PAGE_SIZE,
+  useInfinitePlayerCampaigns,
+} from "@/src/features/campaigns/hooks/use-infinite-player-campaigns";
 import { useLocation } from "@/src/hooks/use-location";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { Entypo } from "@expo/vector-icons";
@@ -32,6 +34,13 @@ export default function Campaigns() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const { location, loading } = useLocation();
+  const [relationshipFilter, setRelationshipFilter] = useState<string[]>([
+    "Available",
+    "Requested",
+  ]);
+
+  const { relationshipEnum } = useCampaignRelationshipEnum();
+
   const {
     data,
     isLoading,
@@ -41,7 +50,10 @@ export default function Campaigns() {
     isFetchingNextPage,
     isRefetching,
     refetch,
-  } = useInfiniteCampaigns({ size: CAMPAIGNS_PAGE_SIZE });
+  } = useInfinitePlayerCampaigns({
+    size: PLAYER_CAMPAIGNS_PAGE_SIZE,
+    filter: relationshipFilter,
+  });
 
   const campaigns = useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
@@ -142,6 +154,15 @@ export default function Campaigns() {
           </ThemedText>
           <View style={styles.listTitleLine} />
         </View>
+
+        {relationshipEnum.length > 0 && (
+          <FilterChips
+            options={relationshipEnum}
+            value={relationshipFilter}
+            onChange={setRelationshipFilter}
+            style={styles.filterChips}
+          />
+        )}
 
         {isLoading && !hasCampaigns ? (
           <View style={styles.emptyWrapper}>
@@ -260,6 +281,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 1,
     backgroundColor: DEFAULT_COLORS.tertiary_20,
+  },
+  filterChips: {
+    marginBottom: 20,
   },
   deckWrapper: {
     alignItems: "center",

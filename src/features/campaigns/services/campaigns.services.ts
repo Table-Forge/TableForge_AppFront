@@ -1,9 +1,11 @@
 import {
   ICampaign,
   ICampaignCreate,
+  ICampaignPlayer,
 } from "@/src/features/campaigns/schemas/campaign.schema";
 
 import {
+  IEnumOption,
   IGetPaginatedParams,
   IPaginatedApiResponse,
   TOptions,
@@ -14,6 +16,10 @@ const ENDPOINT = "/campaigns";
 
 type IGetCampaignsParams = IGetPaginatedParams & {
   creatorId?: number;
+};
+
+type IPlayerSearchParams = IGetPaginatedParams & {
+  filter?: string[];
 };
 
 export const CampaignService = {
@@ -45,6 +51,24 @@ export const CampaignService = {
   },
   getStatusEnum: async (): Promise<TOptions[]> => {
     const { data } = await api.get(`${ENDPOINT}/enums/campaign-status`);
+    return data;
+  },
+  getRelationshipEnum: async (): Promise<IEnumOption[]> => {
+    const { data } = await api.get(`${ENDPOINT}/enums/campaign-relationship`);
+    return data;
+  },
+  searchPlayerCampaigns: async ({
+    page = 1,
+    size = 20,
+    search,
+    filter,
+  }: IPlayerSearchParams = {}): Promise<IPaginatedApiResponse<ICampaignPlayer>> => {
+    const { data } = await api.post(
+      `${ENDPOINT}/player/search`,
+      { search, filter },
+      { params: { page, size } },
+    );
+
     return data;
   },
   update: async (payload: Partial<ICampaign> & { id: number }): Promise<ICampaign> => {

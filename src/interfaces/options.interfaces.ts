@@ -5,4 +5,11 @@ type TOptions = {
   value: TPrimitives | undefined;
 };
 
-export type { TOptions };
+type IEnumOption = {
+  id: number;
+  value: string;
+  name: string;
+  allowSelect: boolean;
+};
+
+export type { TOptions, IEnumOption };

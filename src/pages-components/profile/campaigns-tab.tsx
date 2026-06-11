@@ -7,6 +7,7 @@ import {
   CAMPAIGNS_PAGE_SIZE,
   useInfiniteCampaigns,
 } from "@/src/features/campaigns/hooks/use-infinite-campaigns";
+import { useInfinitePlayerCampaigns } from "@/src/features/campaigns/hooks/use-infinite-player-campaigns";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
@@ -26,6 +27,18 @@ export const CampaignsTab = ({ userId: userIdProp }: IProps = {}) => {
   const targetUserId = userIdProp ?? currentUserId;
   const isCurrentUser = !userIdProp || userIdProp === currentUserId;
 
+  const playerQuery = useInfinitePlayerCampaigns({
+    size: CAMPAIGNS_PAGE_SIZE,
+    filter: ["Creator", "Member"],
+    enabled: isCurrentUser && Boolean(currentUserId),
+  });
+
+  const creatorQuery = useInfiniteCampaigns({
+    size: CAMPAIGNS_PAGE_SIZE,
+    creatorId: targetUserId,
+    enabled: !isCurrentUser && Boolean(targetUserId),
+  });
+
   const {
     data,
     isLoading,
@@ -33,11 +46,7 @@ export const CampaignsTab = ({ userId: userIdProp }: IProps = {}) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteCampaigns({
-    size: CAMPAIGNS_PAGE_SIZE,
-    creatorId: targetUserId,
-    enabled: Boolean(targetUserId),
-  });
+  } = isCurrentUser ? playerQuery : creatorQuery;
 
   const campaigns = useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],

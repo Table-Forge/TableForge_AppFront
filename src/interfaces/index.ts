@@ -4,7 +4,7 @@ import {
   IPaginatedApiResponse,
   IPagination,
 } from "./pagination.interfaces";
-import { TOptions } from "./options.interfaces";
+import { IEnumOption, TOptions } from "./options.interfaces";
 import { TPrimitives } from "./primitives.interfaces";
 
 export type {
@@ -12,6 +12,7 @@ export type {
   IGetPaginatedParams,
   IPaginatedApiResponse,
   IPagination,
+  IEnumOption,
   TOptions,
   TPrimitives,
 };

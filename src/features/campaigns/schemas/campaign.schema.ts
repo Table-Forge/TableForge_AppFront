@@ -93,3 +93,14 @@ export const CampaignCreateSchema = z.object({
 export type ICampaign = z.infer<typeof CampaignSchema>;
 export type ICampaignCreateInput = z.input<typeof CampaignCreateSchema>;
 export type ICampaignCreate = z.infer<typeof CampaignCreateSchema>;
+
+export type CampaignRelationshipValue =
+  | "None"
+  | "Creator"
+  | "Member"
+  | "Requested"
+  | "Available";
+
+export type ICampaignPlayer = ICampaign & {
+  userRelationship: CampaignRelationshipValue;
+};

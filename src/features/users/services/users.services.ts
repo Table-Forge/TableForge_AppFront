@@ -21,13 +21,18 @@ export const UserService = {
     return data;
   },
 
+  getFromApp: async (id: number): Promise<IUser> => {
+    const { data } = await api.get(`${ENDPOINT}/from-app/${id}`);
+    return data;
+  },
+
   create: async (params: Partial<IUser>) => {
     const { data } = await api.post(`${ENDPOINT}`, params);
     return data;
   },
 
   update: async (payload: IUserUpdateOutput) => {
-    const { data } = await api.put(`${ENDPOINT}`, payload);
+    const { data } = await api.put(`${ENDPOINT}/profile`, payload);
     return data;
   },
 

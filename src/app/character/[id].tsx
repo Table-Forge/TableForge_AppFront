@@ -37,7 +37,7 @@ export default function CharacterScreen() {
     refetch,
     isRefetching,
   } = useCharacter(characterId);
-  const { data: owner, refetch: refetchOwner } = useUser(data?.userId);
+  const { data: owner, refetch: refetchOwner } = useUser(data?.userId, true);
 
   const handleRefresh = useDebouncedCallback(() => {
     Promise.all([

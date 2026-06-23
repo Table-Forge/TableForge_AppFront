@@ -38,7 +38,7 @@ export default function PublicUserProfileScreen() {
   const { handleBack } = useBackRouter();
   const { id } = useLocalSearchParams();
   const userId = Number(id);
-  const { data: user, isPending, isError } = useUser(userId);
+  const { data: user, isPending, isError } = useUser(userId, true);
   const [activeTab, setActiveTab] = useState<ITabs>("Perfil");
 
   const currentUserId = currentUser?.id ? Number(currentUser.id) : undefined;

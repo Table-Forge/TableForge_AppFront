@@ -1,9 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import { useLocalSearchParams } from "expo-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
@@ -11,106 +10,66 @@ import { Input } from "@/src/components/input/input";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
-import { IChatMessage } from "@/src/features/chat-messages/schemas/chat-message.schema";
-import { useChatMessages } from "@/src/features/chat-messages/hooks/use-chat-messages";
-import { useChatMessagesMutation } from "@/src/features/chat-messages/hooks/use-chat-messages-mutations";
-import { CHAT_MESSAGE_KEYS } from "@/src/features/chat-messages/hooks/query-key";
-import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
-import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-campaign-members";
-import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
-import { useSignalR } from "@/src/context/SignalRContext";
+import { useInfiniteConversationMessages } from "@/src/features/conversations/hooks/use-infinite-conversation-messages";
+import { useSendMessage } from "@/src/features/conversations/hooks/use-send-message";
+import { useMarkMessagesAsRead } from "@/src/features/conversations/hooks/use-mark-messages-as-read";
+import {
+  ConversationMessageType,
+  IConversationMessage,
+} from "@/src/features/conversations/schemas/conversation.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
-export default function CampaignChatScreen() {
-  const { campaignId } = useLocalSearchParams();
+export default function DirectChatScreen() {
+  const { conversationId } = useLocalSearchParams();
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
-  const parsedCampaignId = Number(campaignId);
+  const parsedConversationId = Number(conversationId);
   const [message, setMessage] = useState("");
-  const queryClient = useQueryClient();
 
-  const { data: campaign } = useCampaign(parsedCampaignId);
-  const { data: members = [] } = useCampaignMembers({
-    campaignId: parsedCampaignId,
-  });
   const {
-    data = [],
+    data,
     isLoading,
     refetch,
-  } = useChatMessages({
-    campaignId: parsedCampaignId,
-  });
-  const { createChatMessageMutation, isCreatingChatMessage } =
-    useChatMessagesMutation(parsedCampaignId);
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteConversationMessages(parsedConversationId, { size: 20 });
+  const { mutate: sendMessage, isPending: isSending } = useSendMessage(
+    parsedConversationId,
+  );
+  const { mutate: markAsRead } = useMarkMessagesAsRead();
 
-  const { connection } = useSignalR();
+  const messages = useMemo(
+    () => data?.pages.flatMap((page) => page.items) ?? [],
+    [data?.pages],
+  );
 
   useEffect(() => {
-    if (!connection || !parsedCampaignId) return;
+    if (parsedConversationId) {
+      markAsRead(parsedConversationId);
+    }
+  }, [parsedConversationId, markAsRead]);
 
-    connection.invoke("JoinCampaignRoom", parsedCampaignId).catch(console.error);
-
-    const receiveMsg = (campaignMessageDto: IChatMessage) => {
-      queryClient.setQueryData(CHAT_MESSAGE_KEYS.byCampaign(parsedCampaignId), (oldData: any) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          items: [campaignMessageDto, ...oldData.items],
-        };
-      });
-    };
-
-    const deleteMsg = (messageId: number) => {
-      queryClient.setQueryData(CHAT_MESSAGE_KEYS.byCampaign(parsedCampaignId), (oldData: any) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          items: oldData.items.filter((m: IChatMessage) => m.id !== messageId),
-        };
-      });
-    };
-
-    connection.on("ReceiveCampaignMessage", receiveMsg);
-    connection.on("ReceiveCampaignMessageDeleted", deleteMsg);
-
-    return () => {
-      connection.off("ReceiveCampaignMessage", receiveMsg);
-      connection.off("ReceiveCampaignMessageDeleted", deleteMsg);
-      connection.invoke("LeaveCampaignRoom", parsedCampaignId).catch(console.error);
-    };
-  }, [connection, parsedCampaignId, queryClient]);
-
-  const messages = data;
+  const handleEndReached = () => {
+    if (hasNextPage) fetchNextPage();
+  };
 
   const handleSendMessage = () => {
     const content = message.trim();
 
     if (!content || !user?.id) return;
 
-    createChatMessageMutation.mutate(
+    sendMessage(
       {
-        campaignId: parsedCampaignId,
-        userId: user.id,
+        type: ConversationMessageType.Text,
         content,
       },
       {
         onSuccess: () => {
-          if (campaign) {
-            const senderId = Number(user.id);
-            const recipientIds = members
-              .map((member) => member.userId)
-              .filter((id) => id !== senderId);
-            notify.newChatMessage({
-              memberIds: recipientIds,
-              campaignId: parsedCampaignId,
-              campaignTitle: campaign.title,
-              senderName: user.nickname || user.username || "Aventureiro",
-            });
-          }
           setMessage("");
+          refetch(); // For Phase 1 we manually refetch. SignalR will update later.
         },
       },
     );
@@ -135,18 +94,18 @@ export default function CampaignChatScreen() {
           <View style={styles.headerTextContainer}>
             <View style={styles.headerTitleRow}>
               <FontAwesome6
-                name="beer-mug-empty"
+                name="user"
                 size={12}
                 color={DEFAULT_COLORS.tertiary}
               />
-              <ThemedText style={styles.headerEyebrow}>Taverna</ThemedText>
+              <ThemedText style={styles.headerEyebrow}>Chat Direto</ThemedText>
             </View>
             <ThemedText
               style={styles.headerSubtitle}
               numberOfLines={1}
               weight="bold"
             >
-              {campaign?.title || "Campanha"}
+              DM
             </ThemedText>
           </View>
           <View style={styles.headerSpacer} />
@@ -154,26 +113,22 @@ export default function CampaignChatScreen() {
       </Screen.Header>
 
       <Screen.Body style={styles.content}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionLine} />
-          <ThemedText style={styles.sectionTitle}>15 Fev</ThemedText>
-          <View style={styles.sectionLine} />
-        </View>
-
         <FlatList
           inverted
           data={messages}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
-            <MessageBubble item={item} isMine={item.userId === user?.id} />
+            <MessageBubble item={item} isMine={item.senderId === user?.id} />
           )}
           contentContainerStyle={styles.listContent}
           refreshing={isLoading}
           onRefresh={refetch}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.4}
           ListEmptyComponent={
             <View style={styles.emptyWrapper}>
               <ThemedText style={styles.emptyText}>
-                Nenhuma mensagem por aqui.
+                Diga olá! Nenhuma mensagem ainda.
               </ThemedText>
             </View>
           }
@@ -185,24 +140,16 @@ export default function CampaignChatScreen() {
           <Input
             value={message}
             onChangeText={setMessage}
-            placeholder="Escreva uma mensagem"
-            editable={!isCreatingChatMessage}
+            placeholder="Escreva uma mensagem..."
+            editable={!isSending}
           />
         </View>
         <ActionButton
           variant="circle"
           active
           icon={<Ionicons name="send" size={20} color={DEFAULT_COLORS.white} />}
-          onPress={
-            isCreatingChatMessage || !message.trim()
-              ? undefined
-              : handleSendMessage
-          }
-          style={
-            isCreatingChatMessage || !message.trim()
-              ? styles.sendButtonDisabled
-              : null
-          }
+          onPress={isSending || !message.trim() ? undefined : handleSendMessage}
+          style={isSending || !message.trim() ? styles.sendButtonDisabled : null}
         />
       </Screen.Footer>
     </Screen>
@@ -213,25 +160,39 @@ const MessageBubble = ({
   item,
   isMine,
 }: {
-  item: IChatMessage;
+  item: IConversationMessage;
   isMine: boolean;
-}) => (
-  <View style={[styles.messageRow, isMine && styles.myMessageRow]}>
-    {!isMine && <View style={styles.avatarDot} />}
-    <View style={[styles.messageStack, isMine && styles.myMessageStack]}>
-      <ThemedText style={[styles.username, isMine && styles.usernameMine]}>
-        {isMine ? "Você" : item.username || `Usuário ${item.userId}`}
-      </ThemedText>
-      <View style={[styles.bubble, isMine && styles.myBubble]}>
-        <ThemedText style={styles.messageText}>{item.content}</ThemedText>
+}) => {
+  const isRead = item.statuses?.some(s => s.isRead && s.userId !== item.senderId);
+
+  return (
+    <View style={[styles.messageRow, isMine && styles.myMessageRow]}>
+      {!isMine && <View style={styles.avatarDot} />}
+      <View style={[styles.messageStack, isMine && styles.myMessageStack]}>
+        <ThemedText style={[styles.username, isMine && styles.usernameMine]}>
+          {isMine ? "Você" : item.senderNickname || item.senderUsername || `Usuário ${item.senderId}`}
+        </ThemedText>
+        <View style={[styles.bubble, isMine && styles.myBubble]}>
+          <ThemedText style={styles.messageText}>{item.content}</ThemedText>
+        </View>
+        <View style={styles.statusRow}>
+          <ThemedText style={[styles.messageTime, isMine && styles.myMessageTime]}>
+            {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </ThemedText>
+          {isMine && (
+             <Ionicons 
+               name="checkmark-done" 
+               size={14} 
+               color={isRead ? DEFAULT_COLORS.secondary : DEFAULT_COLORS.textMuted} 
+               style={styles.statusIcon} 
+             />
+          )}
+        </View>
       </View>
-      <ThemedText style={[styles.messageTime, isMine && styles.myMessageTime]}>
-        23:59
-      </ThemedText>
+      {isMine && <View style={styles.avatarDot} />}
     </View>
-    {isMine && <View style={styles.avatarDot} />}
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -273,25 +234,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    marginTop: 12,
-    marginBottom: 6,
-    gap: 12,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    color: DEFAULT_COLORS.tertiary,
-    letterSpacing: 2,
-    textTransform: "uppercase",
-  },
-  sectionLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: DEFAULT_COLORS.tertiary_20,
   },
   listContent: {
     paddingHorizontal: 12,
@@ -355,13 +297,22 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.white,
     lineHeight: 17,
   },
-  messageTime: {
+  statusRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    gap: 4,
     marginTop: 2,
+  },
+  messageTime: {
     fontSize: 10,
     color: DEFAULT_COLORS.textMuted,
   },
   myMessageTime: {
     textAlign: "right",
+  },
+  statusIcon: {
+    marginTop: 2,
   },
   inputBar: {
     flexDirection: "row",

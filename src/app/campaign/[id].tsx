@@ -60,7 +60,7 @@ export default function CampaignDetails() {
     refetch: refetchCampaign,
     isRefetching: isRefetchingCampaign,
   } = useCampaign(campaignId);
-  const { data: creator } = useUser(campaign?.creatorId);
+  const { data: creator } = useUser(campaign?.creatorId, true);
   const {
     data: members = [],
     refetch: refetchMembers,

@@ -1,7 +1,9 @@
 import React, { useMemo, useRef, useState } from "react";
 import {
   FlatList,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -141,9 +143,13 @@ export const Select: React.FC<IProps> = ({
         animationType="fade"
         onRequestClose={() => handleVisibleChange(false)}
       >
-        <TouchableWithoutFeedback onPress={() => handleVisibleChange(false)}>
-          <View style={styles.overlay}>
-            <TouchableWithoutFeedback>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <TouchableWithoutFeedback onPress={() => handleVisibleChange(false)}>
+            <View style={styles.overlay}>
+              <TouchableWithoutFeedback>
               <View style={styles.sheet}>
                 <View style={styles.handle} />
 
@@ -217,9 +223,10 @@ export const Select: React.FC<IProps> = ({
                   }}
                 />
               </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

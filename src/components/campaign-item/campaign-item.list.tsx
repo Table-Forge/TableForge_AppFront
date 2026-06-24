@@ -85,9 +85,10 @@ export const CampaignItemList = ({
           </ThemedText>
 
           <Pressable
+            disabled={isOwner}
             style={({ pressed }) => [
               styles.masterRow,
-              pressed && { opacity: 0.75 },
+              pressed && !isOwner && { opacity: 0.75 },
             ]}
             onPress={openMasterProfile}
           >
@@ -216,6 +217,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     marginTop: 4,
+    alignSelf: "flex-start",
   },
   masterAvatar: {
     width: 26,

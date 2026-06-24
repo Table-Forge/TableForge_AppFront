@@ -1,5 +1,6 @@
 import { SwordDiceIcon } from "@/src/components/icons";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
+import { useAuth } from "@/src/context/auth";
 import { useRouter } from "expo-router";
 import { useRef } from "react";
 import {
@@ -25,6 +26,10 @@ export const CampaignItemTinder = ({
   const { difficultyLevelEnum } = useCampaignDifficultyLevelEnum();
 
   const router = useRouter();
+  const { user } = useAuth();
+  const currentUserId = user?.id ? Number(user.id) : undefined;
+  const isOwner = currentUserId === data.creatorId;
+
   const touchStart = useRef({ x: 0, y: 0 });
   const bannerUrl = data.bannerUrl || "";
   const gameMaster = data.creatorUsername || "Mestre Desconhecido";
@@ -112,9 +117,10 @@ export const CampaignItemTinder = ({
         </ThemedText>
 
         <Pressable
+          disabled={isOwner}
           style={({ pressed }) => [
             styles.tinderMasterRow,
-            pressed && { opacity: 0.75 },
+            pressed && !isOwner && { opacity: 0.75 },
           ]}
           onPress={openMasterProfile}
         >
@@ -254,6 +260,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     marginTop: 2,
+    alignSelf: "flex-start",
   },
   masterAvatar: {
     width: 30,

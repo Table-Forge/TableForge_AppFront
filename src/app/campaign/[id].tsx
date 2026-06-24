@@ -251,6 +251,7 @@ export default function CampaignDetails() {
               {campaign.title}
             </ThemedText>
             <Pressable
+              disabled={isCreator}
               onPress={() =>
                 router.push({
                   pathname: "/user/[id]",
@@ -259,7 +260,7 @@ export default function CampaignDetails() {
               }
               style={({ pressed }) => [
                 styles.masterRow,
-                pressed && { opacity: 0.7 },
+                pressed && !isCreator && { opacity: 0.7 },
               ]}
             >
               <View style={styles.masterAvatar}>
@@ -453,6 +454,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     marginTop: 6,
+    alignSelf: "flex-start",
   },
   masterAvatar: {
     width: 28,

@@ -36,6 +36,8 @@ export function MembersTab({
   onRejectJoinRequest,
   pendingJoinRequests,
 }: MembersTabProps) {
+  const players = members.filter(m => m.role !== 'Master');
+
   return (
     <>
       {canSeePrivateModules ? (
@@ -47,16 +49,16 @@ export function MembersTab({
               Membros
             </ThemedText>
             <ThemedText style={styles.memberCounter}>
-              {members.length}/{campaign.playersLimit}
+              {players.length}/{campaign.playersLimit}
             </ThemedText>
           </View>
-          {members.length ? (
+          {players.length ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.membersScrollContainer}
             >
-              {members.map((member) => (
+              {players.map((member) => (
                 <CharacterItem
                   key={member.id}
                   data={getMemberCharacter(member, characters)}
@@ -67,7 +69,7 @@ export function MembersTab({
               ))}
             </ScrollView>
           ) : (
-            <EmptyText text="Nenhum membro listado." />
+            <EmptyText text="Nenhum jogador listado." />
           )}
         </View>
       ) : (

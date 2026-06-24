@@ -202,7 +202,7 @@ export default function Campaigns() {
               width={carouselWidth}
               height={carouselHeight}
               data={campaigns}
-              loop={true}
+              loop={campaigns.length >= 4}
               mode="horizontal-stack"
               modeConfig={{
                 showLength: 3,

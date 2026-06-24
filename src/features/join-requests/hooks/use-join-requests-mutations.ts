@@ -82,6 +82,20 @@ export const useJoinRequestsMutation = (campaignId?: number) => {
         });
       }
     },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.Message ||
+        error?.response?.data?.message ||
+        error?.data?.Message ||
+        error?.message ||
+        "Não foi possível processar a solicitação.";
+
+      Toast.show({
+        type: "error",
+        text1: "Erro ao atualizar solicitação",
+        text2: errorMessage,
+      });
+    },
   });
 
   const deleteJoinRequestMutation = useMutation({

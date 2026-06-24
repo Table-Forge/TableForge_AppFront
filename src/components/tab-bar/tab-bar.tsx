@@ -141,7 +141,6 @@ export const TabBar = ({
                   name="dot-single"
                   color={DEFAULT_COLORS.tertiary}
                   size={16}
-                  style={styles.focusedDot}
                 />
               )}
             </PlatformPressable>
@@ -250,9 +249,5 @@ export const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: "bold",
     textAlign: "center",
-  },
-  focusedDot: {
-    position: "absolute",
-    bottom: Platform.OS === "ios" ? 12 : -4,
   },
 });

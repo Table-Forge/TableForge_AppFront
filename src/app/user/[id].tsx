@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
+import Toast from "react-native-toast-message";
 import {
   ActivityIndicator,
   Image,
@@ -24,6 +25,8 @@ import { useFriendshipsMutation } from "@/src/features/friendships/hooks/use-fri
 import { notify } from "@/src/features/notifications/helpers/notify";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
+import { useCreateDirectConversation } from "@/src/features/conversations/hooks/use-create-direct-conversation";
+import { ConversationType } from "@/src/features/conversations/schemas/conversation.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
@@ -36,10 +39,13 @@ type ITabs = "Perfil" | "Personagens" | "Campanhas";
 export default function PublicUserProfileScreen() {
   const { user: currentUser } = useAuth();
   const { handleBack } = useBackRouter();
+  const router = useRouter();
   const { id } = useLocalSearchParams();
   const userId = Number(id);
   const { data: user, isPending, isError } = useUser(userId, true);
   const [activeTab, setActiveTab] = useState<ITabs>("Perfil");
+
+  const { mutate: createChat, isPending: isCreatingChat } = useCreateDirectConversation();
 
   const currentUserId = currentUser?.id ? Number(currentUser.id) : undefined;
   const isSelf = currentUserId === userId;
@@ -115,6 +121,28 @@ export default function PublicUserProfileScreen() {
   const handleRemove = () => {
     if (!friendship) return;
     deleteFriendshipMutation.mutate(friendship.id);
+  };
+
+  const handleMessagePress = () => {
+    if (!currentUserId || !user) return;
+    createChat(
+      { type: ConversationType.Direct, otherUserId: userId },
+      {
+        onSuccess: (conversation) => {
+          router.push({
+            pathname: "/direct-chat/[conversationId]",
+            params: { conversationId: conversation.id },
+          });
+        },
+        onError: (err: any) => {
+          Toast.show({
+            type: "error",
+            text1: "Ops!",
+            text2: err?.response?.data?.message || err.message || "Erro ao iniciar conversa.",
+          });
+        },
+      }
+    );
   };
 
   if (isPending) {
@@ -193,6 +221,7 @@ export default function PublicUserProfileScreen() {
                 onAccept={handleAccept}
                 onDecline={handleDecline}
                 onRemove={handleRemove}
+                onMessagePress={handleMessagePress}
               />
             )}
 
@@ -221,7 +250,7 @@ export default function PublicUserProfileScreen() {
         </Screen.Body>
       </Screen>
 
-      {isPending && <LoadingOverlay />}
+      {(isPending || isCreatingChat) && <LoadingOverlay />}
     </>
   );
 }
@@ -235,6 +264,7 @@ interface FriendshipActionsProps {
   onAccept: () => void;
   onDecline: () => void;
   onRemove: () => void;
+  onMessagePress: () => void;
 }
 
 const FriendshipActions = ({
@@ -246,6 +276,7 @@ const FriendshipActions = ({
   onAccept,
   onDecline,
   onRemove,
+  onMessagePress,
 }: FriendshipActionsProps) => {
   const isPending = friendshipStatus === "Pending";
   const isAccepted = friendshipStatus === "Accepted";
@@ -260,7 +291,7 @@ const FriendshipActions = ({
         <ActionButton
           variant="circle"
           icon={<Mail size={20} color={DEFAULT_COLORS.purpleBright} />}
-          onPress={() => {}}
+          onPress={onMessagePress}
         />
         <ActionButton
           variant="circle"

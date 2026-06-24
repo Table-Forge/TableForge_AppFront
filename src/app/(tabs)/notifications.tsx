@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, View, TouchableOpacity, StyleSheet } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import {
   FontAwesome6,
@@ -40,16 +41,17 @@ export default function Notifications() {
     updateNotificationMutation,
   } = useNotificationsMutation();
 
-  useEffect(() => {
-    if (!userId) return;
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return;
 
-    const timer = setTimeout(() => {
-      markAllNotificationsAsReadMutation.mutate(userId);
-    }, 2000);
+      const timer = setTimeout(() => {
+        markAllNotificationsAsReadMutation.mutate(userId);
+      }, 2000);
 
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+      return () => clearTimeout(timer);
+    }, [userId, markAllNotificationsAsReadMutation])
+  );
 
   const handleNotificationPress = (item: INotification) => {
     if (!item.read) {

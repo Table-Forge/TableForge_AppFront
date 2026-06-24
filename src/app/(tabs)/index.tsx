@@ -58,7 +58,13 @@ export default function Home() {
               <View style={styles.notificationWrapper}>
                 <Entypo name="bell" size={22} color={DEFAULT_COLORS.white} />
                 {hasUnreadNotifications && (
-                  <View style={styles.notificationDot} />
+                  <View style={styles.notificationBadge}>
+                    <ThemedText style={styles.notificationBadgeText}>
+                      {(unreadNotifications?.pagination?.filteredItems ?? 0) > 99
+                        ? "99+"
+                        : unreadNotifications?.pagination?.filteredItems ?? 0}
+                    </ThemedText>
+                  </View>
                 )}
               </View>
             }
@@ -233,14 +239,24 @@ export const styles = StyleSheet.create({
     position: "relative",
   },
 
-  notificationDot: {
-    width: 9,
-    height: 9,
+  notificationBadge: {
+    minWidth: 14,
+    height: 14,
     borderRadius: 10,
-    backgroundColor: DEFAULT_COLORS.orange,
+    backgroundColor: DEFAULT_COLORS.danger || DEFAULT_COLORS.orange,
     position: "absolute",
-    top: -3,
-    right: -4,
+    top: -4,
+    right: -6,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 3,
+  },
+  
+  notificationBadgeText: {
+    color: DEFAULT_COLORS.white,
+    fontSize: 8,
+    fontWeight: "bold",
+    textAlign: "center",
   },
 
   heroWrapper: {

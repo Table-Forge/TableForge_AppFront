@@ -19,6 +19,8 @@ import {
   useNavigation,
 } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/src/context/auth";
+import { useNotifications } from "@/src/features/notifications/hooks/use-notifications";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -32,6 +34,16 @@ export default function Campaigns() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const router = useRouter();
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const { user } = useAuth();
+  const userId = user?.id ? Number(user.id) : undefined;
+  const { data: unreadNotifications } = useNotifications({
+    userId,
+    read: false,
+    size: 1,
+    enabled: Boolean(userId),
+  });
+  const hasUnreadNotifications = (unreadNotifications?.pagination?.filteredItems ?? 0) > 0;
 
   const { location, loading } = useLocation();
   const [relationshipFilter, setRelationshipFilter] = useState<string[]>([
@@ -128,7 +140,20 @@ export default function Campaigns() {
           />
           <ActionButton
             variant="circle"
-            icon={<Entypo name="bell" size={20} color={DEFAULT_COLORS.white} />}
+            icon={
+              <View style={styles.notificationWrapper}>
+                <Entypo name="bell" size={20} color={DEFAULT_COLORS.white} />
+                {hasUnreadNotifications && (
+                  <View style={styles.notificationBadge}>
+                    <ThemedText style={styles.notificationBadgeText}>
+                      {(unreadNotifications?.pagination?.filteredItems ?? 0) > 99
+                        ? "99+"
+                        : unreadNotifications?.pagination?.filteredItems ?? 0}
+                    </ThemedText>
+                  </View>
+                )}
+              </View>
+            }
             onPress={() => navigation.navigate("notifications")}
             style={styles.headerButton}
           />
@@ -305,6 +330,27 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: DEFAULT_COLORS.grays?._200 || DEFAULT_COLORS.white_70,
+    textAlign: "center",
+  },
+  notificationWrapper: {
+    position: "relative",
+  },
+  notificationBadge: {
+    minWidth: 14,
+    height: 14,
+    borderRadius: 10,
+    backgroundColor: DEFAULT_COLORS.danger || DEFAULT_COLORS.orange,
+    position: "absolute",
+    top: -4,
+    right: -6,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 3,
+  },
+  notificationBadgeText: {
+    color: DEFAULT_COLORS.white,
+    fontSize: 8,
+    fontWeight: "bold",
     textAlign: "center",
   },
 });

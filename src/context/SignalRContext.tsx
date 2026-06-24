@@ -48,10 +48,10 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const token = authTokenStore.getToken();
       if (!token) return; // Only connect if authenticated
 
+      const tokenUrl = `${HUB_URL}?access_token=${token}`;
+
       hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl(HUB_URL, {
-          accessTokenFactory: () => token,
-        })
+        .withUrl(tokenUrl)
         .withAutomaticReconnect()
         .build();
 

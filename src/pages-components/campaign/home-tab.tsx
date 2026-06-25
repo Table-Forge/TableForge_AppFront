@@ -4,6 +4,8 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import Fontisto from "react-native-vector-icons/Fontisto";
 
+import { formatDate } from "@/src/utils/format";
+
 import { Button } from "@/src/components/button/button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
@@ -106,12 +108,13 @@ export function HomeTab({
                 key={announcement.id}
                 onPress={() => setSelectedAnnouncement(announcement)}
                 style={({ pressed }) => [
-                  pressed && { opacity: 0.7 },
+                  pressed && { opacity: 0.95, transform: [{ scale: 0.99 }] },
                 ]}
               >
-                <InlineItem
+                <AnnouncementCard
                   title={announcement.title}
-                  description={announcement.content}
+                  content={announcement.content}
+                  date={announcement.date}
                 />
               </Pressable>
             ))
@@ -136,11 +139,21 @@ export function HomeTab({
         visible={!!selectedAnnouncement}
         onClose={() => setSelectedAnnouncement(null)}
         title={selectedAnnouncement?.title ?? ""}
-        description={selectedAnnouncement?.content ?? ""}
         eyebrow="Comunicado"
         cancelText="Fechar"
         showFooter={true}
-      />
+      >
+        {selectedAnnouncement && (
+          <View style={styles.modalContentContainer}>
+            <ThemedText style={styles.modalDateText}>
+              Publicado em {formatDate(selectedAnnouncement.date, true)}
+            </ThemedText>
+            <ThemedText style={styles.modalBodyText}>
+              {selectedAnnouncement.content}
+            </ThemedText>
+          </View>
+        )}
+      </ModalBase>
     </>
   );
 }
@@ -167,24 +180,43 @@ const ModuleHeader = ({
   </View>
 );
 
-const InlineItem = ({
+const AnnouncementCard = ({
   title,
-  description,
+  content,
+  date,
 }: {
   title: string;
-  description?: string;
-}) => (
-  <View style={styles.inlineItem}>
-    <ThemedText weight="bold" style={styles.inlineTitle}>
-      {title}
-    </ThemedText>
-    {!!description && (
-      <ThemedText style={styles.inlineDescription} numberOfLines={2}>
-        {description}
+  content: string;
+  date: string;
+}) => {
+  const formattedDate = formatDate(date, true);
+  return (
+    <View style={styles.announcementCard}>
+      <View style={styles.announcementHeader}>
+        <View style={styles.announcementBadge}>
+          <FontAwesome5 name="bullhorn" size={10} color={DEFAULT_COLORS.purpleBright} />
+          <ThemedText style={styles.announcementBadgeText}>Comunicado</ThemedText>
+        </View>
+        <ThemedText style={styles.announcementDate}>
+          {formattedDate}
+        </ThemedText>
+      </View>
+
+      <ThemedText weight="bold" style={styles.announcementTitle}>
+        {title}
       </ThemedText>
-    )}
-  </View>
-);
+
+      <ThemedText style={styles.announcementDescription} numberOfLines={3}>
+        {content}
+      </ThemedText>
+
+      <View style={styles.announcementFooter}>
+        <ThemedText style={styles.readMoreText}>Ler completo</ThemedText>
+        <FontAwesome6 name="arrow-right" size={10} color={DEFAULT_COLORS.purpleBright} />
+      </View>
+    </View>
+  );
+};
 
 const EmptyText = ({ text }: { text: string }) => (
   <ThemedText style={styles.emptyText}>{text}</ThemedText>
@@ -269,20 +301,74 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: DEFAULT_COLORS.white,
   },
-  inlineItem: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: BORDERS.divider,
+  announcementCard: {
+    backgroundColor: SURFACES.fill,
+    borderRadius: RADII.md,
+    borderWidth: 1,
+    borderColor: BORDERS.subtle,
+    padding: 16,
+    marginBottom: 12,
+    gap: 8,
   },
-  inlineTitle: {
-    fontSize: 14,
+  announcementHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  announcementBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(155, 114, 255, 0.15)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: RADII.sm,
+  },
+  announcementBadgeText: {
+    fontSize: 10,
+    color: DEFAULT_COLORS.purpleBright,
+    ...fonts.bold,
+    textTransform: "uppercase",
+  },
+  announcementDate: {
+    fontSize: 11,
+    color: DEFAULT_COLORS.textMuted,
+  },
+  announcementTitle: {
+    fontSize: 16,
     color: DEFAULT_COLORS.white,
+    lineHeight: 22,
   },
-  inlineDescription: {
-    marginTop: 3,
+  announcementDescription: {
     fontSize: 13,
-    color: DEFAULT_COLORS.white_64,
+    color: DEFAULT_COLORS.white_70,
     lineHeight: 18,
+  },
+  announcementFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 4,
+    marginTop: 4,
+  },
+  readMoreText: {
+    fontSize: 11,
+    color: DEFAULT_COLORS.purpleBright,
+    ...fonts.bold,
+  },
+  modalContentContainer: {
+    gap: 12,
+    marginTop: 8,
+  },
+  modalDateText: {
+    fontSize: 12,
+    color: DEFAULT_COLORS.textMuted,
+    ...fonts.bold,
+  },
+  modalBodyText: {
+    fontSize: 15,
+    color: DEFAULT_COLORS.white_70,
+    lineHeight: 22,
   },
   emptyText: {
     fontSize: 14,

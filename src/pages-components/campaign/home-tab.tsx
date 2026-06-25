@@ -22,6 +22,9 @@ interface HomeTabProps {
   difficultyLevelEnum: TOptions[];
   isMaster: boolean;
   onCreateAnnouncement: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onFetchNextPage?: () => void;
 }
 
 export function HomeTab({
@@ -31,6 +34,9 @@ export function HomeTab({
   difficultyLevelEnum,
   isMaster,
   onCreateAnnouncement,
+  hasNextPage,
+  isFetchingNextPage,
+  onFetchNextPage,
 }: HomeTabProps) {
   const difficultyLabel =
     difficultyLevelEnum.find((opt) => opt.value === campaign.difficulty)
@@ -101,6 +107,17 @@ export function HomeTab({
             ))
           ) : (
             <EmptyText text="Nenhum anúncio publicado." />
+          )}
+          {!!hasNextPage && !!onFetchNextPage && (
+            <View style={styles.loadMoreContainer}>
+              <Button
+                size="sm"
+                variant="secondary"
+                text={isFetchingNextPage ? "Carregando..." : "Carregar mais"}
+                isLoading={isFetchingNextPage}
+                onPress={onFetchNextPage}
+              />
+            </View>
           )}
         </View>
       )}
@@ -250,5 +267,9 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: DEFAULT_COLORS.textMuted,
+  },
+  loadMoreContainer: {
+    marginTop: 12,
+    alignItems: "center",
   },
 });

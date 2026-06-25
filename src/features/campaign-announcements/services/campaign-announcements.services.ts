@@ -3,14 +3,18 @@ import {
   ICampaignAnnouncement,
   ICampaignAnnouncementCreate,
 } from "@/src/features/campaign-announcements/schemas/campaign-announcement.schema";
+import { IPaginatedApiResponse } from "@/src/interfaces";
 
 const ENDPOINT = "/api/campaignannouncements";
 
 export const CampaignAnnouncementService = {
   getByCampaign: async (
     campaignId: number,
-  ): Promise<ICampaignAnnouncement[]> => {
-    const { data } = await api.get(`${ENDPOINT}/campaign/${campaignId}`);
+    params?: { page?: number; size?: number },
+  ): Promise<IPaginatedApiResponse<ICampaignAnnouncement>> => {
+    const { data } = await api.get(`${ENDPOINT}/campaign/${campaignId}`, {
+      params,
+    });
 
     return data;
   },

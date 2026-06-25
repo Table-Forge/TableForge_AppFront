@@ -72,10 +72,18 @@ export default function CampaignDetails() {
     isRefetching: isRefetchingJoinRequests,
   } = useJoinRequests({ campaignId });
   const {
-    data: announcements = [],
+    data: announcementsData,
+    fetchNextPage: fetchNextAnnouncementsPage,
+    hasNextPage: hasNextAnnouncementsPage,
+    isFetchingNextPage: isFetchingNextAnnouncementsPage,
     refetch: refetchAnnouncements,
     isRefetching: isRefetchingAnnouncements,
   } = useCampaignAnnouncements({ campaignId });
+
+  const announcements = useMemo(
+    () => announcementsData?.pages.flatMap((page) => page.items) ?? [],
+    [announcementsData],
+  );
   const {
     data: sessionsResponse,
     refetch: refetchSessions,
@@ -305,6 +313,9 @@ export default function CampaignDetails() {
                         params: { campaignId },
                       } as any)
                     }
+                    hasNextPage={hasNextAnnouncementsPage}
+                    isFetchingNextPage={isFetchingNextAnnouncementsPage}
+                    onFetchNextPage={fetchNextAnnouncementsPage}
                   />
                 ),
               },

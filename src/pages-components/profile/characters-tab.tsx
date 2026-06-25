@@ -36,7 +36,7 @@ export const CharactersTab = ({ userId: userIdProp }: IProps = {}) => {
         <View>
           <ThemedText style={styles.sectionTitle}>Personagens</ThemedText>
           <ThemedText style={styles.counterText}>
-            {characters.length}/{characters.length}
+            {isCurrentUser ? `${characters.length}/${characters.length}` : `${characters.length}`}
           </ThemedText>
         </View>
 

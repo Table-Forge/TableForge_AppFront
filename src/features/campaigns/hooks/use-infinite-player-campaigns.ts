@@ -8,6 +8,7 @@ interface IUseInfinitePlayerCampaignsParams {
   size?: number;
   search?: string;
   filter?: string[];
+  userId?: number;
   enabled?: boolean;
 }
 
@@ -15,12 +16,13 @@ export function useInfinitePlayerCampaigns({
   size = DEFAULT_LIMIT,
   search = "",
   filter = [],
+  userId,
   enabled = true,
 }: IUseInfinitePlayerCampaignsParams = {}) {
   const normalizedSearch = search.trim();
 
   return useInfiniteQuery({
-    queryKey: [CAMPAIGNS_PLAYER, size, normalizedSearch, filter],
+    queryKey: [CAMPAIGNS_PLAYER, size, normalizedSearch, filter, userId],
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       CampaignService.searchPlayerCampaigns({
@@ -28,6 +30,7 @@ export function useInfinitePlayerCampaigns({
         size,
         search: normalizedSearch || undefined,
         filter: filter.length ? filter : undefined,
+        userId,
       }),
     enabled,
     getNextPageParam: (lastPage) => {

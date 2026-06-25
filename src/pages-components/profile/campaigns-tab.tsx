@@ -3,9 +3,9 @@ import { Button } from "@/src/components/button/button";
 import { CampaignItem } from "@/src/components/campaign-item/campaign-item";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
+import { ICampaignPlayer } from "@/src/features/campaigns/schemas/campaign.schema";
 import {
   CAMPAIGNS_PAGE_SIZE,
-  useInfiniteCampaigns,
 } from "@/src/features/campaigns/hooks/use-infinite-campaigns";
 import { useInfinitePlayerCampaigns } from "@/src/features/campaigns/hooks/use-infinite-player-campaigns";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
@@ -20,24 +20,14 @@ interface IProps {
   userId?: number;
 }
 
+const CAMPAIGN_LIMIT = 2;
+
 export const CampaignsTab = ({ userId: userIdProp }: IProps = {}) => {
   const router = useRouter();
   const { user } = useAuth();
   const currentUserId = user?.id ? Number(user.id) : undefined;
   const targetUserId = userIdProp ?? currentUserId;
   const isCurrentUser = !userIdProp || userIdProp === currentUserId;
-
-  const playerQuery = useInfinitePlayerCampaigns({
-    size: CAMPAIGNS_PAGE_SIZE,
-    filter: ["Creator", "Member"],
-    enabled: isCurrentUser && Boolean(currentUserId),
-  });
-
-  const creatorQuery = useInfiniteCampaigns({
-    size: CAMPAIGNS_PAGE_SIZE,
-    creatorId: targetUserId,
-    enabled: !isCurrentUser && Boolean(targetUserId),
-  });
 
   const {
     data,
@@ -46,14 +36,34 @@ export const CampaignsTab = ({ userId: userIdProp }: IProps = {}) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = isCurrentUser ? playerQuery : creatorQuery;
+  } = useInfinitePlayerCampaigns({
+    size: CAMPAIGNS_PAGE_SIZE,
+    filter: ["Creator", "Member"],
+    userId: targetUserId,
+    enabled: Boolean(targetUserId),
+  });
 
   const campaigns = useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data],
   );
 
-  const filteredItems = data?.pages[0]?.pagination?.filteredItems ?? 0;
+  const { masterCampaigns, playerCampaigns } = useMemo(() => {
+    const master: typeof campaigns = [];
+    const player: typeof campaigns = [];
+
+    campaigns.forEach((item) => {
+      const isCreator = (item as ICampaignPlayer).userRelationship === "Creator";
+
+      if (isCreator) {
+        master.push(item);
+      } else {
+        player.push(item);
+      }
+    });
+
+    return { masterCampaigns: master, playerCampaigns: player };
+  }, [campaigns]);
 
   return (
     <>
@@ -61,7 +71,9 @@ export const CampaignsTab = ({ userId: userIdProp }: IProps = {}) => {
         <View>
           <ThemedText style={styles.sectionTitle}>Campanhas</ThemedText>
           <ThemedText style={styles.counterText}>
-            {campaigns.length}/{filteredItems}
+            {isCurrentUser
+              ? `Mestre: ${masterCampaigns.length}/${CAMPAIGN_LIMIT} | Jogador: ${playerCampaigns.length}`
+              : `Mestre: ${masterCampaigns.length} | Jogador: ${playerCampaigns.length}`}
           </ThemedText>
         </View>
 
@@ -85,20 +97,40 @@ export const CampaignsTab = ({ userId: userIdProp }: IProps = {}) => {
         </View>
       ) : campaigns.length ? (
         <View style={styles.listWrapper}>
-          {campaigns.map((item) => (
-            <View key={item.id} style={styles.itemWrapper}>
-              <CampaignItem data={item} />
+          {masterCampaigns.length > 0 && (
+            <View style={styles.sectionGroup}>
+              <ThemedText style={styles.groupTitle}>Como Mestre</ThemedText>
+              {masterCampaigns.map((item) => (
+                <View key={item.id} style={styles.itemWrapper}>
+                  <CampaignItem data={item} />
+                </View>
+              ))}
             </View>
-          ))}
+          )}
+
+          {playerCampaigns.length > 0 && (
+            <View style={[styles.sectionGroup, masterCampaigns.length > 0 && { marginTop: 22 }]}>
+              <ThemedText style={styles.groupTitle}>Como Jogador</ThemedText>
+              {playerCampaigns.map((item) => (
+                <View key={item.id} style={styles.itemWrapper}>
+                  <CampaignItem data={item} />
+                </View>
+              ))}
+            </View>
+          )}
 
           {hasNextPage ? (
-            <Button
-              variant="tertiary"
-              size="sm"
-              text="Carregar mais"
-              onPress={() => fetchNextPage()}
-              isLoading={isFetchingNextPage}
-            />
+            <View style={{ marginTop: 14 }}>
+              <Button
+                variant="tertiary"
+                size="sm"
+                text="Carregar mais"
+                onPress={() => {
+                  fetchNextPage();
+                }}
+                isLoading={isFetchingNextPage}
+              />
+            </View>
           ) : null}
         </View>
       ) : (
@@ -107,8 +139,8 @@ export const CampaignsTab = ({ userId: userIdProp }: IProps = {}) => {
             {isError
               ? "Não foi possível carregar as campanhas."
               : isCurrentUser
-                ? "Você ainda não criou campanhas."
-                : "Esse aventureiro ainda não criou campanhas."}
+                ? "Você ainda não tem campanhas."
+                : "Esse aventureiro ainda não tem campanhas."}
           </ThemedText>
         </View>
       )}
@@ -154,5 +186,16 @@ export const styles = StyleSheet.create({
   feedbackText: {
     color: DEFAULT_COLORS.textMuted,
     textAlign: "center",
+  },
+  sectionGroup: {
+    width: "100%",
+  },
+  groupTitle: {
+    fontSize: 12,
+    color: DEFAULT_COLORS.purpleBright,
+    ...fonts.bold,
+    marginBottom: 10,
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
   },
 });

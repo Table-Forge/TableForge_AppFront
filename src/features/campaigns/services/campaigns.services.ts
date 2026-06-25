@@ -20,6 +20,7 @@ type IGetCampaignsParams = IGetPaginatedParams & {
 
 type IPlayerSearchParams = IGetPaginatedParams & {
   filter?: string[];
+  userId?: number;
 };
 
 export const CampaignService = {
@@ -62,10 +63,11 @@ export const CampaignService = {
     size = 20,
     search,
     filter,
+    userId,
   }: IPlayerSearchParams = {}): Promise<IPaginatedApiResponse<ICampaignPlayer>> => {
     const { data } = await api.post(
       `${ENDPOINT}/player/search`,
-      { search, filter },
+      { search, filter, userId },
       { params: { page, size } },
     );
 

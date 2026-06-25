@@ -151,7 +151,7 @@ export default function Profile() {
             </Pressable>
 
             <View style={styles.profileInfo}>
-              <ThemedText style={styles.profileEyebrow}>Aventureiro</ThemedText>
+              <ThemedText style={styles.profileEyebrow}>Meu Perfil</ThemedText>
               <ThemedText style={styles.profileNickname}>
                 {data?.nickname}
               </ThemedText>

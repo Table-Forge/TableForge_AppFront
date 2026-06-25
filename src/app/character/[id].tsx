@@ -173,15 +173,10 @@ export default function CharacterScreen() {
               </View>
               <View style={styles.ownerInfo}>
                 <ThemedText weight="bold" style={styles.ownerName}>
-                  {owner?.nickname ||
+                  {owner?.username ||
                     data.userUsername ||
                     `Usuário ${data.userId}`}
                 </ThemedText>
-                {(owner?.username || data.userUsername) && (
-                  <ThemedText style={styles.ownerUsername}>
-                    @{owner?.username || data.userUsername}
-                  </ThemedText>
-                )}
               </View>
               <Ionicons
                 name="chevron-forward"

@@ -202,10 +202,12 @@ export default function PublicUserProfileScreen() {
             </View>
 
             <View style={styles.profileInfo}>
-              <ThemedText style={styles.profileEyebrow}>Aventureiro</ThemedText>
-              <ThemedText style={styles.profileNickname}>
-                {user.nickname}
-              </ThemedText>
+              <ThemedText style={styles.profileEyebrow}>Perfil</ThemedText>
+              {!!user.nickname && (
+                <ThemedText style={styles.profileNickname}>
+                  {user.nickname}
+                </ThemedText>
+              )}
               <ThemedText style={styles.profileUsername}>
                 @{user.username}
               </ThemedText>
@@ -304,7 +306,7 @@ const FriendshipActions = ({
               color={DEFAULT_COLORS.danger}
             />
           }
-          onPress={() => {}}
+          onPress={() => { }}
         />
       </View>
 

@@ -289,110 +289,108 @@ const FriendshipActions = ({
 
   return (
     <View style={styles.actionsWrapper}>
-      <View style={styles.actionsRow}>
-        {isAccepted && (
-          <ActionButton
-            variant="circle"
-            icon={<Mail size={20} color={DEFAULT_COLORS.purpleBright} />}
-            onPress={onMessagePress}
-          />
-        )}
-        <ActionButton
-          variant="circle"
-          icon={
-            <MaterialDesignIcons
-              name="block-helper"
-              size={20}
-              color={DEFAULT_COLORS.danger}
+      {isLoadingFriendship ? (
+        <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
+      ) : (
+        <>
+          {canSendRequest && (
+            <FriendshipPill
+              loading={isMutating}
+              onPress={onSendRequest}
+              icon={
+                <Ionicons
+                  name="person-add"
+                  size={15}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              label="Adicionar amigo"
+              active
             />
-          }
-          onPress={() => { }}
-        />
-      </View>
+          )}
 
-      <View style={styles.friendshipRow}>
-        {isLoadingFriendship ? (
-          <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
-        ) : (
-          <>
-            {canSendRequest && (
+          {isPending && isRequester && (
+            <FriendshipPill
+              loading={isMutating}
+              onPress={onRemove}
+              icon={
+                <Ionicons
+                  name="time-outline"
+                  size={15}
+                  color={DEFAULT_COLORS.white}
+                />
+              }
+              label="Cancelar solicitação"
+            />
+          )}
+
+          {isPending && !isRequester && (
+            <>
               <FriendshipPill
                 loading={isMutating}
-                onPress={onSendRequest}
+                onPress={onAccept}
                 icon={
                   <Ionicons
-                    name="person-add"
-                    size={18}
+                    name="checkmark"
+                    size={15}
                     color={DEFAULT_COLORS.white}
                   />
                 }
-                label="Adicionar amigo"
+                label="Aceitar"
                 active
               />
-            )}
-
-            {isPending && isRequester && (
               <FriendshipPill
                 loading={isMutating}
-                onPress={onRemove}
+                onPress={onDecline}
                 icon={
                   <Ionicons
-                    name="time-outline"
-                    size={18}
+                    name="close"
+                    size={15}
                     color={DEFAULT_COLORS.white}
                   />
                 }
-                label="Cancelar solicitação"
+                label="Recusar"
               />
-            )}
+            </>
+          )}
 
-            {isPending && !isRequester && (
-              <>
-                <FriendshipPill
-                  loading={isMutating}
-                  onPress={onAccept}
-                  icon={
-                    <Ionicons
-                      name="checkmark"
-                      size={18}
-                      color={DEFAULT_COLORS.white}
-                    />
-                  }
-                  label="Aceitar"
-                  active
-                />
-                <FriendshipPill
-                  loading={isMutating}
-                  onPress={onDecline}
-                  icon={
-                    <Ionicons
-                      name="close"
-                      size={18}
-                      color={DEFAULT_COLORS.white}
-                    />
-                  }
-                  label="Recusar"
-                />
-              </>
-            )}
-
-            {isAccepted && (
+          {isAccepted && (
+            <>
               <FriendshipPill
                 loading={isMutating}
                 onPress={onRemove}
                 icon={
                   <Ionicons
                     name="person-remove"
-                    size={18}
+                    size={15}
                     color={DEFAULT_COLORS.white}
                   />
                 }
                 label="Desfazer amizade"
               />
-            )}
-          </>
-        )}
-      </View>
+              <ActionButton
+                variant="circle"
+                style={styles.smallActionButton}
+                icon={<Mail size={16} color={DEFAULT_COLORS.purpleBright} />}
+                onPress={onMessagePress}
+              />
+            </>
+          )}
+
+          <ActionButton
+            variant="circle"
+            style={styles.smallActionButton}
+            icon={
+              <MaterialDesignIcons
+                name="block-helper"
+                size={16}
+                color={DEFAULT_COLORS.danger}
+              />
+            }
+            onPress={() => { }}
+          />
+        </>
+      )}
     </View>
   );
 };
@@ -527,34 +525,30 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.textMuted,
   },
   actionsWrapper: {
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 22,
-  },
-  actionsRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 12,
-  },
-  friendshipRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     flexWrap: "wrap",
     gap: 8,
-    minHeight: 44,
+    marginBottom: 22,
+    width: "100%",
+  },
+  smallActionButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
   },
   friendshipPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: RADII.pill,
     borderWidth: 1,
     borderColor: BORDERS.highlight,
     backgroundColor: SURFACES.fill,
+    height: 38,
   },
   friendshipPillActive: {
     borderColor: BORDERS.cta,
@@ -564,18 +558,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: RADII.pill,
     borderWidth: 1,
     borderColor: BORDERS.highlight,
     backgroundColor: SURFACES.fill,
-    minWidth: 120,
-    minHeight: 44,
+    minWidth: 100,
+    height: 38,
   },
   friendshipPillLabel: {
     color: DEFAULT_COLORS.white,
-    fontSize: 12,
+    fontSize: 11,
     letterSpacing: 0.5,
   },
 });

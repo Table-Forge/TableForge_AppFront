@@ -288,11 +288,13 @@ const FriendshipActions = ({
   return (
     <View style={styles.actionsWrapper}>
       <View style={styles.actionsRow}>
-        <ActionButton
-          variant="circle"
-          icon={<Mail size={20} color={DEFAULT_COLORS.purpleBright} />}
-          onPress={onMessagePress}
-        />
+        {isAccepted && (
+          <ActionButton
+            variant="circle"
+            icon={<Mail size={20} color={DEFAULT_COLORS.purpleBright} />}
+            onPress={onMessagePress}
+          />
+        )}
         <ActionButton
           variant="circle"
           icon={

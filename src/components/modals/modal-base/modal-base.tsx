@@ -25,6 +25,7 @@ interface GenericModalProps {
   confirmVariant?: "primary" | "tertiary" | "tertiary";
   showFooter?: boolean;
   animationType?: ModalProps["animationType"];
+  eyebrow?: string;
 }
 
 export const ModalBase = ({
@@ -39,6 +40,7 @@ export const ModalBase = ({
   confirmVariant = "tertiary",
   showFooter = true,
   animationType = "fade",
+  eyebrow = "Confirmação",
 }: GenericModalProps) => {
   return (
     <Modal
@@ -52,7 +54,7 @@ export const ModalBase = ({
           onPress={(e) => e.stopPropagation()}
           style={styles.container}
         >
-          <Text style={styles.eyebrow}>Confirmação</Text>
+          <Text style={styles.eyebrow}>{eyebrow}</Text>
           <Text style={styles.title}>{title}</Text>
 
           {description && <Text style={styles.message}>{description}</Text>}

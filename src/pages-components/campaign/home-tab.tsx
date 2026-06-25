@@ -1,11 +1,12 @@
-import React from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import Fontisto from "react-native-vector-icons/Fontisto";
 
 import { Button } from "@/src/components/button/button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
 import { ICampaignAnnouncement } from "@/src/features/campaign-announcements/schemas/campaign-announcement.schema";
 import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
 import { TOptions } from "@/src/interfaces";
@@ -38,6 +39,8 @@ export function HomeTab({
   isFetchingNextPage,
   onFetchNextPage,
 }: HomeTabProps) {
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<ICampaignAnnouncement | null>(null);
+
   const difficultyLabel =
     difficultyLevelEnum.find((opt) => opt.value === campaign.difficulty)
       ?.name || "-";
@@ -99,11 +102,18 @@ export function HomeTab({
           />
           {announcements.length ? (
             announcements.map((announcement) => (
-              <InlineItem
+              <Pressable
                 key={announcement.id}
-                title={announcement.title}
-                description={announcement.content}
-              />
+                onPress={() => setSelectedAnnouncement(announcement)}
+                style={({ pressed }) => [
+                  pressed && { opacity: 0.7 },
+                ]}
+              >
+                <InlineItem
+                  title={announcement.title}
+                  description={announcement.content}
+                />
+              </Pressable>
             ))
           ) : (
             <EmptyText text="Nenhum anúncio publicado." />
@@ -121,6 +131,16 @@ export function HomeTab({
           )}
         </View>
       )}
+
+      <ModalBase
+        visible={!!selectedAnnouncement}
+        onClose={() => setSelectedAnnouncement(null)}
+        title={selectedAnnouncement?.title ?? ""}
+        description={selectedAnnouncement?.content ?? ""}
+        eyebrow="Comunicado"
+        cancelText="Fechar"
+        showFooter={true}
+      />
     </>
   );
 }

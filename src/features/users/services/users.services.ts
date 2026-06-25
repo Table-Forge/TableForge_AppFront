@@ -27,7 +27,7 @@ export const UserService = {
   },
 
   create: async (params: Partial<IUser>) => {
-    const { data } = await api.post(`${ENDPOINT}`, params);
+    const { data } = await api.post(`${ENDPOINT}/register`, params);
     return data;
   },
 

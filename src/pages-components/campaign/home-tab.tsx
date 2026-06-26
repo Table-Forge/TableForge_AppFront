@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import Fontisto from "react-native-vector-icons/Fontisto";
@@ -25,6 +26,7 @@ interface HomeTabProps {
   difficultyLevelEnum: TOptions[];
   isMaster: boolean;
   onCreateAnnouncement: () => void;
+  onDeleteAnnouncement: (announcement: ICampaignAnnouncement) => void;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   onFetchNextPage?: () => void;
@@ -37,11 +39,26 @@ export function HomeTab({
   difficultyLevelEnum,
   isMaster,
   onCreateAnnouncement,
+  onDeleteAnnouncement,
   hasNextPage,
   isFetchingNextPage,
   onFetchNextPage,
 }: HomeTabProps) {
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<ICampaignAnnouncement | null>(null);
+
+  const renderRightActions = (announcement: ICampaignAnnouncement) => {
+    return (
+      <View style={styles.swipeActionsContainer}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={[styles.swipeActionBtn, styles.deleteActionBtn]}
+          onPress={() => onDeleteAnnouncement(announcement)}
+        >
+          <FontAwesome5 name="trash" size={16} color={DEFAULT_COLORS.white} />
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const difficultyLabel =
     difficultyLevelEnum.find((opt) => opt.value === campaign.difficulty)
@@ -103,21 +120,41 @@ export function HomeTab({
             onActionPress={isMaster ? onCreateAnnouncement : undefined}
           />
           {announcements.length ? (
-            announcements.map((announcement) => (
-              <Pressable
-                key={announcement.id}
-                onPress={() => setSelectedAnnouncement(announcement)}
-                style={({ pressed }) => [
-                  pressed && { opacity: 0.95, transform: [{ scale: 0.99 }] },
-                ]}
-              >
-                <AnnouncementCard
-                  title={announcement.title}
-                  content={announcement.content}
-                  date={announcement.date}
-                />
-              </Pressable>
-            ))
+            announcements.map((announcement) => {
+              const card = (
+                <Pressable
+                  onPress={() => setSelectedAnnouncement(announcement)}
+                  style={({ pressed }) => [
+                    pressed && { opacity: 0.95, transform: [{ scale: 0.99 }] },
+                  ]}
+                >
+                  <AnnouncementCard
+                    title={announcement.title}
+                    content={announcement.content}
+                    date={announcement.date}
+                    style={isMaster && styles.announcementCardNormal}
+                  />
+                </Pressable>
+              );
+
+              if (isMaster) {
+                return (
+                  <Swipeable
+                    key={announcement.id}
+                    renderRightActions={() => renderRightActions(announcement)}
+                    containerStyle={styles.swipeContainer}
+                  >
+                    {card}
+                  </Swipeable>
+                );
+              }
+
+              return (
+                <View key={announcement.id} style={{ marginBottom: 12 }}>
+                  {card}
+                </View>
+              );
+            })
           ) : (
             <EmptyText text="Nenhum anúncio publicado." />
           )}
@@ -184,14 +221,16 @@ const AnnouncementCard = ({
   title,
   content,
   date,
+  style,
 }: {
   title: string;
   content: string;
   date: string;
+  style?: any;
 }) => {
   const formattedDate = formatDate(date, true);
   return (
-    <View style={styles.announcementCard}>
+    <View style={[styles.announcementCard, style]}>
       <View style={styles.announcementHeader}>
         <View style={styles.announcementBadge}>
           <FontAwesome5 name="bullhorn" size={10} color={DEFAULT_COLORS.purpleBright} />
@@ -377,5 +416,26 @@ const styles = StyleSheet.create({
   loadMoreContainer: {
     marginTop: 12,
     alignItems: "center",
+  },
+  swipeContainer: {
+    marginBottom: 12,
+  },
+  swipeActionsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: "100%",
+  },
+  swipeActionBtn: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 60,
+    height: "100%",
+    borderRadius: RADII.md,
+  },
+  deleteActionBtn: {
+    backgroundColor: "#ef4444",
+  },
+  announcementCardNormal: {
+    marginBottom: 0,
   },
 });

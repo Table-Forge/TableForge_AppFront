@@ -21,6 +21,8 @@ import { Tabs } from "@/src/components/tabs/tabs";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
 import { useCampaignAnnouncements } from "@/src/features/campaign-announcements/hooks/use-campaign-announcements";
+import { useCampaignAnnouncementsMutation } from "@/src/features/campaign-announcements/hooks/use-campaign-announcements-mutations";
+import { ICampaignAnnouncement } from "@/src/features/campaign-announcements/schemas/campaign-announcement.schema";
 import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-campaign-members";
 import { useCampaignSessions } from "@/src/features/campaign-sessions/hooks/use-campaign-sessions";
 import { useCampaignSessionsMutation } from "@/src/features/campaign-sessions/hooks/use-campaign-sessions-mutations";
@@ -106,10 +108,13 @@ export default function CampaignDetails() {
     useJoinRequestsMutation(campaignId);
 
   const { deleteCampaignSessionMutation, isDeletingCampaignSession } = useCampaignSessionsMutation();
+  const { deleteCampaignAnnouncementMutation, isDeletingCampaignAnnouncement } = useCampaignAnnouncementsMutation(campaignId);
 
   const [activeTab, setActiveTab] = useState<TabType>("Início");
   const [sessionToDelete, setSessionToDelete] =
     useState<ICampaignSessionList | null>(null);
+  const [announcementToDelete, setAnnouncementToDelete] =
+    useState<ICampaignAnnouncement | null>(null);
 
   const currentUserId = user?.id;
   const currentMember = useMemo(
@@ -175,6 +180,17 @@ export default function CampaignDetails() {
       try {
         await deleteCampaignSessionMutation.mutateAsync(sessionToDelete.id);
         setSessionToDelete(null);
+      } catch {
+        // Silently ignore or handle error
+      }
+    }
+  };
+
+  const handleDeleteAnnouncementConfirm = async () => {
+    if (announcementToDelete) {
+      try {
+        await deleteCampaignAnnouncementMutation.mutateAsync(announcementToDelete.id);
+        setAnnouncementToDelete(null);
       } catch {
         // Silently ignore or handle error
       }
@@ -316,6 +332,7 @@ export default function CampaignDetails() {
                         params: { campaignId },
                       } as any)
                     }
+                    onDeleteAnnouncement={setAnnouncementToDelete}
                     hasNextPage={hasNextAnnouncementsPage}
                     isFetchingNextPage={isFetchingNextAnnouncementsPage}
                     onFetchNextPage={fetchNextAnnouncementsPage}
@@ -432,6 +449,16 @@ export default function CampaignDetails() {
         confirmText="Excluir"
         onConfirm={handleDeleteSessionConfirm}
         isLoading={isDeletingCampaignSession}
+      />
+
+      <ModalBase
+        visible={!!announcementToDelete}
+        onClose={() => setAnnouncementToDelete(null)}
+        title="Excluir Comunicado"
+        description={`Tem certeza que deseja excluir o comunicado "${announcementToDelete?.title}"?`}
+        confirmText="Excluir"
+        onConfirm={handleDeleteAnnouncementConfirm}
+        isLoading={isDeletingCampaignAnnouncement}
       />
     </Screen>
   );

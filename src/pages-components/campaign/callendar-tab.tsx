@@ -205,6 +205,7 @@ const CalendarWidget = ({
         dateKey,
         isBeforeToday: date.isBefore(today, "day"),
         isCurrentMonth: date.month() === visibleMonth.month(),
+        isToday: date.isSame(today, "day"),
         sessions: sessionsByDate[dateKey] ?? [],
       };
     });
@@ -262,6 +263,7 @@ const CalendarWidget = ({
                 dateKey,
                 isBeforeToday,
                 isCurrentMonth,
+                isToday,
                 sessions: daySessions,
               }) => {
               const hasSession = daySessions.length > 0;
@@ -277,6 +279,7 @@ const CalendarWidget = ({
                     !isCurrentMonth && styles.otherMonthCell,
                     isBeforeToday && styles.pastDayCell,
                     hasSession && styles.dayWithSessionCell,
+                    isToday && styles.todayCell,
                   ]}
                   onPress={() => onSelectDate(date, daySessions)}
                 >
@@ -521,7 +524,11 @@ const styles = StyleSheet.create({
   dayWithSessionCell: {
     backgroundColor: DEFAULT_COLORS.orangeGlow_25,
     borderWidth: 1,
-    borderColor: DEFAULT_COLORS.orange,
+    borderColor: DEFAULT_COLORS.orangeBorder_45,
+  },
+  todayCell: {
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.purpleBright,
   },
   dayText: {
     fontSize: 13,

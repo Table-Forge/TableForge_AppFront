@@ -17,7 +17,12 @@ export const CampaignSessionCreateSchema = z.object({
   date: z.string().trim().min(1, "A data é obrigatória."),
   title: z.string().trim().min(1, "O título é obrigatório."),
   location: z.string().trim().min(1, "O local é obrigatório."),
-  link: z.string().optional(),
+  link: z
+    .string()
+    .trim()
+    .url("O link deve ser uma URL válida.")
+    .or(z.literal(""))
+    .optional(),
 });
 
 export type ICampaignSession = z.infer<typeof CampaignSessionSchema>;

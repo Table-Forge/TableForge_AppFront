@@ -330,14 +330,14 @@ const SessionItem = ({
           style={[styles.swipeActionBtn, styles.editActionBtn]}
           onPress={onEditSession}
         >
-          <FontAwesome5 name="pen" size={16} color={DEFAULT_COLORS.white} />
+          <FontAwesome5 name="pen" size={14} color={DEFAULT_COLORS.white} />
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.swipeActionBtn, styles.deleteActionBtn]}
           onPress={() => onDeleteSession(session)}
         >
-          <FontAwesome5 name="trash" size={16} color={DEFAULT_COLORS.white} />
+          <FontAwesome5 name="trash" size={14} color={DEFAULT_COLORS.white} />
         </TouchableOpacity>
       </View>
     );
@@ -569,13 +569,16 @@ const styles = StyleSheet.create({
   swipeActionsContainer: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 8,
     height: "100%",
   },
   swipeActionBtn: {
     justifyContent: "center",
     alignItems: "center",
-    width: 60,
-    height: "100%",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   editActionBtn: {
     backgroundColor: DEFAULT_COLORS.purpleBright,

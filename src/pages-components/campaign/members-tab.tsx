@@ -1,5 +1,4 @@
 import { Pressable, StyleSheet, TouchableOpacity, View, ScrollView } from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 import { Button } from "@/src/components/button/button";
@@ -42,18 +41,6 @@ export function MembersTab({
 }: MembersTabProps) {
   const players = members.filter(m => m.role !== 'Master');
 
-  const renderRightActions = (member: ICampaignMember) => (
-    <View style={styles.swipeActionsContainer}>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        style={[styles.swipeActionBtn, styles.deleteActionBtn]}
-        onPress={() => onRemoveMember(member)}
-      >
-        <FontAwesome5 name="user-minus" size={16} color={DEFAULT_COLORS.white} />
-      </TouchableOpacity>
-    </View>
-  );
-
   return (
     <>
       {canSeePrivateModules ? (
@@ -72,20 +59,21 @@ export function MembersTab({
             isMaster ? (
               <View style={styles.membersVerticalContainer}>
                 {players.map((member) => (
-                  <Swipeable
-                    key={member.id}
-                    renderRightActions={() => renderRightActions(member)}
-                    containerStyle={styles.swipeContainer}
-                  >
-                    <View style={styles.memberSwipeCard}>
-                      <CharacterItem
-                        data={getMemberCharacter(member, characters)}
-                        cardColor={DEFAULT_COLORS.cardImageDark}
-                        disabled={!member.characterId}
-                        showOwner
-                      />
-                    </View>
-                  </Swipeable>
+                  <View key={member.id} style={styles.memberCard}>
+                    <CharacterItem
+                      data={getMemberCharacter(member, characters)}
+                      cardColor={DEFAULT_COLORS.cardImageDark}
+                      disabled={!member.characterId}
+                      showOwner
+                    />
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      style={styles.removeBtn}
+                      onPress={() => onRemoveMember(member)}
+                    >
+                      <FontAwesome5 name="user-minus" size={12} color={DEFAULT_COLORS.white} />
+                    </TouchableOpacity>
+                  </View>
                 ))}
               </View>
             ) : (
@@ -251,29 +239,19 @@ const styles = StyleSheet.create({
   membersVerticalContainer: {
     gap: 8,
   },
-  memberSwipeCard: {
-    backgroundColor: SURFACES.fill,
-    borderRadius: RADII.md,
-    padding: 4,
+  memberCard: {
+    position: "relative",
   },
-  swipeContainer: {
-    borderRadius: RADII.md,
-    overflow: "hidden",
-  },
-  swipeActionsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: "100%",
-  },
-  swipeActionBtn: {
+  removeBtn: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(239, 68, 68, 0.85)",
     justifyContent: "center",
     alignItems: "center",
-    width: 60,
-    height: "100%",
-    borderRadius: RADII.md,
-  },
-  deleteActionBtn: {
-    backgroundColor: "#ef4444",
   },
   inlineItem: {
     paddingVertical: 12,

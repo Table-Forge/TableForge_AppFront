@@ -54,7 +54,7 @@ export function HomeTab({
           style={[styles.swipeActionBtn, styles.deleteActionBtn]}
           onPress={() => onDeleteAnnouncement(announcement)}
         >
-          <FontAwesome5 name="trash" size={16} color={DEFAULT_COLORS.white} />
+          <FontAwesome5 name="trash" size={14} color={DEFAULT_COLORS.white} />
         </TouchableOpacity>
       </View>
     );
@@ -423,14 +423,16 @@ const styles = StyleSheet.create({
   swipeActionsContainer: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 8,
     height: "100%",
   },
   swipeActionBtn: {
     justifyContent: "center",
     alignItems: "center",
-    width: 60,
-    height: "100%",
-    borderRadius: RADII.md,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   deleteActionBtn: {
     backgroundColor: "#ef4444",

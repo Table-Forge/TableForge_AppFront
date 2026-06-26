@@ -83,17 +83,15 @@ export default function PublicUserProfileScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    
-    // We can't call refetch() from useUser easily since we didn't extract it, 
-    // so we'll just invalidate the USERS query.
+
     await queryClient.invalidateQueries({ queryKey: ["USERS", userId] });
-    
+
     if (activeTab === "Personagens") {
       await queryClient.invalidateQueries({ queryKey: ["CHARACTERS"] });
     } else if (activeTab === "Campanhas") {
       await queryClient.invalidateQueries({ queryKey: ["CAMPAIGNS"] });
     }
-    
+
     setRefreshing(false);
   };
 
@@ -207,8 +205,8 @@ export default function PublicUserProfileScreen() {
           </HeaderActions>
         </Screen.Header>
 
-        <Screen.Body 
-          scroll 
+        <Screen.Body
+          scroll
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl

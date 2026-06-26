@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { KnightHeadIcon } from "@/src/components/icons";
@@ -51,9 +52,18 @@ export default function Profile() {
   });
   const currentAvatar = avatarPreview ?? data?.avatarUrl;
 
+  const queryClient = useQueryClient();
+
   const onRefresh = async () => {
     setRefreshing(true);
     await refetch();
+    
+    if (activeTab === "Personagens") {
+      await queryClient.invalidateQueries({ queryKey: ["CHARACTERS"] });
+    } else if (activeTab === "Campanhas") {
+      await queryClient.invalidateQueries({ queryKey: ["CAMPAIGNS"] });
+    }
+    
     setRefreshing(false);
   };
 

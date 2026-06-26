@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
@@ -8,6 +9,7 @@ import {
   Pressable,
   StyleSheet,
   View,
+  RefreshControl,
 } from "react-native";
 import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
 import { Mail } from "lucide-react-native";
@@ -75,6 +77,25 @@ export default function PublicUserProfileScreen() {
     currentUser?.nickname || currentUser?.username || "Aventureiro";
   const accepterName =
     currentUser?.nickname || currentUser?.username || "Aventureiro";
+
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    
+    // We can't call refetch() from useUser easily since we didn't extract it, 
+    // so we'll just invalidate the USERS query.
+    await queryClient.invalidateQueries({ queryKey: ["USERS", userId] });
+    
+    if (activeTab === "Personagens") {
+      await queryClient.invalidateQueries({ queryKey: ["CHARACTERS"] });
+    } else if (activeTab === "Campanhas") {
+      await queryClient.invalidateQueries({ queryKey: ["CAMPAIGNS"] });
+    }
+    
+    setRefreshing(false);
+  };
 
   const handleSendRequest = () => {
     if (!currentUserId || !user) return;
@@ -145,7 +166,7 @@ export default function PublicUserProfileScreen() {
     );
   };
 
-  if (isPending) {
+  if (isPending && !refreshing) {
     return (
       <Screen style={styles.centerContainer}>
         <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
@@ -186,7 +207,18 @@ export default function PublicUserProfileScreen() {
           </HeaderActions>
         </Screen.Header>
 
-        <Screen.Body scroll showsVerticalScrollIndicator={false}>
+        <Screen.Body 
+          scroll 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={DEFAULT_COLORS.purpleBright}
+              colors={[DEFAULT_COLORS.purpleBright]}
+            />
+          }
+        >
           <View style={styles.contentBody}>
             <View style={styles.avatarContainer}>
               {user.avatarUrl ? (

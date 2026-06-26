@@ -169,6 +169,7 @@ export default function CreateCampaignSessionScreen() {
                 name="dateOnly"
                 label="Data"
                 placeholder="Selecione a data"
+                minDate={new Date()}
               />
 
               <ControlledTimeInput

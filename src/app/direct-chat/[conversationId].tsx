@@ -71,6 +71,9 @@ export default function DirectChatScreen() {
           if (!oldData) return oldData;
           const newPages = [...oldData.pages];
           if (newPages.length > 0) {
+            const exists = newPages.some(page => page.items.some((m: IConversationMessage) => m.id === messageDto.id));
+            if (exists) return oldData;
+
             newPages[0] = {
               ...newPages[0],
               items: [messageDto, ...newPages[0].items],
@@ -79,7 +82,6 @@ export default function DirectChatScreen() {
           return { ...oldData, pages: newPages };
         }
       );
-      // Auto mark as read when viewing the chat
       markAsRead(parsedConversationId);
     };
 

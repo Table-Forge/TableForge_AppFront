@@ -56,6 +56,9 @@ export default function CampaignChatScreen() {
     const receiveMsg = (campaignMessageDto: IChatMessage) => {
       queryClient.setQueryData(CHAT_MESSAGE_KEYS.byCampaign(parsedCampaignId), (oldData: any) => {
         if (!oldData) return oldData;
+        const exists = oldData.items.some((m: IChatMessage) => m.id === campaignMessageDto.id);
+        if (exists) return oldData;
+        
         return {
           ...oldData,
           items: [campaignMessageDto, ...oldData.items],

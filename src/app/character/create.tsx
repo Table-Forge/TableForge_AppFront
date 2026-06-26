@@ -1,12 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Ionicons } from "@expo/vector-icons";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   useLocalSearchParams,
   useRouter,
 } from "expo-router";
 import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import { useEffect, useRef } from "react";
+import Toast from "react-native-toast-message";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
@@ -25,14 +27,30 @@ import { useCharactersMutation } from "@/src/features/characters/hooks/use-chara
 import {
   CharacterCreateSchema,
   ICharacterCreate,
-  ICharacterCreateInput,
 } from "@/src/features/characters/schemas/character.schema";
 import { useClassesSelect } from "@/src/features/classes/hooks/use-classes-select";
+import { useImagesMutation } from "@/src/features/images/hooks/use-images-mutations";
 import { useRacesSelect } from "@/src/features/races/hooks/use-races-select";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, SURFACES } from "@/src/theme/tokens";
+
+const CharacterCreateFormSchema = CharacterCreateSchema.extend({
+  image: z
+    .object({
+      uri: z.string(),
+      file: z.object({
+        uri: z.string(),
+        name: z.string(),
+        type: z.string(),
+      }),
+    })
+    .optional(),
+});
+
+type ICharacterCreateFormInput = z.input<typeof CharacterCreateFormSchema>;
+type ICharacterCreateForm = z.output<typeof CharacterCreateFormSchema>;
 
 export default function CreateCharacterScreen() {
   const { user } = useAuth();
@@ -46,6 +64,7 @@ export default function CreateCharacterScreen() {
     isCreatingCharacter,
     isUpdatingCharacter,
   } = useCharactersMutation();
+  const { createImageMutation, isCreatingImage } = useImagesMutation();
   const { classOptions, isLoadingClassesSelect } = useClassesSelect();
   const { raceOptions, isLoadingRacesSelect } = useRacesSelect();
 
@@ -54,15 +73,16 @@ export default function CreateCharacterScreen() {
   const { data: existingCharacter, isPending: isLoadingExisting } =
     useCharacter(editingId);
 
-  const hookForm = useForm<ICharacterCreateInput, unknown, ICharacterCreate>({
-    resolver: zodResolver(CharacterCreateSchema),
+  const hookForm = useForm<ICharacterCreateFormInput, unknown, ICharacterCreateForm>({
+    resolver: zodResolver(CharacterCreateFormSchema),
     defaultValues: {
       name: "",
-      classId: "",
-      raceId: "",
+      classId: 0,
+      raceId: 0,
       alignment: "",
       bio: "",
       imageUrl: "",
+      image: undefined,
       userId: user?.id ?? 0,
     },
   });
@@ -84,22 +104,59 @@ export default function CreateCharacterScreen() {
       alignment: existingCharacter.alignment ?? "",
       bio: existingCharacter.bio ?? "",
       imageUrl: existingCharacter.imageUrl ?? "",
+      image: undefined,
       userId: existingCharacter.userId,
     });
   }, [existingCharacter, isEditMode, reset]);
 
-  const isSubmitting = isCreatingCharacter || isUpdatingCharacter;
+  const isSubmitting = isCreatingCharacter || isUpdatingCharacter || isCreatingImage;
 
-  const onSubmit: SubmitHandler<ICharacterCreate> = (data) => {
+  const onSubmit: SubmitHandler<ICharacterCreateForm> = async ({ image, ...data }) => {
+    let finalImageUrl = data.imageUrl;
+
+    if (image?.file) {
+      try {
+        const imageResponse = await createImageMutation.mutateAsync({
+          type: "CharacterAvatar",
+          name: `${data.name || "personagem"}-avatar`,
+          file: image.file,
+        });
+        
+        const uploadedUrl = getImageUrlFromResponse(imageResponse);
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
+        } else {
+          Toast.show({
+            type: "error",
+            text1: "Erro na imagem",
+            text2: "Não foi possível resgatar o endereço da imagem salva.",
+          });
+          return;
+        }
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Erro ao enviar avatar",
+          text2: "Não foi possível salvar a imagem do personagem.",
+        });
+        return;
+      }
+    }
+
+    const payload: ICharacterCreate = {
+      ...data,
+      imageUrl: finalImageUrl,
+    };
+
     if (isEditMode && existingCharacter) {
       updateCharacterMutation.mutate(
-        { ...existingCharacter, ...data },
+        { ...existingCharacter, ...payload },
         { onSuccess: () => handleBack() },
       );
       return;
     }
 
-    createCharacterMutation.mutate(data, {
+    createCharacterMutation.mutate(payload, {
       onSuccess: (createdCharacter) => {
         if (returnTo === "campaignJoinRequest" && campaignId) {
           router.replace({
@@ -212,11 +269,14 @@ export default function CreateCharacterScreen() {
                 <Label text="Imagem" />
                 <ControlledImageInput
                   hookForm={hookForm}
-                  name="imageUrl"
+                  name="image"
                   aspect={[3, 4]}
                   height={220}
                   placeholder="Toque para selecionar a imagem"
-                  valueMode="uri"
+                  valueMode="image"
+                  previewValue={existingCharacter?.imageUrl ?? ""}
+                  disabled={isSubmitting || isLoadingExisting}
+                  isLoading={isCreatingImage}
                 />
               </View>
 
@@ -314,3 +374,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 });
+
+function getImageUrlFromResponse(response: unknown): string | undefined {
+  if (typeof response === "string") return response;
+
+  if (response && typeof response === "object" && "url" in response) {
+    const url = (response as { url?: unknown }).url;
+    return typeof url === "string" ? url : undefined;
+  }
+
+  return undefined;
+}

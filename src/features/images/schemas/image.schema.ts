@@ -1,4 +1,4 @@
-export type TImageType = "CampaignBanner" | "UserProfile" | "GameSystem";
+export type TImageType = "CampaignBanner" | "UserProfile" | "GameSystem" | "ChatAttachment" | "CharacterAvatar";
 
 export type IImageFile = {
   uri: string;
@@ -24,4 +24,5 @@ export type ICreateImageResponse =
   | string
   | {
       id?: unknown;
+      url?: string;
     };

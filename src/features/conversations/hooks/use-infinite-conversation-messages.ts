@@ -20,7 +20,7 @@ export const useInfiniteConversationMessages = (
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.pageIndex + 1 : undefined,
+      lastPage.items.length === lastPage.pagination.size ? lastPage.pagination.page + 1 : undefined,
     enabled: !!conversationId,
   });
 };

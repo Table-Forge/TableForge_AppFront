@@ -25,7 +25,7 @@ export const useCampaignBlockedRacesMutation = (campaignId?: number) => {
 
   const deleteCampaignBlockedRaceMutation = useMutation({
     mutationFn: (id: number) => CampaignBlockedRaceService.delete(id),
-    onSuccess: invalidateCampaignBlockedRaces,
+    onSuccess: handleSuccess,
   });
 
   return {

@@ -1,8 +1,10 @@
-import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { Screen } from "@/src/components/screen/screen";
+import { HeaderActions } from "@/src/components/header-actions/header-actions";
+import { ActionButton } from "@/src/components/action-button/action-button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { authTokenStore } from "@/src/features/auth-token-store";
 import { useCreateDirectConversation } from "@/src/features/conversations/hooks/use-create-direct-conversation";
@@ -41,7 +43,23 @@ export default function NewDirectChat() {
 
   return (
     <Screen style={styles.screen}>
-      <Screen.Header title="Selecionar Amigo" canGoBack />
+      <Screen.Header>
+        <HeaderActions>
+          <ActionButton
+            variant="circle"
+            icon={
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={DEFAULT_COLORS.white}
+              />
+            }
+            onPress={() => router.back()}
+          />
+          <ThemedText style={styles.headerTitle}>Selecionar Amigo</ThemedText>
+          <View style={styles.headerSpacer} />
+        </HeaderActions>
+      </Screen.Header>
       <Screen.Body>
         {isLoading ? (
           <ActivityIndicator size="large" color={DEFAULT_COLORS.secondary} style={styles.loader} />
@@ -123,5 +141,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: DEFAULT_COLORS.textMuted,
     marginTop: 40,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: DEFAULT_COLORS.white,
+  },
+  headerSpacer: {
+    width: 45,
   },
 });

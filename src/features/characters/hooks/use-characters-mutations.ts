@@ -30,7 +30,7 @@ export const useCharactersMutation = () => {
   });
 
   const updateCharacterMutation = useMutation({
-    mutationFn: (payload: Partial<ICharacter> & { id: number }) =>
+    mutationFn: (payload: ICharacter) =>
       CharacterService.update(payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CHARACTER_KEYS.all }),
   });

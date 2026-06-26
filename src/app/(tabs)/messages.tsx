@@ -70,7 +70,7 @@ export default function Messages() {
       ? `${summaryCount} chat${summaryCount === 1 ? "" : "s"} ativo${summaryCount === 1 ? "" : "s"}`
       : "Sem conversas ativas";
 
-  const sections = [];
+  const sections: any[] = [];
   
   if (directConversations.length > 0 || isLoadingConv) {
     sections.push({

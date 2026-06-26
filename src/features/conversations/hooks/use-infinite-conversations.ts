@@ -12,6 +12,6 @@ export const useInfiniteConversations = ({ size = CONVERSATIONS_PAGE_SIZE }: { s
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.pageIndex + 1 : undefined,
+      lastPage.items.length === lastPage.pagination.size ? lastPage.pagination.page + 1 : undefined,
   });
 };

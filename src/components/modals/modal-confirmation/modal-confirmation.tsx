@@ -8,6 +8,7 @@ interface IModalConfirmationProps {
   cancelText?: string;
   onClose: () => void;
   onConfirm: () => void;
+  isLoading?: boolean;
 }
 
 export const ModalConfirmation = ({
@@ -18,6 +19,7 @@ export const ModalConfirmation = ({
   cancelText = "Cancelar",
   onClose,
   onConfirm,
+  isLoading,
 }: IModalConfirmationProps) => (
   <ModalBase
     visible={visible}
@@ -27,5 +29,6 @@ export const ModalConfirmation = ({
     cancelText={cancelText}
     onClose={onClose}
     onConfirm={onConfirm}
+    isLoading={isLoading}
   />
 );

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import dayjs from "dayjs";
@@ -314,8 +315,29 @@ const SessionItem = ({
   const sessionDate = dayjs(session.date);
   const sessionPlace = session.link || session.location;
 
-  return (
-    <Pressable onPress={onPress} style={styles.sessionItem}>
+  const renderRightActions = () => {
+    return (
+      <View style={styles.swipeActionsContainer}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={[styles.swipeActionBtn, styles.editActionBtn]}
+          onPress={onEditSession}
+        >
+          <FontAwesome5 name="pen" size={16} color={DEFAULT_COLORS.white} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={[styles.swipeActionBtn, styles.deleteActionBtn]}
+          onPress={() => onDeleteSession(session)}
+        >
+          <FontAwesome5 name="trash" size={16} color={DEFAULT_COLORS.white} />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const content = (
+    <Pressable onPress={onPress} style={[styles.sessionItem, !isMaster && styles.sessionItemNormal]}>
       <View style={styles.sessionSummary}>
         <View style={styles.sessionDateBox}>
           <ThemedText style={styles.sessionDateText}>
@@ -329,34 +351,6 @@ const SessionItem = ({
           <ThemedText style={styles.sessionTitle}>{session.title}</ThemedText>
           <ThemedText style={styles.sessionLocation}>{sessionPlace}</ThemedText>
         </View>
-        {isMaster && (
-          <View style={styles.sessionActionsBox}>
-            <Pressable
-              onPress={(event) => {
-                event.stopPropagation();
-                onDeleteSession(session);
-              }}
-            >
-              <FontAwesome5
-                name="trash"
-                size={16}
-                color={DEFAULT_COLORS.textMutedLight}
-              />
-            </Pressable>
-            <Pressable
-              onPress={(event) => {
-                event.stopPropagation();
-                onEditSession();
-              }}
-            >
-              <FontAwesome5
-                name="pen"
-                size={16}
-                color={DEFAULT_COLORS.textMutedLight}
-              />
-            </Pressable>
-          </View>
-        )}
       </View>
 
       {isExpanded && (
@@ -374,6 +368,19 @@ const SessionItem = ({
       )}
     </Pressable>
   );
+
+  if (isMaster) {
+    return (
+      <Swipeable
+        renderRightActions={renderRightActions}
+        containerStyle={styles.swipeContainer}
+      >
+        {content}
+      </Swipeable>
+    );
+  }
+
+  return content;
 };
 
 const DetailItem = ({ label, value }: { label: string; value: string }) => (
@@ -535,10 +542,35 @@ const styles = StyleSheet.create({
     bottom: 5,
   },
   sessionItem: {
+    paddingVertical: 14,
+    backgroundColor: SURFACES.card,
+  },
+  sessionItemNormal: {
     borderTopWidth: 1,
     borderTopColor: BORDERS.divider,
-    paddingVertical: 14,
     marginTop: 4,
+  },
+  swipeContainer: {
+    borderTopWidth: 1,
+    borderTopColor: BORDERS.divider,
+    marginTop: 4,
+  },
+  swipeActionsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: "100%",
+  },
+  swipeActionBtn: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 60,
+    height: "100%",
+  },
+  editActionBtn: {
+    backgroundColor: DEFAULT_COLORS.purpleBright,
+  },
+  deleteActionBtn: {
+    backgroundColor: "#ef4444",
   },
   sessionSummary: {
     flexDirection: "row",

@@ -14,7 +14,6 @@ import {
   ActivityIndicator,
   View,
   StyleSheet,
-  RefreshControl,
   Image,
   Pressable,
 } from "react-native";
@@ -46,28 +45,12 @@ export default function Profile() {
   const { data, isPending, refetch } = useUser(userId);
 
   const [activeTab, setActiveTab] = useState<ITabs>("Perfil");
-  const [refreshing, setRefreshing] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string>();
   const { selectAvatar, isUpdatingAvatar } = useAvatarPicker({
     userId,
     onPreview: setAvatarPreview,
   });
   const currentAvatar = avatarPreview ?? data?.avatarUrl;
-
-  const queryClient = useQueryClient();
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await refetch();
-    
-    if (activeTab === "Personagens") {
-      // Retirado a pedido do usuário
-    } else if (activeTab === "Campanhas") {
-      // Retirado a pedido do usuário
-    }
-    
-    setRefreshing(false);
-  };
 
   return (
     <>
@@ -117,14 +100,6 @@ export default function Profile() {
         <Screen.Body
           scroll
           showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={DEFAULT_COLORS.purpleBright}
-              colors={[DEFAULT_COLORS.purpleBright]}
-            />
-          }
         >
           <View style={styles.contentBody}>
             <Pressable
@@ -197,7 +172,7 @@ export default function Profile() {
         </Screen.Body>
       </Screen>
 
-      {isPending && !refreshing && <LoadingOverlay />}
+      {isPending && <LoadingOverlay />}
     </>
   );
 }

@@ -9,7 +9,6 @@ import {
   Pressable,
   StyleSheet,
   View,
-  RefreshControl,
 } from "react-native";
 import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
 import { Mail } from "lucide-react-native";
@@ -81,21 +80,6 @@ export default function PublicUserProfileScreen() {
     currentUser?.nickname || currentUser?.username || "Aventureiro";
 
   const queryClient = useQueryClient();
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-
-    await queryClient.invalidateQueries({ queryKey: ["USERS", userId] });
-
-    if (activeTab === "Personagens") {
-      // Retirado a pedido do usuário
-    } else if (activeTab === "Campanhas") {
-      // Retirado a pedido do usuário
-    }
-
-    setRefreshing(false);
-  };
 
   const handleSendRequest = () => {
     if (!currentUserId || !user) return;
@@ -166,7 +150,7 @@ export default function PublicUserProfileScreen() {
     );
   };
 
-  if (isPending && !refreshing) {
+  if (isPending) {
     return (
       <Screen style={styles.centerContainer}>
         <ActivityIndicator color={DEFAULT_COLORS.purpleBright} />
@@ -210,14 +194,6 @@ export default function PublicUserProfileScreen() {
         <Screen.Body
           scroll
           showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={DEFAULT_COLORS.purpleBright}
-              colors={[DEFAULT_COLORS.purpleBright]}
-            />
-          }
         >
           <View style={styles.contentBody}>
             <View style={styles.avatarContainer}>

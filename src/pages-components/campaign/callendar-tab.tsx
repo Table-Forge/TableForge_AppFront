@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import dayjs from "dayjs";
 
 import { Button } from "@/src/components/button/button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
 import { ICampaignSessionList } from "@/src/features/campaign-sessions/schemas/campaign-session.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
@@ -28,14 +29,26 @@ export function CallendarTab({
 }: CallendarTabProps) {
   const router = useRouter();
   const [selectedSessionId, setSelectedSessionId] = useState<number>();
+  const [selectedDateSessions, setSelectedDateSessions] = useState<{
+    date: dayjs.Dayjs;
+    sessions: ICampaignSessionList[];
+  } | null>(null);
 
-  const handleCreateSession = (date?: string) => {
+  const handleCreateSession = (date?: dayjs.Dayjs) => {
     if (!isMaster) return;
 
     router.push({
       pathname: "/campaign-session/create",
-      params: date ? { campaignId, date } : { campaignId },
+      params: date ? { campaignId, date: date.toISOString() } : { campaignId },
     } as any);
+  };
+
+  const handleSelectDate = (date: dayjs.Dayjs, daySessions: ICampaignSessionList[]) => {
+    if (daySessions.length > 0) {
+      setSelectedDateSessions({ date, sessions: daySessions });
+    } else if (isMaster && !date.isBefore(dayjs().startOf("day"), "day")) {
+      handleCreateSession(date);
+    }
   };
 
   if (!canSeePrivateModules) {
@@ -56,7 +69,7 @@ export function CallendarTab({
         <CalendarWidget
           isMaster={isMaster}
           sessions={sessions}
-          onSelectDate={handleCreateSession}
+          onSelectDate={handleSelectDate}
         />
       </View>
 
@@ -91,6 +104,47 @@ export function CallendarTab({
           <EmptyText text="Nenhuma sessão agendada." />
         )}
       </View>
+
+      <ModalBase
+        visible={!!selectedDateSessions}
+        onClose={() => setSelectedDateSessions(null)}
+        title={`Sessões em ${selectedDateSessions?.date.format("DD/MM/YYYY")}`}
+        eyebrow="Calendário"
+        cancelText="Fechar"
+        showFooter={true}
+      >
+        <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
+          {selectedDateSessions?.sessions.map((session) => (
+            <SessionItem
+              key={session.id}
+              isExpanded={selectedSessionId === session.id}
+              isMaster={isMaster}
+              session={session}
+              onDeleteSession={(s) => {
+                onDeleteSession(s);
+                setSelectedDateSessions((curr) => {
+                  if (!curr) return null;
+                  const remaining = curr.sessions.filter((x) => x.id !== s.id);
+                  if (remaining.length === 0) return null;
+                  return { ...curr, sessions: remaining };
+                });
+              }}
+              onPress={() =>
+                setSelectedSessionId((currentId) =>
+                  currentId === session.id ? undefined : session.id,
+                )
+              }
+              onEditSession={() => {
+                setSelectedDateSessions(null);
+                router.push({
+                  pathname: "/campaign-session/[sessionId]/edit",
+                  params: { sessionId: session.id },
+                } as any);
+              }}
+            />
+          ))}
+        </ScrollView>
+      </ModalBase>
     </>
   );
 }
@@ -101,7 +155,7 @@ const CalendarWidget = ({
   sessions,
 }: {
   isMaster: boolean;
-  onSelectDate: (date: string) => void;
+  onSelectDate: (date: dayjs.Dayjs, daySessions: ICampaignSessionList[]) => void;
   sessions: ICampaignSessionList[];
 }) => {
   const daysOfWeek = ["dom.", "seg.", "ter.", "qua.", "qui.", "sex.", "sáb."];
@@ -206,7 +260,7 @@ const CalendarWidget = ({
                 sessions: daySessions,
               }) => {
               const hasSession = daySessions.length > 0;
-              const isDisabled = !isMaster || isBeforeToday;
+              const isDisabled = (!isMaster || isBeforeToday) && !hasSession;
 
               return (
                 <TouchableOpacity
@@ -219,7 +273,7 @@ const CalendarWidget = ({
                     isBeforeToday && styles.pastDayCell,
                     hasSession && styles.dayWithSessionCell,
                   ]}
-                  onPress={() => onSelectDate(date.toISOString())}
+                  onPress={() => onSelectDate(date, daySessions)}
                 >
                   <ThemedText
                     style={[
@@ -542,5 +596,9 @@ const styles = StyleSheet.create({
   detailValue: {
     fontSize: 14,
     color: DEFAULT_COLORS.white,
+  },
+  modalScroll: {
+    maxHeight: 350,
+    width: "100%",
   },
 });

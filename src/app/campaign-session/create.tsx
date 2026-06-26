@@ -11,13 +11,17 @@ import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { InfoCard } from "@/src/components/info-card/info-card";
 import { ControlledDateInput } from "@/src/components/input/input.date.controlled";
+import { ControlledTimeInput } from "@/src/components/input/input.time.controlled";
 import { ControlledInput } from "@/src/components/input/input.controlled";
 import { Label } from "@/src/components/label/label";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ScrollToFocusedInputProvider } from "@/src/context/scroll-to-focused-input";
 import { useCampaignSessionsMutation } from "@/src/features/campaign-sessions/hooks/use-campaign-sessions-mutations";
-import { CampaignSessionCreateSchema } from "@/src/features/campaign-sessions/schemas/campaign-session.schema";
+import {
+  CampaignSessionCreateSchema,
+  ICampaignSessionCreate,
+} from "@/src/features/campaign-sessions/schemas/campaign-session.schema";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
 import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-campaign-members";
 import { useAuth } from "@/src/context/auth";
@@ -28,8 +32,13 @@ import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, SURFACES } from "@/src/theme/tokens";
 
-type ICampaignSessionCreateInput = z.input<typeof CampaignSessionCreateSchema>;
-type ICampaignSessionCreate = z.output<typeof CampaignSessionCreateSchema>;
+const FormSchema = CampaignSessionCreateSchema.omit({ date: true }).extend({
+  dateOnly: z.string().trim().min(1, "A data é obrigatória."),
+  timeOnly: z.string().trim().min(1, "A hora é obrigatória."),
+});
+
+type IFormInput = z.input<typeof FormSchema>;
+type IFormOutput = z.output<typeof FormSchema>;
 
 export default function CreateCampaignSessionScreen() {
   const { user } = useAuth();
@@ -46,17 +55,18 @@ export default function CreateCampaignSessionScreen() {
     useCampaignSessionsMutation();
 
   const hookForm = useForm<
-    ICampaignSessionCreateInput,
+    IFormInput,
     unknown,
-    ICampaignSessionCreate
+    IFormOutput
   >({
-    resolver: zodResolver(CampaignSessionCreateSchema),
+    resolver: zodResolver(FormSchema),
     defaultValues: {
       campaignId: parsedCampaignId,
       title: "",
       location: "",
       link: "",
-      date: selectedDate || new Date().toISOString(),
+      dateOnly: selectedDate || new Date().toISOString(),
+      timeOnly: selectedDate || new Date().toISOString(),
     },
   });
   const { handleSubmit, setValue } = hookForm;
@@ -70,11 +80,33 @@ export default function CreateCampaignSessionScreen() {
   useEffect(() => {
     if (!selectedDate) return;
 
-    setValue("date", selectedDate);
+    setValue("dateOnly", selectedDate);
+    setValue("timeOnly", selectedDate);
   }, [selectedDate, setValue]);
 
-  const onSubmit: SubmitHandler<ICampaignSessionCreate> = (data) => {
-    createCampaignSessionMutation.mutate(data, {
+  const onSubmit: SubmitHandler<IFormOutput> = (data) => {
+    const dDate = new Date(data.dateOnly);
+    const dTime = new Date(data.timeOnly);
+
+    const combinedDate = new Date(
+      dDate.getFullYear(),
+      dDate.getMonth(),
+      dDate.getDate(),
+      dTime.getHours(),
+      dTime.getMinutes(),
+      0,
+      0
+    );
+
+    const payload: ICampaignSessionCreate = {
+      campaignId: data.campaignId,
+      title: data.title,
+      location: data.location,
+      link: data.link,
+      date: combinedDate.toISOString(),
+    };
+
+    createCampaignSessionMutation.mutate(payload, {
       onSuccess: () => {
         if (campaign) {
           const senderId = user?.id ? Number(user.id) : undefined;
@@ -86,7 +118,7 @@ export default function CreateCampaignSessionScreen() {
             campaignId: parsedCampaignId,
             campaignTitle: campaign.title,
             sessionTitle: data.title,
-            sessionDate: dayjs(data.date).format("DD/MM/YYYY [às] HH:mm"),
+            sessionDate: dayjs(payload.date).format("DD/MM/YYYY [às] HH:mm"),
           });
         }
         handleBack();
@@ -134,9 +166,16 @@ export default function CreateCampaignSessionScreen() {
 
               <ControlledDateInput
                 hookForm={hookForm}
-                name="date"
+                name="dateOnly"
                 label="Data"
                 placeholder="Selecione a data"
+              />
+
+              <ControlledTimeInput
+                hookForm={hookForm}
+                name="timeOnly"
+                label="Hora"
+                placeholder="Selecione a hora"
               />
 
               <View style={styles.fieldContainer}>

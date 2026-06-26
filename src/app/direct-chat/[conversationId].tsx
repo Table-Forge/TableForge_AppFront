@@ -23,10 +23,11 @@ import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 
 export default function DirectChatScreen() {
-  const { conversationId } = useLocalSearchParams();
+  const { conversationId, title } = useLocalSearchParams();
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
   const parsedConversationId = Number(conversationId);
+  const displayTitle = typeof title === "string" ? title : "Chat Direto";
   const [message, setMessage] = useState("");
 
   const {
@@ -105,7 +106,7 @@ export default function DirectChatScreen() {
               numberOfLines={1}
               weight="bold"
             >
-              DM
+              {displayTitle}
             </ThemedText>
           </View>
           <View style={styles.headerSpacer} />
@@ -169,9 +170,6 @@ const MessageBubble = ({
     <View style={[styles.messageRow, isMine && styles.myMessageRow]}>
       {!isMine && <View style={styles.avatarDot} />}
       <View style={[styles.messageStack, isMine && styles.myMessageStack]}>
-        <ThemedText style={[styles.username, isMine && styles.usernameMine]}>
-          {isMine ? "Você" : item.senderNickname || item.senderUsername || `Usuário ${item.senderId}`}
-        </ThemedText>
         <View style={[styles.bubble, isMine && styles.myBubble]}>
           <ThemedText style={styles.messageText}>{item.content}</ThemedText>
         </View>

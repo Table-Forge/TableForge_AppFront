@@ -61,9 +61,9 @@ export default function Profile() {
     await refetch();
     
     if (activeTab === "Personagens") {
-      await queryClient.invalidateQueries({ queryKey: CHARACTER_KEYS.all });
+      // Retirado a pedido do usuário
     } else if (activeTab === "Campanhas") {
-      await queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+      // Retirado a pedido do usuário
     }
     
     setRefreshing(false);

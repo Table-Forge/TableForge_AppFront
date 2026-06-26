@@ -34,7 +34,7 @@ export default function NewDirectChat() {
         onSuccess: (conversation) => {
           router.replace({
             pathname: "/direct-chat/[conversationId]",
-            params: { conversationId: conversation.id },
+            params: { conversationId: conversation.id, title: conversation.name || "Usuário" },
           });
         },
       }

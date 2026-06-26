@@ -153,7 +153,7 @@ export default function Messages() {
                     onPress={() =>
                       router.push({
                         pathname: "/direct-chat/[conversationId]",
-                        params: { conversationId: conv.id },
+                        params: { conversationId: conv.id, title: conv.name || "Usuário" },
                       })
                     }
                   />

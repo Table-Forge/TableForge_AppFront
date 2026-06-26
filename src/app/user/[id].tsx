@@ -89,9 +89,9 @@ export default function PublicUserProfileScreen() {
     await queryClient.invalidateQueries({ queryKey: ["USERS", userId] });
 
     if (activeTab === "Personagens") {
-      await queryClient.invalidateQueries({ queryKey: CHARACTER_KEYS.all });
+      // Retirado a pedido do usuário
     } else if (activeTab === "Campanhas") {
-      await queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+      // Retirado a pedido do usuário
     }
 
     setRefreshing(false);
@@ -152,7 +152,7 @@ export default function PublicUserProfileScreen() {
         onSuccess: (conversation) => {
           router.push({
             pathname: "/direct-chat/[conversationId]",
-            params: { conversationId: conversation.id },
+            params: { conversationId: conversation.id, title: user.nickname || user.username },
           });
         },
         onError: (err: any) => {

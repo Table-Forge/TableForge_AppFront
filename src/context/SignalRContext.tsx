@@ -10,7 +10,6 @@ import {
   conversationMessagesQueryKey, 
   CONVERSATIONS_QUERY_KEY 
 } from "@/src/features/conversations/hooks/use-infinite-conversations";
-import { IChatMessage } from "@/src/features/chat-messages/schemas/chat-message.schema";
 // We need to import the correct query key for campaign messages, but for now we'll rely on the caller to refetch or we update it if we know the key.
 // Actually, it's better to expose the connection to let the hooks attach their own listeners if they are screen-specific, but for global direct chats, we handle them here to show badges anywhere.
 

@@ -12,7 +12,7 @@ import { useCreateDirectConversation } from "@/src/features/conversations/hooks/
 import { ConversationType } from "@/src/features/conversations/schemas/conversation.schema";
 import { useUserFriendships } from "@/src/features/friendships/hooks/use-user-friendships";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
+import { BORDERS, RADII, SURFACES } from "@/src/theme/tokens";
 
 interface NewDirectChatModalProps {
   visible: boolean;

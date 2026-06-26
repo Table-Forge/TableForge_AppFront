@@ -11,7 +11,7 @@ import {
 } from "@/src/features/users/schemas/user.schema";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
-import { USER } from "./query-key";
+import { USER_KEYS } from "./query-key";
 
 type TValidateRecoveryCodeParams = {
   email: string;

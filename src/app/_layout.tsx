@@ -61,6 +61,14 @@ export default function RootLayout() {
               />
 
               <Stack.Screen
+                name="campaign/create"
+                options={{
+                  presentation: "card",
+                  gestureEnabled: false,
+                }}
+              />
+
+              <Stack.Screen
                 name="campaign/[id]/join-request"
                 options={{
                   presentation: "card",
@@ -99,6 +107,7 @@ export default function RootLayout() {
                 name="campaign-announcement/create"
                 options={{
                   presentation: "card",
+                  gestureEnabled: false,
                 }}
               />
 
@@ -106,6 +115,7 @@ export default function RootLayout() {
                 name="campaign-session/create"
                 options={{
                   presentation: "card",
+                  gestureEnabled: false,
                 }}
               />
 
@@ -113,6 +123,7 @@ export default function RootLayout() {
                 name="character/create"
                 options={{
                   presentation: "card",
+                  gestureEnabled: false,
                 }}
               />
 

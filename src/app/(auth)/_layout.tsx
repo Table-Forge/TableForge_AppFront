@@ -9,7 +9,12 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen name="login" />
-      <Stack.Screen name="create-account" />
+      <Stack.Screen 
+        name="create-account" 
+        options={{
+          gestureEnabled: false,
+        }}
+      />
       <Stack.Screen name="recover-password" />
     </Stack>
   );

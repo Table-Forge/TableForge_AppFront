@@ -61,51 +61,50 @@ export default function NotificationsSettingsScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-          <View style={styles.sectionHeader}>
-            <ThemedText style={styles.sectionTitle}>
-              Configurar push de notificações
-            </ThemedText>
+        <View style={styles.sectionHeader}>
+          <ThemedText style={styles.sectionTitle}>
+            Configurar push de notificações
+          </ThemedText>
+        </View>
+
+        <InfoCard style={styles.formCard}>
+          <View style={styles.formContent}>
+            <ControlledToggle
+              name="privateMessages"
+              control={control}
+              label="Mensagens Privadas"
+              description="Receba um corvo mensageiro sempre que alguém te enviar um sussurro."
+            />
+
+            <ControlledToggle
+              name="motivationalMessages"
+              control={control}
+              label="Conselhos do Mago Avalon"
+              description="Palavras de sabedoria e incentivo vindas diretamente da Torre Arcana."
+            />
+
+            <ControlledToggle
+              name="systemUpdates"
+              control={control}
+              label="Alertas da Guilda"
+              description="Fique por dentro de novas leis, pergaminhos de atualização e mudanças no reino."
+            />
+
+            <ControlledToggle
+              name="campaignReminders"
+              control={control}
+              label="Cronograma de Aventuras"
+              description="Lembretes automáticos para você nunca se atrasar para o início de uma quest."
+            />
           </View>
+        </InfoCard>
 
-          <InfoCard style={styles.formCard}>
-            <View style={styles.formContent}>
-              <ControlledToggle
-                name="privateMessages"
-                control={control}
-                label="Mensagens Privadas"
-                description="Receba um corvo mensageiro sempre que alguém te enviar um sussurro."
-              />
-
-              <ControlledToggle
-                name="motivationalMessages"
-                control={control}
-                label="Conselhos do Mago Avalon"
-                description="Palavras de sabedoria e incentivo vindas diretamente da Torre Arcana."
-              />
-
-              <ControlledToggle
-                name="systemUpdates"
-                control={control}
-                label="Alertas da Guilda"
-                description="Fique por dentro de novas leis, pergaminhos de atualização e mudanças no reino."
-              />
-
-              <ControlledToggle
-                name="campaignReminders"
-                control={control}
-                label="Cronograma de Aventuras"
-                description="Lembretes automáticos para você nunca se atrasar para o início de uma quest."
-              />
-            </View>
-          </InfoCard>
-
-          <Button
-            variant="tertiary"
-            // onPress={handleSubmit(onSubmit)}
-            onPress={() => console.log("apertei")}
-            isLoading={isUpdatingPassword}
-            text="Salvar Alterações"
-          />
+        <Button
+          variant="tertiary"
+          // onPress={handleSubmit(onSubmit)}
+          onPress={() => console.log("apertei")}
+          text="Salvar Alterações"
+        />
       </Screen.Body>
     </Screen>
   );

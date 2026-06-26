@@ -3,6 +3,7 @@ import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
@@ -10,8 +11,12 @@ import { Input } from "@/src/components/input/input";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
+import { useSignalR } from "@/src/context/SignalRContext";
 import { useBackRouter } from "@/src/hooks/use-back-route";
-import { useInfiniteConversationMessages } from "@/src/features/conversations/hooks/use-infinite-conversation-messages";
+import {
+  conversationMessagesQueryKey,
+  useInfiniteConversationMessages,
+} from "@/src/features/conversations/hooks/use-infinite-conversation-messages";
 import { useSendMessage } from "@/src/features/conversations/hooks/use-send-message";
 import { useMarkMessagesAsRead } from "@/src/features/conversations/hooks/use-mark-messages-as-read";
 import {
@@ -29,6 +34,8 @@ export default function DirectChatScreen() {
   const parsedConversationId = Number(conversationId);
   const displayTitle = typeof title === "string" ? title : "Chat Direto";
   const [message, setMessage] = useState("");
+  const queryClient = useQueryClient();
+  const { connection } = useSignalR();
 
   const {
     data,
@@ -53,6 +60,67 @@ export default function DirectChatScreen() {
     }
   }, [parsedConversationId, markAsRead]);
 
+  useEffect(() => {
+    if (!connection || !parsedConversationId) return;
+
+    const receiveMsg = (messageDto: IConversationMessage) => {
+      if (messageDto.conversationId !== parsedConversationId) return;
+      queryClient.setQueryData(
+        conversationMessagesQueryKey(parsedConversationId),
+        (oldData: any) => {
+          if (!oldData) return oldData;
+          const newPages = [...oldData.pages];
+          if (newPages.length > 0) {
+            newPages[0] = {
+              ...newPages[0],
+              items: [messageDto, ...newPages[0].items],
+            };
+          }
+          return { ...oldData, pages: newPages };
+        }
+      );
+      // Auto mark as read when viewing the chat
+      markAsRead(parsedConversationId);
+    };
+
+    const receiveStatusUpdate = (statusUpdate: any) => {
+      if (statusUpdate.conversationId !== parsedConversationId) return;
+      queryClient.setQueryData(
+        conversationMessagesQueryKey(parsedConversationId),
+        (oldData: any) => {
+          if (!oldData) return oldData;
+          const newPages = oldData.pages.map((page: any) => {
+            return {
+              ...page,
+              items: page.items.map((msg: IConversationMessage) => {
+                const newStatuses = msg.statuses?.map((s) => {
+                  if (s.userId === statusUpdate.userId) {
+                    return {
+                      ...s,
+                      isReceived: statusUpdate.isReceived ?? s.isReceived,
+                      isRead: statusUpdate.isRead ?? s.isRead,
+                    };
+                  }
+                  return s;
+                });
+                return { ...msg, statuses: newStatuses };
+              }),
+            };
+          });
+          return { ...oldData, pages: newPages };
+        }
+      );
+    };
+
+    connection.on("ReceiveConversationMessage", receiveMsg);
+    connection.on("ReceiveMessageStatusUpdate", receiveStatusUpdate);
+
+    return () => {
+      connection.off("ReceiveConversationMessage", receiveMsg);
+      connection.off("ReceiveMessageStatusUpdate", receiveStatusUpdate);
+    };
+  }, [connection, parsedConversationId, queryClient, markAsRead]);
+
   const handleEndReached = () => {
     if (hasNextPage) fetchNextPage();
   };
@@ -70,7 +138,6 @@ export default function DirectChatScreen() {
       {
         onSuccess: () => {
           setMessage("");
-          refetch(); // For Phase 1 we manually refetch. SignalR will update later.
         },
       },
     );

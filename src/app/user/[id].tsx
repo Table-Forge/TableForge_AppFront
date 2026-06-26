@@ -21,6 +21,8 @@ import { LoadingOverlay } from "@/src/components/loading-overlay/loading-overlay
 import { Screen } from "@/src/components/screen/screen";
 import { Tabs } from "@/src/components/tabs/tabs";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
+import { CAMPAIGN_KEYS } from "@/src/features/campaigns/hooks/query-key";
+import { CHARACTER_KEYS } from "@/src/features/characters/hooks/query-key";
 import { useAuth } from "@/src/context/auth";
 import { useFriendshipWithUser } from "@/src/features/friendships/hooks/use-friendship-with-user";
 import { useFriendshipsMutation } from "@/src/features/friendships/hooks/use-friendships-mutations";
@@ -87,9 +89,9 @@ export default function PublicUserProfileScreen() {
     await queryClient.invalidateQueries({ queryKey: ["USERS", userId] });
 
     if (activeTab === "Personagens") {
-      await queryClient.invalidateQueries({ queryKey: ["CHARACTERS"] });
+      await queryClient.invalidateQueries({ queryKey: CHARACTER_KEYS.all });
     } else if (activeTab === "Campanhas") {
-      await queryClient.invalidateQueries({ queryKey: ["CAMPAIGNS"] });
+      await queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
     }
 
     setRefreshing(false);

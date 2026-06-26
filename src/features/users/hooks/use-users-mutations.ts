@@ -125,7 +125,7 @@ export const useUsersMutation = () => {
   const updateAvatarMutation = useMutation({
     mutationFn: (data: IUserAvatarPayload) => UserService.updateAvatar(data),
     onSuccess: async (_data, variables) => {
-      await queryClient.invalidateQueries({ queryKey: [USER, variables.id] });
+      await queryClient.invalidateQueries({ queryKey: USER_KEYS.byId(variables.id) });
 
       Toast.show({
         type: "success",

@@ -9,7 +9,7 @@ import {
 import { CampaignService } from "@/src/features/campaigns/services/campaigns.services";
 import { IPaginatedApiResponse } from "@/src/interfaces";
 
-import { CAMPAIGNS } from "./query-key";
+import { CAMPAIGN_KEYS } from "./query-key";
 
 type CampaignInfiniteData = InfiniteData<IPaginatedApiResponse<ICampaign>>;
 
@@ -21,7 +21,11 @@ export const useCampaignsMutation = () => {
     mutationFn: (payload: ICampaignCreate) => CampaignService.create(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [CAMPAIGNS],
+        queryKey: CAMPAIGN_KEYS.all,
+        refetchType: "active",
+      });
+      queryClient.invalidateQueries({
+        queryKey: CAMPAIGN_KEYS.player(),
         refetchType: "active",
       });
       Toast.show({
@@ -64,12 +68,12 @@ export const useCampaignsMutation = () => {
     onSuccess: (updated, variables) => {
       const campaignId = updated?.id ?? variables.id;
 
-      queryClient.setQueryData<ICampaign>([CAMPAIGNS, campaignId], (current) =>
+      queryClient.setQueryData<ICampaign>(CAMPAIGN_KEYS.byId(campaignId), (current) =>
         current ? { ...current, ...updated } : updated,
       );
 
       queryClient.setQueriesData<CampaignInfiniteData>(
-        { queryKey: [CAMPAIGNS], exact: false },
+        { queryKey: CAMPAIGN_KEYS.all, exact: false },
         (data) => {
           if (!data?.pages) return data;
           return {
@@ -103,7 +107,7 @@ export const useCampaignsMutation = () => {
     mutationFn: (id: number) => CampaignService.delete(id),
     onSuccess: (_, id) => {
       queryClient.setQueriesData<CampaignInfiniteData>(
-        { queryKey: [CAMPAIGNS], exact: false },
+        { queryKey: CAMPAIGN_KEYS.all, exact: false },
         (data) => {
           if (!data?.pages) return data;
           return {
@@ -116,7 +120,11 @@ export const useCampaignsMutation = () => {
         },
       );
       queryClient.invalidateQueries({
-        queryKey: [CAMPAIGNS],
+        queryKey: CAMPAIGN_KEYS.all,
+        refetchType: "active",
+      });
+      queryClient.invalidateQueries({
+        queryKey: CAMPAIGN_KEYS.player(),
         refetchType: "active",
       });
       Toast.show({

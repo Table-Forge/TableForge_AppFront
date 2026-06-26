@@ -28,6 +28,8 @@ import { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { ProfileTab } from "@/src/pages-components/profile/profile-tab";
 import { CharactersTab } from "@/src/pages-components/profile/characters-tab";
 import { CampaignsTab } from "@/src/pages-components/profile/campaigns-tab";
+import { CAMPAIGN_KEYS } from "@/src/features/campaigns/hooks/query-key";
+import { CHARACTER_KEYS } from "@/src/features/characters/hooks/query-key";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons";
@@ -59,9 +61,9 @@ export default function Profile() {
     await refetch();
     
     if (activeTab === "Personagens") {
-      await queryClient.invalidateQueries({ queryKey: ["CHARACTERS"] });
+      await queryClient.invalidateQueries({ queryKey: CHARACTER_KEYS.all });
     } else if (activeTab === "Campanhas") {
-      await queryClient.invalidateQueries({ queryKey: ["CAMPAIGNS"] });
+      await queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
     }
     
     setRefreshing(false);

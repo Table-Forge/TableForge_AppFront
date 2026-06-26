@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Toast from "react-native-toast-message";
 
-import { CHARACTERS } from "@/src/features/characters/hooks/query-key";
 import {
-  ICharacter,
   ICharacterCreate,
+  ICharacter,
 } from "@/src/features/characters/schemas/character.schema";
 import { CharacterService } from "@/src/features/characters/services/characters.services";
+
+import { CHARACTER_KEYS } from "./query-key";
 
 export const useCharactersMutation = () => {
   const queryClient = useQueryClient();
@@ -14,29 +15,29 @@ export const useCharactersMutation = () => {
   const createCharacterMutation = useMutation({
     mutationFn: (payload: ICharacterCreate) => CharacterService.create(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [CHARACTERS] });
+      queryClient.invalidateQueries({ queryKey: CHARACTER_KEYS.all });
       Toast.show({
         type: "success",
-        text1: "Personagem criado com sucesso!",
+        text1: "Personagem criado!",
       });
     },
     onError: () => {
       Toast.show({
         type: "error",
-        text1: "Ops! Algo deu errado",
-        text2: "Erro ao criar personagem.",
+        text1: "Erro ao criar personagem",
       });
     },
   });
 
   const updateCharacterMutation = useMutation({
-    mutationFn: (payload: ICharacter) => CharacterService.update(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [CHARACTERS] }),
+    mutationFn: (payload: Partial<ICharacter> & { id: number }) =>
+      CharacterService.update(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: CHARACTER_KEYS.all }),
   });
 
   const deleteCharacterMutation = useMutation({
     mutationFn: (id: number) => CharacterService.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [CHARACTERS] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: CHARACTER_KEYS.all }),
   });
 
   return {

@@ -2,6 +2,7 @@ export const USER = "user";
 
 export const USER_KEYS = {
   all: [USER] as const,
+  byId: (id: number) => [...USER_KEYS.all, id] as const,
   genderEnum: () => [...USER_KEYS.all, "gender-enum"] as const,
   statusEnum: () => [...USER_KEYS.all, "status-enum"] as const,
   deliveryMethodEnum: () =>

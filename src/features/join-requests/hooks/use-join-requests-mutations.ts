@@ -80,6 +80,10 @@ export const useJoinRequestsMutation = (campaignId?: number) => {
         queryClient.invalidateQueries({
           queryKey: CAMPAIGN_MEMBER_KEYS.byCampaign(campaignId),
         });
+        Toast.show({
+          type: "success",
+          text1: "Solicitação aprovada.",
+        });
       }
     },
     onError: (error: any) => {

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { NOTIFICATIONS } from "@/src/features/notifications/hooks/query-key";
+import { NOTIFICATION_KEYS } from "@/src/features/notifications/hooks/query-key";
 import {
   INotificationCreate,
   INotificationUpdate,
@@ -11,7 +11,7 @@ export const useNotificationsMutation = () => {
   const queryClient = useQueryClient();
 
   const invalidateNotifications = () =>
-    queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS] });
+    queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.all });
 
   const createNotificationMutation = useMutation({
     mutationFn: (payload: INotificationCreate) =>

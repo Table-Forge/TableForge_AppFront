@@ -26,6 +26,7 @@ interface GenericModalProps {
   showFooter?: boolean;
   animationType?: ModalProps["animationType"];
   eyebrow?: string;
+  isLoading?: boolean;
 }
 
 export const ModalBase = ({
@@ -41,6 +42,7 @@ export const ModalBase = ({
   showFooter = true,
   animationType = "fade",
   eyebrow = "Confirmação",
+  isLoading,
 }: GenericModalProps) => {
   return (
     <Modal
@@ -79,6 +81,7 @@ export const ModalBase = ({
                     size="sm"
                     onPress={onConfirm}
                     text={confirmText}
+                    isLoading={isLoading}
                   />
                 </View>
               )}

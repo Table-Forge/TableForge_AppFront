@@ -105,7 +105,7 @@ export default function CampaignDetails() {
   const { updateJoinRequestStatusMutation, isUpdatingJoinRequest } =
     useJoinRequestsMutation(campaignId);
 
-  const { deleteCampaignSessionMutation } = useCampaignSessionsMutation();
+  const { deleteCampaignSessionMutation, isDeletingCampaignSession } = useCampaignSessionsMutation();
 
   const [activeTab, setActiveTab] = useState<TabType>("Início");
   const [sessionToDelete, setSessionToDelete] =
@@ -170,11 +170,14 @@ export default function CampaignDetails() {
     return <ThemedText>Campanha não encontrada...</ThemedText>;
   }
 
-  const handleDeleteSessionConfirm = () => {
+  const handleDeleteSessionConfirm = async () => {
     if (sessionToDelete) {
-      deleteCampaignSessionMutation.mutate(sessionToDelete.id, {
-        onSuccess: () => setSessionToDelete(null),
-      });
+      try {
+        await deleteCampaignSessionMutation.mutateAsync(sessionToDelete.id);
+        setSessionToDelete(null);
+      } catch {
+        // Silently ignore or handle error
+      }
     }
   };
 
@@ -428,6 +431,7 @@ export default function CampaignDetails() {
         description={`Tem certeza que deseja excluir a sessão "${sessionToDelete?.title}"?`}
         confirmText="Excluir"
         onConfirm={handleDeleteSessionConfirm}
+        isLoading={isDeletingCampaignSession}
       />
     </Screen>
   );

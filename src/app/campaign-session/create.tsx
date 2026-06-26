@@ -10,6 +10,7 @@ import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { InfoCard } from "@/src/components/info-card/info-card";
+import { ControlledDateInput } from "@/src/components/input/input.date.controlled";
 import { ControlledInput } from "@/src/components/input/input.controlled";
 import { Label } from "@/src/components/label/label";
 import { Screen } from "@/src/components/screen/screen";
@@ -130,6 +131,13 @@ export default function CreateCampaignSessionScreen() {
                   placeholder="ex.: Sessão 01"
                 />
               </View>
+
+              <ControlledDateInput
+                hookForm={hookForm}
+                name="date"
+                label="Data"
+                placeholder="Selecione a data"
+              />
 
               <View style={styles.fieldContainer}>
                 <Label text="Local" />

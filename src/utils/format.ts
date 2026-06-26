@@ -194,6 +194,30 @@ const decodeIdFromApi = (encodedId: string): string => {
   return decodeURIComponent(encodedId);
 };
 
+const combineDateTime = (
+  dateOnly: string | Date,
+  timeOnly: string | Date,
+): string => {
+  const dDate = new Date(dateOnly);
+  const dTime = new Date(timeOnly);
+
+  const combinedDate = new Date(
+    dDate.getFullYear(),
+    dDate.getMonth(),
+    dDate.getDate(),
+    dTime.getHours(),
+    dTime.getMinutes(),
+    0,
+    0,
+  );
+
+  return combinedDate.toISOString();
+};
+
+const parseUTCDate = (date: string | Date | Dayjs): Dayjs => {
+  return dayjs.utc(date).local();
+};
+
 export {
   encodeIdForApi,
   decodeIdFromApi,
@@ -214,4 +238,6 @@ export {
   transformStringToDate,
   formatPhone,
   formatDocument,
+  combineDateTime,
+  parseUTCDate,
 };

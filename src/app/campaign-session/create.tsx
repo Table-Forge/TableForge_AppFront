@@ -4,8 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { ScrollView, StyleSheet, View } from "react-native";
-
+import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
@@ -18,9 +17,11 @@ import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ScrollToFocusedInputProvider } from "@/src/context/scroll-to-focused-input";
 import { useCampaignSessionsMutation } from "@/src/features/campaign-sessions/hooks/use-campaign-sessions-mutations";
+import { useCampaignSession } from "@/src/features/campaign-sessions/hooks/use-campaign-session";
 import {
   CampaignSessionCreateSchema,
   ICampaignSessionCreate,
+  ICampaignSession,
 } from "@/src/features/campaign-sessions/schemas/campaign-session.schema";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
 import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-campaign-members";
@@ -28,9 +29,13 @@ import { useAuth } from "@/src/context/auth";
 import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { combineDateTime, parseUTCDate } from "@/src/utils/format";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, SURFACES } from "@/src/theme/tokens";
+
+dayjs.extend(utc);
 
 const FormSchema = CampaignSessionCreateSchema.omit({ date: true }).extend({
   dateOnly: z.string().trim().min(1, "A data é obrigatória."),
@@ -42,7 +47,7 @@ type IFormOutput = z.output<typeof FormSchema>;
 
 export default function CreateCampaignSessionScreen() {
   const { user } = useAuth();
-  const { campaignId, date } = useLocalSearchParams();
+  const { campaignId, date, editId } = useLocalSearchParams();
   const parsedCampaignId = Number(campaignId);
   const selectedDate = Array.isArray(date) ? date[0] : date;
   const { handleBack } = useBackRouter();
@@ -51,8 +56,18 @@ export default function CreateCampaignSessionScreen() {
   const { data: members = [] } = useCampaignMembers({
     campaignId: parsedCampaignId,
   });
-  const { createCampaignSessionMutation, isCreatingCampaignSession } =
-    useCampaignSessionsMutation();
+
+  const editingId = editId ? Number(editId) : undefined;
+  const isEditMode = !!editingId;
+  const { data: existingSession, isPending: isLoadingSession } =
+    useCampaignSession(editingId ?? 0, isEditMode);
+
+  const {
+    createCampaignSessionMutation,
+    updateCampaignSessionMutation,
+    isCreatingCampaignSession,
+    isUpdatingCampaignSession,
+  } = useCampaignSessionsMutation();
 
   const hookForm = useForm<
     IFormInput,
@@ -69,7 +84,7 @@ export default function CreateCampaignSessionScreen() {
       timeOnly: selectedDate || new Date().toISOString(),
     },
   });
-  const { handleSubmit, setValue } = hookForm;
+  const { handleSubmit, setValue, reset } = hookForm;
 
   useEffect(() => {
     if (!parsedCampaignId) return;
@@ -78,32 +93,52 @@ export default function CreateCampaignSessionScreen() {
   }, [parsedCampaignId, setValue]);
 
   useEffect(() => {
-    if (!selectedDate) return;
+    if (isEditMode && existingSession) {
+      reset({
+        campaignId: existingSession.campaignId,
+        title: existingSession.title,
+        location: existingSession.location,
+        link: existingSession.link || "",
+        dateOnly: existingSession.date,
+        timeOnly: existingSession.date,
+      });
+    }
+  }, [existingSession, isEditMode, reset]);
+
+  useEffect(() => {
+    if (isEditMode || !selectedDate) return;
 
     setValue("dateOnly", selectedDate);
     setValue("timeOnly", selectedDate);
-  }, [selectedDate, setValue]);
+  }, [selectedDate, isEditMode, setValue]);
+
+  const isSubmitting = isCreatingCampaignSession || isUpdatingCampaignSession;
 
   const onSubmit: SubmitHandler<IFormOutput> = (data) => {
-    const dDate = new Date(data.dateOnly);
-    const dTime = new Date(data.timeOnly);
+    if (isEditMode && existingSession) {
+      const payload: ICampaignSession = {
+        id: existingSession.id,
+        campaignId: existingSession.campaignId,
+        title: data.title,
+        location: data.location,
+        link: data.link,
+        date: combineDateTime(data.dateOnly, data.timeOnly),
+      };
 
-    const combinedDate = new Date(
-      dDate.getFullYear(),
-      dDate.getMonth(),
-      dDate.getDate(),
-      dTime.getHours(),
-      dTime.getMinutes(),
-      0,
-      0
-    );
+      updateCampaignSessionMutation.mutate(payload, {
+        onSuccess: () => {
+          handleBack();
+        },
+      });
+      return;
+    }
 
     const payload: ICampaignSessionCreate = {
       campaignId: data.campaignId,
       title: data.title,
       location: data.location,
       link: data.link,
-      date: combinedDate.toISOString(),
+      date: combineDateTime(data.dateOnly, data.timeOnly),
     };
 
     createCampaignSessionMutation.mutate(payload, {
@@ -118,7 +153,7 @@ export default function CreateCampaignSessionScreen() {
             campaignId: parsedCampaignId,
             campaignTitle: campaign.title,
             sessionTitle: data.title,
-            sessionDate: dayjs(payload.date).format("DD/MM/YYYY [às] HH:mm"),
+            sessionDate: parseUTCDate(payload.date).format("DD/MM/YYYY [às] HH:mm"),
           });
         }
         handleBack();
@@ -142,18 +177,31 @@ export default function CreateCampaignSessionScreen() {
               }
               onPress={handleBack}
             />
-            <ThemedText style={styles.headerTitle}>Marcar sessão</ThemedText>
+            <ThemedText style={styles.headerTitle}>
+              {isEditMode ? "Editar sessão" : "Marcar sessão"}
+            </ThemedText>
             <View style={styles.headerSpacer} />
           </HeaderActions>
         </Screen.Header>
 
-        <ScrollView
-          ref={scrollViewRef}
-          style={{ flex: 1 }}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+        {isEditMode && isLoadingSession ? (
+          <View style={styles.loadingWrapper}>
+            <ActivityIndicator
+              color={DEFAULT_COLORS.purpleBright}
+              size="large"
+            />
+            <ThemedText style={styles.loadingText}>
+              Carregando sessão...
+            </ThemedText>
+          </View>
+        ) : (
+          <ScrollView
+            ref={scrollViewRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             <InfoCard style={styles.formCard}>
               <View style={styles.fieldContainer}>
                 <Label text="Título" />
@@ -201,11 +249,12 @@ export default function CreateCampaignSessionScreen() {
 
             <Button
               variant="tertiary"
-              text="Marcar sessão"
-              isLoading={isCreatingCampaignSession}
+              text={isEditMode ? "Salvar alterações" : "Marcar sessão"}
+              isLoading={isSubmitting}
               onPress={handleSubmit(onSubmit)}
             />
-        </ScrollView>
+          </ScrollView>
+        )}
       </ScrollToFocusedInputProvider>
     </Screen>
   );
@@ -239,5 +288,16 @@ const styles = StyleSheet.create({
   },
   fieldContainer: {
     width: "100%",
+  },
+  loadingWrapper: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: DEFAULT_COLORS.white,
+    ...fonts.medium,
   },
 });

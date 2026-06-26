@@ -4,6 +4,8 @@ import { Swipeable } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { parseUTCDate } from "@/src/utils/format";
 
 import { Button } from "@/src/components/button/button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
@@ -12,6 +14,8 @@ import { ICampaignSessionList } from "@/src/features/campaign-sessions/schemas/c
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
+
+dayjs.extend(utc);
 
 interface CallendarTabProps {
   campaignId: number;
@@ -95,8 +99,8 @@ export function CallendarTab({
               }
               onEditSession={() =>
                 router.push({
-                  pathname: "/campaign-session/[sessionId]/edit",
-                  params: { sessionId: session.id },
+                  pathname: "/campaign-session/create",
+                  params: { editId: session.id, campaignId },
                 } as any)
               }
             />
@@ -138,8 +142,8 @@ export function CallendarTab({
               onEditSession={() => {
                 setSelectedDateSessions(null);
                 router.push({
-                  pathname: "/campaign-session/[sessionId]/edit",
-                  params: { sessionId: session.id },
+                  pathname: "/campaign-session/create",
+                  params: { editId: session.id, campaignId },
                 } as any);
               }}
             />
@@ -180,7 +184,7 @@ const CalendarWidget = ({
   const sessionsByDate = useMemo(() => {
     return sessions.reduce<Record<string, ICampaignSessionList[]>>(
       (acc, session) => {
-        const dateKey = dayjs(session.date).format("YYYY-MM-DD");
+        const dateKey = parseUTCDate(session.date).format("YYYY-MM-DD");
         acc[dateKey] = [...(acc[dateKey] ?? []), session];
         return acc;
       },
@@ -312,7 +316,7 @@ const SessionItem = ({
   onPress: () => void;
   session: ICampaignSessionList;
 }) => {
-  const sessionDate = dayjs(session.date);
+  const sessionDate = parseUTCDate(session.date);
   const sessionPlace = session.link || session.location;
 
   const renderRightActions = () => {

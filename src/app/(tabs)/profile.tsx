@@ -42,7 +42,7 @@ export default function Profile() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
 
   const userId = user?.id ? Number(user.id) : undefined;
-  const { data, isPending, refetch } = useUser(userId);
+  const { data, isPending } = useUser(userId);
 
   const [activeTab, setActiveTab] = useState<ITabs>("Perfil");
   const [avatarPreview, setAvatarPreview] = useState<string>();

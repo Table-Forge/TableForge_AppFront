@@ -133,7 +133,7 @@ export default function CreateCharacterScreen() {
           });
           return;
         }
-      } catch (error) {
+      } catch {
         Toast.show({
           type: "error",
           text1: "Erro ao enviar avatar",

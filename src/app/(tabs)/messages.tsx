@@ -234,7 +234,7 @@ const DirectChatItem = ({
   item: IConversation;
   onPress: () => void;
 }) => {
-  const otherUser = item.participants.find(p => p.userId !== undefined); // Simplified for UI
+
   const unreadCount = item.unreadMessagesCount || 0;
 
   return (

@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
@@ -20,8 +19,6 @@ import { LoadingOverlay } from "@/src/components/loading-overlay/loading-overlay
 import { Screen } from "@/src/components/screen/screen";
 import { Tabs } from "@/src/components/tabs/tabs";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
-import { CAMPAIGN_KEYS } from "@/src/features/campaigns/hooks/query-key";
-import { CHARACTER_KEYS } from "@/src/features/characters/hooks/query-key";
 import { useAuth } from "@/src/context/auth";
 import { useFriendshipWithUser } from "@/src/features/friendships/hooks/use-friendship-with-user";
 import { useFriendshipsMutation } from "@/src/features/friendships/hooks/use-friendships-mutations";
@@ -78,8 +75,6 @@ export default function PublicUserProfileScreen() {
     currentUser?.nickname || currentUser?.username || "Aventureiro";
   const accepterName =
     currentUser?.nickname || currentUser?.username || "Aventureiro";
-
-  const queryClient = useQueryClient();
 
   const handleSendRequest = () => {
     if (!currentUserId || !user) return;

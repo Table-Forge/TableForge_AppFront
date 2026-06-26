@@ -2,7 +2,6 @@ import { View, StyleSheet } from "react-native";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { useUsersMutation } from "@/src/features/users/hooks/use-users-mutations";
 import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { ActionButton } from "@/src/components/action-button/action-button";
@@ -23,9 +22,8 @@ import { BORDERS, SURFACES } from "@/src/theme/tokens";
 export default function NotificationsSettingsScreen() {
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
-  const { updatePasswordMutation, isUpdatingPassword } = useUsersMutation();
 
-  const { control, handleSubmit } = useForm<IUpdatePassword>({
+  const { control } = useForm<IUpdatePassword>({
     resolver: zodResolver(UpdatePasswordSchema),
     defaultValues: {
       userId: user?.id,
@@ -35,9 +33,6 @@ export default function NotificationsSettingsScreen() {
     },
   });
 
-  const onSubmit = async (data: IUpdatePassword) => {
-    updatePasswordMutation.mutate(data);
-  };
 
   return (
     <Screen keyboardAware>

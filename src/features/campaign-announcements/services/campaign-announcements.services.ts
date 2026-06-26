@@ -2,6 +2,7 @@ import { api } from "@/src/features/api";
 import {
   ICampaignAnnouncement,
   ICampaignAnnouncementCreate,
+  ICampaignAnnouncementUpdate,
 } from "@/src/features/campaign-announcements/schemas/campaign-announcement.schema";
 import { IPaginatedApiResponse } from "@/src/interfaces";
 
@@ -22,6 +23,13 @@ export const CampaignAnnouncementService = {
     payload: ICampaignAnnouncementCreate,
   ): Promise<ICampaignAnnouncement> => {
     const { data } = await api.post(ENDPOINT, payload);
+
+    return data;
+  },
+  update: async (
+    payload: ICampaignAnnouncementUpdate,
+  ): Promise<ICampaignAnnouncement> => {
+    const { data } = await api.put(ENDPOINT, payload);
 
     return data;
   },

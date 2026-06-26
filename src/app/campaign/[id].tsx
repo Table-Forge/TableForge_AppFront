@@ -353,6 +353,12 @@ export default function CampaignDetails() {
                         params: { campaignId },
                       } as any)
                     }
+                    onEditAnnouncement={(announcement) =>
+                      router.push({
+                        pathname: "/campaign-announcement/create",
+                        params: { campaignId, editId: announcement.id },
+                      } as any)
+                    }
                     onDeleteAnnouncement={setAnnouncementToDelete}
                     hasNextPage={hasNextAnnouncementsPage}
                     isFetchingNextPage={isFetchingNextAnnouncementsPage}

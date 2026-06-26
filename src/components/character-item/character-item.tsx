@@ -1,5 +1,6 @@
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import {
   GestureResponderEvent,
   Image,
@@ -19,6 +20,7 @@ interface IProps {
   cardColor?: string;
   disabled?: boolean;
   onPress?: () => void;
+  onRemove?: () => void;
   showOwner?: boolean;
 }
 export const CharacterItem = ({
@@ -26,6 +28,7 @@ export const CharacterItem = ({
   cardColor = DEFAULT_COLORS.cardImageDark,
   disabled = false,
   onPress,
+  onRemove,
   showOwner = false,
 }: IProps) => {
   const router = useRouter();
@@ -79,7 +82,7 @@ export const CharacterItem = ({
           <Image style={styles.image} source={{ uri: data.imageUrl }} />
         )}
 
-        {isOwner && (
+        {isOwner && !onRemove && (
           <Pressable
             onPress={openEdit}
             hitSlop={8}
@@ -91,6 +94,26 @@ export const CharacterItem = ({
             <Ionicons
               name="create-outline"
               size={16}
+              color={DEFAULT_COLORS.white}
+            />
+          </Pressable>
+        )}
+
+        {!!onRemove && (
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              onRemove();
+            }}
+            hitSlop={8}
+            style={({ pressed }) => [
+              styles.removeButton,
+              pressed && { opacity: 0.85, transform: [{ scale: 0.95 }] },
+            ]}
+          >
+            <FontAwesome5
+              name="user-minus"
+              size={12}
               color={DEFAULT_COLORS.white}
             />
           </Pressable>
@@ -210,6 +233,20 @@ const styles = StyleSheet.create({
     backgroundColor: DEFAULT_COLORS.primary_78,
     borderWidth: 1,
     borderColor: BORDERS.highlightStrong,
+    zIndex: 2,
+  },
+  removeButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    width: 28,
+    height: 28,
+    borderRadius: RADII.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(239, 68, 68, 0.9)",
+    borderWidth: 1,
+    borderColor: "rgba(239, 68, 68, 1)",
     zIndex: 2,
   },
   classBadgeText: {

@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, ActivityIndicator } from "react-native";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
@@ -15,6 +15,7 @@ import { Label } from "@/src/components/label/label";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ScrollToFocusedInputProvider } from "@/src/context/scroll-to-focused-input";
+import { useCampaignAnnouncements } from "@/src/features/campaign-announcements/hooks/use-campaign-announcements";
 import { useCampaignAnnouncementsMutation } from "@/src/features/campaign-announcements/hooks/use-campaign-announcements-mutations";
 import { CampaignAnnouncementCreateSchema } from "@/src/features/campaign-announcements/schemas/campaign-announcement.schema";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
@@ -35,15 +36,28 @@ type ICampaignAnnouncementCreate = z.output<
 
 export default function CreateCampaignAnnouncementScreen() {
   const { user } = useAuth();
-  const { campaignId } = useLocalSearchParams();
+  const { campaignId, editId } = useLocalSearchParams();
   const parsedCampaignId = Number(campaignId);
+  const editingId = editId ? Number(editId) : undefined;
+  const isEditMode = !!editingId;
+
   const { handleBack } = useBackRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   const { data: campaign } = useCampaign(parsedCampaignId);
   const { data: members = [] } = useCampaignMembers({
     campaignId: parsedCampaignId,
   });
-  const { createCampaignAnnouncementMutation, isCreatingCampaignAnnouncement } =
+  
+  const { data: announcementsData, isLoading: isLoadingAnnouncements } = useCampaignAnnouncements({ 
+    campaignId: parsedCampaignId, 
+    enabled: isEditMode 
+  });
+  const existingAnnouncement = useMemo(
+    () => announcementsData?.pages.flatMap((page) => page.items).find((a) => a.id === editingId),
+    [announcementsData, editingId]
+  );
+
+  const { createCampaignAnnouncementMutation, updateCampaignAnnouncementMutation, isCreatingCampaignAnnouncement, isUpdatingCampaignAnnouncement } =
     useCampaignAnnouncementsMutation(parsedCampaignId);
 
   const hookForm = useForm<
@@ -59,7 +73,7 @@ export default function CreateCampaignAnnouncementScreen() {
       date: new Date().toISOString(),
     },
   });
-  const { handleSubmit, setValue } = hookForm;
+  const { handleSubmit, setValue, reset } = hookForm;
 
   useEffect(() => {
     if (!parsedCampaignId) return;
@@ -67,7 +81,28 @@ export default function CreateCampaignAnnouncementScreen() {
     setValue("campaignId", parsedCampaignId);
   }, [parsedCampaignId, setValue]);
 
+  useEffect(() => {
+    if (isEditMode && existingAnnouncement) {
+      reset({
+        campaignId: existingAnnouncement.campaignId,
+        title: existingAnnouncement.title,
+        content: existingAnnouncement.content,
+        date: existingAnnouncement.date,
+      });
+    }
+  }, [existingAnnouncement, isEditMode, reset]);
+
+  const isSubmitting = isCreatingCampaignAnnouncement || isUpdatingCampaignAnnouncement;
+
   const onSubmit: SubmitHandler<ICampaignAnnouncementCreate> = (data) => {
+    if (isEditMode && existingAnnouncement) {
+      updateCampaignAnnouncementMutation.mutate(
+        { ...data, id: existingAnnouncement.id },
+        { onSuccess: () => handleBack() }
+      );
+      return;
+    }
+
     createCampaignAnnouncementMutation.mutate(data, {
       onSuccess: () => {
         if (campaign) {
@@ -103,18 +138,31 @@ export default function CreateCampaignAnnouncementScreen() {
               }
               onPress={handleBack}
             />
-            <ThemedText style={styles.headerTitle}>Criar anúncio</ThemedText>
+            <ThemedText style={styles.headerTitle}>
+              {isEditMode ? "Editar anúncio" : "Criar anúncio"}
+            </ThemedText>
             <View style={styles.headerSpacer} />
           </HeaderActions>
         </Screen.Header>
 
-        <ScrollView
-          ref={scrollViewRef}
-          style={{ flex: 1 }}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+        {isEditMode && isLoadingAnnouncements ? (
+          <View style={styles.loadingWrapper}>
+            <ActivityIndicator
+              color={DEFAULT_COLORS.purpleBright}
+              size="large"
+            />
+            <ThemedText style={styles.loadingText}>
+              Carregando anúncio...
+            </ThemedText>
+          </View>
+        ) : (
+          <ScrollView
+            ref={scrollViewRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             <InfoCard style={styles.formCard}>
               <View style={styles.fieldContainer}>
                 <Label text="Título" />
@@ -124,8 +172,6 @@ export default function CreateCampaignAnnouncementScreen() {
                   placeholder="Título do anúncio"
                 />
               </View>
-
-
 
               <View style={styles.fieldContainer}>
                 <Label text="Conteúdo" />
@@ -144,11 +190,12 @@ export default function CreateCampaignAnnouncementScreen() {
 
             <Button
               variant="tertiary"
-              text="Criar anúncio"
-              isLoading={isCreatingCampaignAnnouncement}
+              text={isEditMode ? "Salvar alterações" : "Criar anúncio"}
+              isLoading={isSubmitting}
               onPress={handleSubmit(onSubmit)}
             />
-        </ScrollView>
+          </ScrollView>
+        )}
       </ScrollToFocusedInputProvider>
     </Screen>
   );
@@ -190,5 +237,15 @@ const styles = StyleSheet.create({
   multilineInput: {
     height: 130,
     paddingTop: 14,
+  },
+  loadingWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+  },
+  loadingText: {
+    color: DEFAULT_COLORS.textMuted,
+    fontSize: 13,
   },
 });

@@ -15,9 +15,16 @@ export const CampaignAnnouncementCreateSchema = z.object({
   date: z.string().trim().min(1, "A data é obrigatória."),
 });
 
+export const CampaignAnnouncementUpdateSchema = CampaignAnnouncementCreateSchema.extend({
+  id: z.coerce.number().min(1),
+});
+
 export type ICampaignAnnouncement = z.infer<
   typeof CampaignAnnouncementSchema
 >;
 export type ICampaignAnnouncementCreate = z.infer<
   typeof CampaignAnnouncementCreateSchema
+>;
+export type ICampaignAnnouncementUpdate = z.infer<
+  typeof CampaignAnnouncementUpdateSchema
 >;

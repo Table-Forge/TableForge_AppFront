@@ -1,8 +1,4 @@
-import { Pressable, StyleSheet, TouchableOpacity, View, ScrollView } from "react-native";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-
-import { Button } from "@/src/components/button/button";
-import { CharacterItem } from "@/src/components/character-item/character-item";
+import { StyleSheet, View } from "react-native";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { ICampaignMember } from "@/src/features/campaign-members/schemas/campaign-member.schema";
 import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
@@ -11,6 +7,9 @@ import { IJoinRequest } from "@/src/features/join-requests/schemas/join-request.
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
+
+import { CampaignMembersSection } from "./sections/campaign-members";
+import { CampaignJoinRequestsSection } from "./sections/campaign-join-requests";
 
 interface MembersTabProps {
   campaign: ICampaign;
@@ -39,64 +38,16 @@ export function MembersTab({
   onRemoveMember,
   pendingJoinRequests,
 }: MembersTabProps) {
-  const players = members.filter(m => m.role !== 'Master');
-
   return (
     <>
       {canSeePrivateModules ? (
-        <View style={styles.module}>
-          <View style={styles.membersHeader}>
-            <ThemedText
-              style={[styles.moduleTitle, styles.moduleTitleNoMargin]}
-            >
-              Membros
-            </ThemedText>
-            <ThemedText style={styles.memberCounter}>
-              {players.length}/{campaign.playersLimit}
-            </ThemedText>
-          </View>
-          {players.length ? (
-            isMaster ? (
-              <View style={styles.membersVerticalContainer}>
-                {players.map((member) => (
-                  <View key={member.id} style={styles.memberCard}>
-                    <CharacterItem
-                      data={getMemberCharacter(member, characters)}
-                      cardColor={DEFAULT_COLORS.cardImageDark}
-                      disabled={!member.characterId}
-                      showOwner
-                    />
-                    <TouchableOpacity
-                      activeOpacity={0.7}
-                      style={styles.removeBtn}
-                      onPress={() => onRemoveMember(member)}
-                    >
-                      <FontAwesome5 name="user-minus" size={12} color={DEFAULT_COLORS.white} />
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </View>
-            ) : (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.membersScrollContainer}
-              >
-                {players.map((member) => (
-                  <CharacterItem
-                    key={member.id}
-                    data={getMemberCharacter(member, characters)}
-                    cardColor={DEFAULT_COLORS.cardImageDark}
-                    disabled={!member.characterId}
-                    showOwner
-                  />
-                ))}
-              </ScrollView>
-            )
-          ) : (
-            <EmptyText text="Nenhum jogador listado." />
-          )}
-        </View>
+        <CampaignMembersSection
+          campaign={campaign}
+          characters={characters}
+          isMaster={isMaster}
+          members={members}
+          onRemoveMember={onRemoveMember}
+        />
       ) : (
         <View style={styles.module}>
           <ThemedText style={styles.moduleTitle}>Acesso à mesa</ThemedText>
@@ -107,92 +58,16 @@ export function MembersTab({
       )}
 
       {isMaster && (
-        <View style={styles.module}>
-          <ThemedText style={styles.moduleTitle}>
-            Solicitações de entrada
-          </ThemedText>
-          {pendingJoinRequests.length ? (
-            pendingJoinRequests.map((request) => (
-              <Pressable
-                key={request.id}
-                style={({ pressed }) => [
-                  styles.requestItem,
-                  pressed && { opacity: 0.85 },
-                ]}
-                onPress={() => onOpenJoinRequest(request.id)}
-              >
-                <InlineItem
-                  title={request.username || `Usuário ${request.userId}`}
-                  description={request.message || "Sem mensagem."}
-                />
-                <View style={styles.requestActions}>
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    text="Rejeitar"
-                    isLoading={isUpdatingJoinRequest}
-                    onPress={() => onRejectJoinRequest(request.id)}
-                  />
-                  <Button
-                    size="sm"
-                    variant="tertiary"
-                    text="Aprovar"
-                    isLoading={isUpdatingJoinRequest}
-                    onPress={() => onApproveJoinRequest(request.id)}
-                  />
-                </View>
-              </Pressable>
-            ))
-          ) : (
-            <EmptyText text="Nenhuma solicitação pendente." />
-          )}
-        </View>
+        <CampaignJoinRequestsSection
+          isUpdatingJoinRequest={isUpdatingJoinRequest}
+          onOpenJoinRequest={onOpenJoinRequest}
+          onApproveJoinRequest={onApproveJoinRequest}
+          onRejectJoinRequest={onRejectJoinRequest}
+          pendingJoinRequests={pendingJoinRequests}
+        />
       )}
     </>
   );
-}
-
-const InlineItem = ({
-  title,
-  description,
-}: {
-  title: string;
-  description?: string | null;
-}) => (
-  <View style={styles.inlineItem}>
-    <ThemedText weight="bold" style={styles.inlineTitle}>
-      {title}
-    </ThemedText>
-    {!!description && (
-      <ThemedText style={styles.inlineDescription} numberOfLines={2}>
-        {description}
-      </ThemedText>
-    )}
-  </View>
-);
-
-const EmptyText = ({ text }: { text: string }) => (
-  <ThemedText style={styles.emptyText}>{text}</ThemedText>
-);
-
-function getMemberCharacter(
-  member: ICampaignMember,
-  characters: ICharacter[],
-): ICharacter {
-  const character = characters.find((item) => item.id === member.characterId);
-
-  if (character) return character;
-
-  return {
-    id: member.characterId ?? member.userId,
-    name: member.username || "Membro",
-    classId: 0,
-    className: member.role === "Master" ? "Mestre" : "Jogador",
-    raceId: 0,
-    raceName: "Membro da mesa",
-    userId: member.userId,
-    userUsername: member.username,
-  };
 }
 
 const styles = StyleSheet.create({
@@ -212,75 +87,9 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     ...fonts.bold,
   },
-  moduleTitleNoMargin: {
-    marginBottom: 0,
-    flex: 1,
-  },
   description: {
     fontSize: 15,
     color: DEFAULT_COLORS.white_70,
     lineHeight: 22,
-  },
-  membersHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  memberCounter: {
-    color: DEFAULT_COLORS.textMuted,
-    fontSize: 13,
-    ...fonts.bold,
-  },
-  membersScrollContainer: {
-    gap: 12,
-    paddingRight: 20,
-  },
-  membersVerticalContainer: {
-    gap: 8,
-  },
-  memberCard: {
-    position: "relative",
-  },
-  removeBtn: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(239, 68, 68, 0.85)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  inlineItem: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: BORDERS.divider,
-  },
-  inlineTitle: {
-    fontSize: 14,
-    color: DEFAULT_COLORS.white,
-  },
-  inlineDescription: {
-    marginTop: 3,
-    fontSize: 13,
-    color: DEFAULT_COLORS.white_64,
-    lineHeight: 18,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: DEFAULT_COLORS.textMuted,
-  },
-  requestItem: {
-    borderTopWidth: 1,
-    borderTopColor: BORDERS.divider,
-    paddingTop: 4,
-  },
-  requestActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 10,
-    marginTop: 10,
   },
 });

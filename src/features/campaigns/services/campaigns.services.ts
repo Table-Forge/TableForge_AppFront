@@ -77,4 +77,8 @@ export const CampaignService = {
     const { data } = await api.put(ENDPOINT, payload);
     return data;
   },
+  delete: async (id: number) => {
+    const { data } = await api.delete(`${ENDPOINT}/${id}`);
+    return data;
+  },
 };

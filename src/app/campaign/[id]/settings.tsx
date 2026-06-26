@@ -64,6 +64,9 @@ export default function CampaignSettings() {
       .join(", ");
   }, [blockedRaces, raceOptions]);
 
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const { deleteCampaignMutation, isDeletingCampaign } = useCampaignsMutation();
+
   const handleToggleConfirm = () => {
     if (!campaign || !toggleConfirmation) return;
 
@@ -72,6 +75,17 @@ export default function CampaignSettings() {
       [toggleConfirmation.field]: toggleConfirmation.nextValue,
     });
     setToggleConfirmation(null);
+  };
+
+  const handleDeleteCampaignConfirm = async () => {
+    if (!campaign) return;
+    try {
+      await deleteCampaignMutation.mutateAsync(campaign.id);
+      setIsDeleteModalVisible(false);
+      router.replace("/(tabs)/");
+    } catch {
+      // handled by mutation
+    }
   };
 
   if (isLoading || !campaign) return <ThemedText>Carregando...</ThemedText>;
@@ -199,6 +213,23 @@ export default function CampaignSettings() {
             />
           </View>
         </View>
+
+        <View style={[styles.module, { borderColor: "#ef4444" }]}>
+          <View style={styles.moduleHeader}>
+            <ThemedText style={[styles.moduleTitle, { color: "#ef4444" }]}>
+              Zona de Perigo
+            </ThemedText>
+          </View>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => setIsDeleteModalVisible(true)}
+          >
+            <Ionicons name="trash-outline" size={20} color={DEFAULT_COLORS.white} />
+            <ThemedText style={styles.deleteButtonText}>
+              Excluir Campanha
+            </ThemedText>
+          </TouchableOpacity>
+        </View>
       </Screen.Body>
 
       <ModalConfirmation
@@ -209,6 +240,17 @@ export default function CampaignSettings() {
         cancelText="Cancelar"
         onClose={() => setToggleConfirmation(null)}
         onConfirm={handleToggleConfirm}
+      />
+
+      <ModalConfirmation
+        visible={isDeleteModalVisible}
+        title="Excluir Campanha"
+        description="Tem certeza que deseja excluir esta campanha? Esta ação NÃO PODE SER DESFEITA e todos os jogadores serão notificados."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onClose={() => setIsDeleteModalVisible(false)}
+        onConfirm={handleDeleteCampaignConfirm}
+        isLoading={isDeletingCampaign}
       />
     </Screen>
   );
@@ -292,5 +334,19 @@ const styles = StyleSheet.create({
     borderColor: BORDERS.highlight,
     alignItems: "center",
     justifyContent: "center",
+  },
+  deleteButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#ef4444",
+    padding: 12,
+    borderRadius: RADII.md,
+  },
+  deleteButtonText: {
+    color: DEFAULT_COLORS.white,
+    fontSize: 14,
+    ...fonts.bold,
   },
 });

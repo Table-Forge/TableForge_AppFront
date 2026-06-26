@@ -37,6 +37,7 @@ import { useJoinRequestsMutation } from "@/src/features/join-requests/hooks/use-
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { useDebouncedCallback } from "@/src/hooks/use-debounced-callback";
 import { ModalBase } from "@/src/components/modals/modal-base/modal-base";
+import { Toggle } from "@/src/components/toggle/toggle";
 import { notify } from "@/src/features/notifications/helpers/notify";
 import { CallendarTab } from "@/src/pages-components/campaign/callendar-tab";
 import { HomeTab } from "@/src/pages-components/campaign/home-tab";
@@ -120,6 +121,9 @@ export default function CampaignDetails() {
     useState<ICampaignAnnouncement | null>(null);
   const [memberToRemove, setMemberToRemove] =
     useState<ICampaignMember | null>(null);
+  const [notifyOnRemove, setNotifyOnRemove] = useState(true);
+  const [isLeaveCampaignModalVisible, setIsLeaveCampaignModalVisible] =
+    useState(false);
 
   const currentUserId = user?.id;
   const currentMember = useMemo(
@@ -206,12 +210,26 @@ export default function CampaignDetails() {
     if (memberToRemove) {
       try {
         await deleteCampaignMemberMutation.mutateAsync(memberToRemove.id);
-        notify.memberRemoved({
-          userId: memberToRemove.userId,
-          campaignId,
-          campaignTitle: campaign.title,
-        });
+        if (notifyOnRemove) {
+          notify.memberRemoved({
+            userId: memberToRemove.userId,
+            campaignId,
+            campaignTitle: campaign.title,
+          });
+        }
         setMemberToRemove(null);
+      } catch {
+        // Silently ignore or handle error
+      }
+    }
+  };
+
+  const handleLeaveCampaignConfirm = async () => {
+    if (currentMember) {
+      try {
+        await deleteCampaignMemberMutation.mutateAsync(currentMember.id);
+        setIsLeaveCampaignModalVisible(false);
+        router.replace("/(tabs)/");
       } catch {
         // Silently ignore or handle error
       }
@@ -252,6 +270,19 @@ export default function CampaignDetails() {
               />
               {canSeePrivateModules && (
                 <View style={{ flexDirection: "row", gap: 10 }}>
+                  {isPlayer && (
+                    <ActionButton
+                      variant="circle"
+                      icon={
+                        <Ionicons
+                          name="log-out-outline"
+                          size={22}
+                          color={DEFAULT_COLORS.white}
+                        />
+                      }
+                      onPress={() => setIsLeaveCampaignModalVisible(true)}
+                    />
+                  )}
                   {isMaster && (
                     <ActionButton
                       variant="circle"
@@ -423,7 +454,10 @@ export default function CampaignDetails() {
                         },
                       );
                     }}
-                    onRemoveMember={setMemberToRemove}
+                    onRemoveMember={(member) => {
+                      setMemberToRemove(member);
+                      setNotifyOnRemove(true);
+                    }}
                   />
                 ),
               },
@@ -493,9 +527,26 @@ export default function CampaignDetails() {
         visible={!!memberToRemove}
         onClose={() => setMemberToRemove(null)}
         title="Remover Jogador"
-        description={`Tem certeza que deseja remover "${memberToRemove?.username || "este jogador"}" da campanha? O jogador será notificado.`}
+        description={`Tem certeza que deseja remover "${memberToRemove?.username || "este jogador"}" da campanha?`}
         confirmText="Remover"
         onConfirm={handleRemoveMemberConfirm}
+        isLoading={isDeletingCampaignMember}
+      >
+        <View style={styles.toggleRow}>
+          <ThemedText style={styles.toggleLabel}>
+            Notificar jogador sobre a remoção?
+          </ThemedText>
+          <Toggle value={notifyOnRemove} onValueChange={setNotifyOnRemove} />
+        </View>
+      </ModalBase>
+
+      <ModalBase
+        visible={isLeaveCampaignModalVisible}
+        onClose={() => setIsLeaveCampaignModalVisible(false)}
+        title="Sair da Campanha"
+        description="Tem certeza que deseja sair desta campanha? Você perderá acesso a todos os detalhes e ao chat."
+        confirmText="Sair"
+        onConfirm={handleLeaveCampaignConfirm}
         isLoading={isDeletingCampaignMember}
       />
     </Screen>
@@ -556,6 +607,22 @@ const styles = StyleSheet.create({
     color: DEFAULT_COLORS.textMuted,
   },
   content: { padding: 20, gap: 20 },
+  toggleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: SURFACES.fill,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: BORDERS.subtle,
+    marginTop: 8,
+  },
+  toggleLabel: {
+    fontSize: 14,
+    color: DEFAULT_COLORS.white,
+    flex: 1,
+  },
 });
 
 function translateJoinStatus(status: string) {

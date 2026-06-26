@@ -99,10 +99,45 @@ export const useCampaignsMutation = () => {
     },
   });
 
+  const deleteCampaignMutation = useMutation({
+    mutationFn: (id: number) => CampaignService.delete(id),
+    onSuccess: (_, id) => {
+      queryClient.setQueriesData<CampaignInfiniteData>(
+        { queryKey: [CAMPAIGNS], exact: false },
+        (data) => {
+          if (!data?.pages) return data;
+          return {
+            ...data,
+            pages: data.pages.map((page) => ({
+              ...page,
+              items: page.items.filter((item) => item.id !== id),
+            })),
+          };
+        },
+      );
+      queryClient.invalidateQueries({
+        queryKey: [CAMPAIGNS],
+        refetchType: "active",
+      });
+      Toast.show({
+        type: "success",
+        text1: "Campanha excluída com sucesso!",
+      });
+    },
+    onError: () => {
+      Toast.show({
+        type: "error",
+        text1: "Erro ao excluir campanha",
+      });
+    },
+  });
+
   return {
     createCampaignMutation,
     updateCampaignMutation,
+    deleteCampaignMutation,
     isCreatingCampaign: createCampaignMutation.isPending,
     isUpdatingCampaign: updateCampaignMutation.isPending,
+    isDeletingCampaign: deleteCampaignMutation.isPending,
   };
 };

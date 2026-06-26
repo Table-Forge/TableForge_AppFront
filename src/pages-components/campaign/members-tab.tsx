@@ -1,4 +1,6 @@
-import { Pressable, StyleSheet, View, ScrollView } from "react-native";
+import { Pressable, StyleSheet, TouchableOpacity, View, ScrollView } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 import { Button } from "@/src/components/button/button";
 import { CharacterItem } from "@/src/components/character-item/character-item";
@@ -21,6 +23,7 @@ interface MembersTabProps {
   onOpenJoinRequest: (id: number) => void;
   onApproveJoinRequest: (id: number) => void;
   onRejectJoinRequest: (id: number) => void;
+  onRemoveMember: (member: ICampaignMember) => void;
   pendingJoinRequests: IJoinRequest[];
 }
 
@@ -34,9 +37,22 @@ export function MembersTab({
   onOpenJoinRequest,
   onApproveJoinRequest,
   onRejectJoinRequest,
+  onRemoveMember,
   pendingJoinRequests,
 }: MembersTabProps) {
   const players = members.filter(m => m.role !== 'Master');
+
+  const renderRightActions = (member: ICampaignMember) => (
+    <View style={styles.swipeActionsContainer}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        style={[styles.swipeActionBtn, styles.deleteActionBtn]}
+        onPress={() => onRemoveMember(member)}
+      >
+        <FontAwesome5 name="user-minus" size={16} color={DEFAULT_COLORS.white} />
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <>
@@ -53,21 +69,42 @@ export function MembersTab({
             </ThemedText>
           </View>
           {players.length ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.membersScrollContainer}
-            >
-              {players.map((member) => (
-                <CharacterItem
-                  key={member.id}
-                  data={getMemberCharacter(member, characters)}
-                  cardColor={DEFAULT_COLORS.cardImageDark}
-                  disabled={!member.characterId}
-                  showOwner
-                />
-              ))}
-            </ScrollView>
+            isMaster ? (
+              <View style={styles.membersVerticalContainer}>
+                {players.map((member) => (
+                  <Swipeable
+                    key={member.id}
+                    renderRightActions={() => renderRightActions(member)}
+                    containerStyle={styles.swipeContainer}
+                  >
+                    <View style={styles.memberSwipeCard}>
+                      <CharacterItem
+                        data={getMemberCharacter(member, characters)}
+                        cardColor={DEFAULT_COLORS.cardImageDark}
+                        disabled={!member.characterId}
+                        showOwner
+                      />
+                    </View>
+                  </Swipeable>
+                ))}
+              </View>
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.membersScrollContainer}
+              >
+                {players.map((member) => (
+                  <CharacterItem
+                    key={member.id}
+                    data={getMemberCharacter(member, characters)}
+                    cardColor={DEFAULT_COLORS.cardImageDark}
+                    disabled={!member.characterId}
+                    showOwner
+                  />
+                ))}
+              </ScrollView>
+            )
           ) : (
             <EmptyText text="Nenhum jogador listado." />
           )}
@@ -210,6 +247,33 @@ const styles = StyleSheet.create({
   membersScrollContainer: {
     gap: 12,
     paddingRight: 20,
+  },
+  membersVerticalContainer: {
+    gap: 8,
+  },
+  memberSwipeCard: {
+    backgroundColor: SURFACES.fill,
+    borderRadius: RADII.md,
+    padding: 4,
+  },
+  swipeContainer: {
+    borderRadius: RADII.md,
+    overflow: "hidden",
+  },
+  swipeActionsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: "100%",
+  },
+  swipeActionBtn: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 60,
+    height: "100%",
+    borderRadius: RADII.md,
+  },
+  deleteActionBtn: {
+    backgroundColor: "#ef4444",
   },
   inlineItem: {
     paddingVertical: 12,

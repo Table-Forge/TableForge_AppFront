@@ -24,6 +24,8 @@ import { useCampaignAnnouncements } from "@/src/features/campaign-announcements/
 import { useCampaignAnnouncementsMutation } from "@/src/features/campaign-announcements/hooks/use-campaign-announcements-mutations";
 import { ICampaignAnnouncement } from "@/src/features/campaign-announcements/schemas/campaign-announcement.schema";
 import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-campaign-members";
+import { useCampaignMembersMutation } from "@/src/features/campaign-members/hooks/use-campaign-members-mutations";
+import { ICampaignMember } from "@/src/features/campaign-members/schemas/campaign-member.schema";
 import { useCampaignSessions } from "@/src/features/campaign-sessions/hooks/use-campaign-sessions";
 import { useCampaignSessionsMutation } from "@/src/features/campaign-sessions/hooks/use-campaign-sessions-mutations";
 import { ICampaignSessionList } from "@/src/features/campaign-sessions/schemas/campaign-session.schema";
@@ -109,12 +111,15 @@ export default function CampaignDetails() {
 
   const { deleteCampaignSessionMutation, isDeletingCampaignSession } = useCampaignSessionsMutation();
   const { deleteCampaignAnnouncementMutation, isDeletingCampaignAnnouncement } = useCampaignAnnouncementsMutation(campaignId);
+  const { deleteCampaignMemberMutation, isDeletingCampaignMember } = useCampaignMembersMutation(campaignId);
 
   const [activeTab, setActiveTab] = useState<TabType>("Início");
   const [sessionToDelete, setSessionToDelete] =
     useState<ICampaignSessionList | null>(null);
   const [announcementToDelete, setAnnouncementToDelete] =
     useState<ICampaignAnnouncement | null>(null);
+  const [memberToRemove, setMemberToRemove] =
+    useState<ICampaignMember | null>(null);
 
   const currentUserId = user?.id;
   const currentMember = useMemo(
@@ -191,6 +196,22 @@ export default function CampaignDetails() {
       try {
         await deleteCampaignAnnouncementMutation.mutateAsync(announcementToDelete.id);
         setAnnouncementToDelete(null);
+      } catch {
+        // Silently ignore or handle error
+      }
+    }
+  };
+
+  const handleRemoveMemberConfirm = async () => {
+    if (memberToRemove) {
+      try {
+        await deleteCampaignMemberMutation.mutateAsync(memberToRemove.id);
+        notify.memberRemoved({
+          userId: memberToRemove.userId,
+          campaignId,
+          campaignTitle: campaign.title,
+        });
+        setMemberToRemove(null);
       } catch {
         // Silently ignore or handle error
       }
@@ -396,6 +417,7 @@ export default function CampaignDetails() {
                         },
                       );
                     }}
+                    onRemoveMember={setMemberToRemove}
                   />
                 ),
               },
@@ -459,6 +481,16 @@ export default function CampaignDetails() {
         confirmText="Excluir"
         onConfirm={handleDeleteAnnouncementConfirm}
         isLoading={isDeletingCampaignAnnouncement}
+      />
+
+      <ModalBase
+        visible={!!memberToRemove}
+        onClose={() => setMemberToRemove(null)}
+        title="Remover Jogador"
+        description={`Tem certeza que deseja remover "${memberToRemove?.username || "este jogador"}" da campanha? O jogador será notificado.`}
+        confirmText="Remover"
+        onConfirm={handleRemoveMemberConfirm}
+        isLoading={isDeletingCampaignMember}
       />
     </Screen>
   );

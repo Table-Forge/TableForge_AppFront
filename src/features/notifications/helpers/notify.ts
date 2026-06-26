@@ -164,4 +164,20 @@ export const notify = {
       message: `${accepterName} aceitou sua solicitação de amizade.`,
       relatedLink: `/user/${accepterId}`,
     }),
+
+  memberRemoved: ({
+    userId,
+    campaignId,
+    campaignTitle,
+  }: {
+    userId: number;
+    campaignId: number;
+    campaignTitle: string;
+  }) =>
+    send({
+      userId,
+      type: "System",
+      message: `Você foi removido da campanha "${campaignTitle}".`,
+      relatedLink: `/campaign/${campaignId}`,
+    }),
 };

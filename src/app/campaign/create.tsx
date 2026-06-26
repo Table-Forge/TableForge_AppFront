@@ -286,137 +286,129 @@ export default function CreateCampaignScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-            <View style={styles.sectionHeader}>
-              <ThemedText style={styles.sectionTitle}>
-                Dados da campanha
-              </ThemedText>
+          <View style={styles.sectionHeader}>
+            <ThemedText style={styles.sectionTitle}>
+              Dados da campanha
+            </ThemedText>
+          </View>
+
+          <InfoCard style={styles.formCard}>
+            <View style={styles.fieldContainer}>
+              <Label text="Título" />
+              <ControlledInput
+                hookForm={hookForm}
+                name="title"
+                placeholder="ex.: A cripta dos dados perdidos"
+              />
             </View>
 
-            <InfoCard style={styles.formCard}>
-              <View style={styles.fieldContainer}>
-                <Label text="Título" />
-                <ControlledInput
-                  hookForm={hookForm}
-                  name="title"
-                  placeholder="ex.: A cripta dos dados perdidos"
-                />
-              </View>
-
-              <View style={styles.fieldContainer}>
-                <Label text="Descrição" />
-                <ControlledInput
-                  hookForm={hookForm}
-                  name="description"
-                  placeholder="Conte o gancho principal da aventura"
-                  multiline
-                  maxLength={200}
-                  containerStyle={styles.multilineInputContainer}
-                  textAlignVertical="top"
-                  style={styles.multilineInput}
-                />
-              </View>
-
-              <View style={styles.fieldContainer}>
-                <Label text="Dificuldade" />
-                <ControlledSelect
-                  hookForm={hookForm}
-                  name="difficulty"
-                  options={difficultyLevelEnum}
-                  disabled={isLoadingDifficultyLevelEnum}
-                />
-              </View>
-
-              <View style={styles.fieldContainer}>
-                <Label text="Banner" />
-                <ControlledImageInput
-                  hookForm={hookForm}
-                  name="bannerImage"
-                  disabled={isSubmitting || isLoadingCampaign}
-                  isLoading={isCreatingImage}
-                  placeholder="Toque para selecionar o banner"
-                />
-              </View>
-
-              <View style={styles.fieldContainer}>
-                <Label text="Limite de jogadores" />
-                <ControlledProgressInput
-                  hookForm={hookForm}
-                  name="playersLimit"
-                  min={1}
-                  max={8}
-                />
-              </View>
-
-              <ControlledToggle
+            <View style={styles.fieldContainer}>
+              <Label text="Sistema de jogo" />
+              <ControlledSelect
                 hookForm={hookForm}
-                name="isPrivate"
-                label="Campanha privada"
-                description="A campanha fica fora das buscas públicas."
+                name="gameSystemId"
+                options={gameSystemOptions}
+                disabled={isLoadingGameSystemsSelect}
               />
-
-              <ControlledToggle
-                hookForm={hookForm}
-                name="isChatEnabled"
-                label="Chat habilitado"
-                description="Permite conversa entre participantes."
-              />
-            </InfoCard>
-
-            <View style={styles.sectionHeader}>
-              <ThemedText style={styles.sectionTitle}>
-                Localização da campanha
-              </ThemedText>
             </View>
 
-            <InfoCard style={styles.formCard}>
-              <ControlledLocationAutocomplete
+            <View style={styles.fieldContainer}>
+              <Label text="Descrição" />
+              <ControlledInput
                 hookForm={hookForm}
-                name="locationName"
-                hasSelectionError={!!locationSelectionError}
-                onClearSelection={() => {
-                  setValue("address", "", { shouldValidate: false });
-                  setValue("latitude", "", { shouldValidate: false });
-                  setValue("longitude", "", { shouldValidate: false });
-                }}
-                onSelectLocation={(location) => {
-                  setValue("address", location.address, {
-                    shouldValidate: true,
-                  });
-                  setValue("latitude", location.latitude, {
-                    shouldValidate: true,
-                  });
-                  setValue("longitude", location.longitude, {
-                    shouldValidate: true,
-                  });
-                }}
+                name="description"
+                placeholder="Conte o gancho principal da aventura"
+                multiline
+                maxLength={200}
+                containerStyle={styles.multilineInputContainer}
+                textAlignVertical="top"
+                style={styles.multilineInput}
               />
-            </InfoCard>
-
-            <View style={styles.sectionHeader}>
-              <ThemedText style={styles.sectionTitle}>
-                Vínculos do painel
-              </ThemedText>
             </View>
 
-            <InfoCard style={styles.formCard}>
-              <View style={styles.fieldContainer}>
-                <Label text="Sistema de jogo" />
-                <ControlledSelect
-                  hookForm={hookForm}
-                  name="gameSystemId"
-                  options={gameSystemOptions}
-                  disabled={isLoadingGameSystemsSelect}
-                />
-              </View>
-            </InfoCard>
+            <View style={styles.fieldContainer}>
+              <Label text="Dificuldade" />
+              <ControlledSelect
+                hookForm={hookForm}
+                name="difficulty"
+                options={difficultyLevelEnum}
+                disabled={isLoadingDifficultyLevelEnum}
+              />
+            </View>
 
-            <Button
-              variant="tertiary"
-              onPress={handleSubmit(onSubmit)}
-              isLoading={isSubmitting}
-              disabled={isLoadingCampaign}
-              text={isEditing ? "Salvar campanha" : "Criar campanha"}
+            <View style={styles.fieldContainer}>
+              <Label text="Banner" />
+              <ControlledImageInput
+                hookForm={hookForm}
+                name="bannerImage"
+                disabled={isSubmitting || isLoadingCampaign}
+                isLoading={isCreatingImage}
+                placeholder="Toque para selecionar o banner"
+              />
+            </View>
+
+            <View style={styles.fieldContainer}>
+              <Label text="Limite de jogadores" />
+              <ControlledProgressInput
+                hookForm={hookForm}
+                name="playersLimit"
+                min={1}
+                max={8}
+              />
+            </View>
+
+            <ControlledToggle
+              hookForm={hookForm}
+              name="isPrivate"
+              label="Campanha privada"
+              description="A campanha fica fora das buscas públicas."
             />
+
+            <ControlledToggle
+              hookForm={hookForm}
+              name="isChatEnabled"
+              label="Chat habilitado"
+              description="Permite conversa entre participantes."
+            />
+          </InfoCard>
+
+          <View style={styles.sectionHeader}>
+            <ThemedText style={styles.sectionTitle}>
+              Localização da campanha
+            </ThemedText>
+          </View>
+
+          <InfoCard style={styles.formCard}>
+            <ControlledLocationAutocomplete
+              hookForm={hookForm}
+              name="locationName"
+              hasSelectionError={!!locationSelectionError}
+              onClearSelection={() => {
+                setValue("address", "", { shouldValidate: false });
+                setValue("latitude", "", { shouldValidate: false });
+                setValue("longitude", "", { shouldValidate: false });
+              }}
+              onSelectLocation={(location) => {
+                setValue("address", location.address, {
+                  shouldValidate: true,
+                });
+                setValue("latitude", location.latitude, {
+                  shouldValidate: true,
+                });
+                setValue("longitude", location.longitude, {
+                  shouldValidate: true,
+                });
+              }}
+            />
+          </InfoCard>
+
+          <Button
+            variant="tertiary"
+            onPress={handleSubmit(onSubmit)}
+            isLoading={isSubmitting}
+            disabled={isLoadingCampaign}
+            text={isEditing ? "Salvar campanha" : "Criar campanha"}
+          />
         </ScrollView>
       </ScrollToFocusedInputProvider>
     </Screen>

@@ -70,8 +70,8 @@ export default function CreateCharacterScreen() {
 
   const editingId = editId ? Number(editId) : undefined;
   const isEditMode = !!editingId;
-  const { data: existingCharacter, isPending: isLoadingExisting } =
-    useCharacter(editingId);
+  const { data: existingCharacter, isPending } = useCharacter(editingId);
+  const isLoadingExisting = isEditMode && isPending;
 
   const hookForm = useForm<ICharacterCreateFormInput, unknown, ICharacterCreateForm>({
     resolver: zodResolver(CharacterCreateFormSchema),

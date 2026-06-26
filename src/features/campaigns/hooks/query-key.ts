@@ -1,10 +1,8 @@
 export const CAMPAIGNS = "campaigns";
 
-export const CAMPAIGNS_PLAYER = "campaigns-player";
-
 export const CAMPAIGN_KEYS = {
   all: [CAMPAIGNS] as const,
-  player: () => [CAMPAIGNS_PLAYER] as const,
+  player: () => [...CAMPAIGN_KEYS.all, "player"] as const,
   byId: (id: number) => [...CAMPAIGN_KEYS.all, id] as const,
   byUser: (userId: number) => [...CAMPAIGN_KEYS.all, { userId }] as const,
   difficultyLevelEnum: () =>

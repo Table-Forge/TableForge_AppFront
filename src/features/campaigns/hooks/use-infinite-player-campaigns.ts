@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { CAMPAIGNS_PLAYER } from "./query-key";
+import { CAMPAIGN_KEYS } from "./query-key";
 import { CampaignService } from "../services/campaigns.services";
 
 const DEFAULT_LIMIT = 20;
@@ -22,7 +22,7 @@ export function useInfinitePlayerCampaigns({
   const normalizedSearch = search.trim();
 
   return useInfiniteQuery({
-    queryKey: [CAMPAIGNS_PLAYER, size, normalizedSearch, filter, userId],
+    queryKey: [...CAMPAIGN_KEYS.player(), size, normalizedSearch, filter, userId],
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       CampaignService.searchPlayerCampaigns({

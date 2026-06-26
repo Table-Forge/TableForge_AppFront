@@ -128,7 +128,7 @@ export default function DirectChatScreen() {
           ListEmptyComponent={
             <View style={styles.emptyWrapper}>
               <ThemedText style={styles.emptyText}>
-                Diga olá! Nenhuma mensagem ainda.
+                Nenhuma mensagem ainda.
               </ThemedText>
             </View>
           }
@@ -180,12 +180,12 @@ const MessageBubble = ({
             {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </ThemedText>
           {isMine && (
-             <Ionicons 
-               name="checkmark-done" 
-               size={14} 
-               color={isRead ? DEFAULT_COLORS.secondary : DEFAULT_COLORS.textMuted} 
-               style={styles.statusIcon} 
-             />
+            <Ionicons
+              name="checkmark-done"
+              size={14}
+              color={isRead ? DEFAULT_COLORS.secondary : DEFAULT_COLORS.textMuted}
+              style={styles.statusIcon}
+            />
           )}
         </View>
       </View>

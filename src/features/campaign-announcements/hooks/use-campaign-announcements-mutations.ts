@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { CAMPAIGN_ANNOUNCEMENT_KEYS } from "@/src/features/campaign-announcements/hooks/query-key";
-import { ICampaignAnnouncementCreate } from "@/src/features/campaign-announcements/schemas/campaign-announcement.schema";
+import { ICampaignAnnouncementCreate, ICampaignAnnouncementUpdate } from "@/src/features/campaign-announcements/schemas/campaign-announcement.schema";
 import { CampaignAnnouncementService } from "@/src/features/campaign-announcements/services/campaign-announcements.services";
 
 export const useCampaignAnnouncementsMutation = (campaignId?: number) => {
@@ -20,6 +20,12 @@ export const useCampaignAnnouncementsMutation = (campaignId?: number) => {
     onSuccess: invalidateCampaignAnnouncements,
   });
 
+  const updateCampaignAnnouncementMutation = useMutation({
+    mutationFn: (payload: ICampaignAnnouncementUpdate) =>
+      CampaignAnnouncementService.update(payload),
+    onSuccess: invalidateCampaignAnnouncements,
+  });
+
   const deleteCampaignAnnouncementMutation = useMutation({
     mutationFn: (id: number) => CampaignAnnouncementService.delete(id),
     onSuccess: invalidateCampaignAnnouncements,
@@ -27,9 +33,12 @@ export const useCampaignAnnouncementsMutation = (campaignId?: number) => {
 
   return {
     createCampaignAnnouncementMutation,
+    updateCampaignAnnouncementMutation,
     deleteCampaignAnnouncementMutation,
     isCreatingCampaignAnnouncement:
       createCampaignAnnouncementMutation.isPending,
+    isUpdatingCampaignAnnouncement:
+      updateCampaignAnnouncementMutation.isPending,
     isDeletingCampaignAnnouncement:
       deleteCampaignAnnouncementMutation.isPending,
   };

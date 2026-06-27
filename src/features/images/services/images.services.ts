@@ -4,6 +4,7 @@ import {
   TImageType,
 } from "@/src/features/images/schemas/image.schema";
 import { TOptions } from "@/src/interfaces";
+import { compressImageAsync } from "@/src/utils/image";
 import { api } from "../../api";
 
 const ENDPOINT = "/images";
@@ -18,8 +19,10 @@ const ImageTypeMap: Record<TImageType, number> = {
 
 export const ImageService = {
   create: async (payload: IImage): Promise<ICreateImageResponse> => {
+    const compressedFile = await compressImageAsync(payload.file);
+    
     const formData = new FormData();
-    formData.append("File", payload.file as unknown as Blob);
+    formData.append("File", compressedFile as unknown as Blob);
     formData.append("Type", String(ImageTypeMap[payload.type]));
     formData.append("Name", payload.name);
 

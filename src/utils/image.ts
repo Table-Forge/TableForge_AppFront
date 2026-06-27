@@ -1,4 +1,5 @@
 import type { ImagePickerAsset } from "expo-image-picker";
+import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 
 import { IImageFile } from "@/src/features/images/schemas/image.schema";
 
@@ -48,4 +49,27 @@ export const validateImagePickerAsset = (
   }
 
   return null;
+};
+
+export const compressImageAsync = async (file: IImageFile): Promise<IImageFile> => {
+  try {
+    const manipResult = await manipulateAsync(
+      file.uri,
+      [{ resize: { width: 1920 } }], // Limite de resolução comum
+      { compress: 0.7, format: SaveFormat.JPEG } // Fator de compressão e conversão para JPEG
+    );
+    
+    // Garante que a extensão fique coerente com a conversão
+    const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+    
+    return {
+      ...file,
+      uri: manipResult.uri,
+      name: newName,
+      type: "image/jpeg"
+    };
+  } catch (error) {
+    console.error("Error compressing image:", error);
+    return file; // Retorna original se falhar
+  }
 };

@@ -7,6 +7,7 @@ import {
   UserSchema,
 } from "@/src/features/users/schemas/user.schema";
 import { TOptions } from "@/src/interfaces";
+import { compressImageAsync } from "@/src/utils/image";
 
 const ENDPOINT = "/users";
 
@@ -37,9 +38,11 @@ export const UserService = {
   },
 
   updateAvatar: async (payload: IUserAvatarPayload) => {
+    const compressedFile = await compressImageAsync(payload.file);
+    
     const formData = new FormData();
     formData.append("Id", String(payload.id));
-    formData.append("File", payload.file as unknown as Blob);
+    formData.append("File", compressedFile as unknown as Blob);
 
     const { data } = await api.request({
       url: `${ENDPOINT}/avatar`,

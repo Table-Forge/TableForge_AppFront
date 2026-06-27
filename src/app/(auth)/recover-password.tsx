@@ -131,7 +131,17 @@ export default function RecoverPasswordScreen() {
         code,
       },
       {
-        onSuccess: () => {
+        onSuccess: (data: { isValid?: boolean }) => {
+          if (data && data.isValid === false) {
+            setIsCodeInvalid(true);
+            triggerShake();
+            setError("code", {
+              type: "manual",
+              message: "Código inválido. Verifique e tente novamente.",
+            });
+            return;
+          }
+
           setIsCodeInvalid(false);
           clearErrors("code");
           setValue("step", 3, { shouldDirty: false, shouldTouch: false });

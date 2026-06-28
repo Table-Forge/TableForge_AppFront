@@ -58,7 +58,7 @@ export function CampaignDetailsSection({ campaign, difficultyLevelEnum }: Campai
             <Fontisto name="persons" size={14} color={color} />
           )}
           label="Vagas"
-          value={`${campaign.playersLimit || 0} jogadores`}
+          value={`${campaign.membersCount || 0}/${campaign.playersLimit || 0} jogadores`}
         />
       </View>
     </View>

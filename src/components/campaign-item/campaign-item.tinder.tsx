@@ -35,7 +35,7 @@ export const CampaignItemTinder = ({
   const gameMaster = data.creatorUsername || "Mestre Desconhecido";
   const location = data.locationName || data.address || "-";
   const system = data.gameSystemName || `Sistema ${data.gameSystemId}`;
-  const partySize = `0/${data.playersLimit}`;
+  const partySize = `${data.membersCount || 0}/${data.playersLimit}`;
   const difficulty = data.difficulty
     ? difficultyLevelEnum.find((item) => item.value === data.difficulty)?.name
     : "-";

@@ -57,6 +57,7 @@ export const CampaignSchema = z.object({
   bannerUrl: z.string().optional(),
   gameSystemId: z.number().optional().nullable(),
   gameSystemName: z.string().optional().nullable(),
+  membersCount: z.number().optional(),
 });
 
 export const CampaignCreateSchema = z.object({

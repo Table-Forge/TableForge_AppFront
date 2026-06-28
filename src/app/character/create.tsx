@@ -24,6 +24,7 @@ import { useAuth } from "@/src/context/auth";
 import { ScrollToFocusedInputProvider } from "@/src/context/scroll-to-focused-input";
 import { useCharacter } from "@/src/features/characters/hooks/use-character";
 import { useCharactersMutation } from "@/src/features/characters/hooks/use-characters-mutations";
+import { useAlignmentEnum } from "@/src/features/characters/hooks/enums/use-alignment-enum";
 import {
   CharacterCreateSchema,
   ICharacterCreate,
@@ -67,6 +68,7 @@ export default function CreateCharacterScreen() {
   const { createImageMutation, isCreatingImage } = useImagesMutation();
   const { classOptions, isLoadingClassesSelect } = useClassesSelect();
   const { raceOptions, isLoadingRacesSelect } = useRacesSelect();
+  const { alignmentOptions, isLoadingAlignmentEnum } = useAlignmentEnum();
 
   const editingId = editId ? Number(editId) : undefined;
   const isEditMode = !!editingId;
@@ -258,10 +260,12 @@ export default function CreateCharacterScreen() {
 
               <View style={styles.fieldContainer}>
                 <Label text="Alinhamento" />
-                <ControlledInput
+                <ControlledSelect
                   hookForm={hookForm}
                   name="alignment"
-                  placeholder="ex.: Leal e Bom"
+                  options={alignmentOptions}
+                  placeholder="Selecione"
+                  disabled={isLoadingAlignmentEnum}
                 />
               </View>
 

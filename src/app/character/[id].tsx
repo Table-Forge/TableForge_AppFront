@@ -15,6 +15,7 @@ import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
 import { useCharacter } from "@/src/features/characters/hooks/use-character";
+import { useAlignmentEnum } from "@/src/features/characters/hooks/enums/use-alignment-enum";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { useDebouncedCallback } from "@/src/hooks/use-debounced-callback";
@@ -37,6 +38,7 @@ export default function CharacterScreen() {
     refetch,
     isRefetching,
   } = useCharacter(characterId);
+  const { alignmentOptions } = useAlignmentEnum();
   const { data: owner, refetch: refetchOwner } = useUser(data?.userId, true);
 
   const handleRefresh = useDebouncedCallback(() => {
@@ -134,7 +136,7 @@ export default function CharacterScreen() {
           <StatCard label="Raça" value={raceName} icon="dna" />
           <StatCard
             label="Alinhamento"
-            value={data.alignment || "-"}
+            value={alignmentOptions.find(o => o.value === data.alignment)?.name || data.alignment || "-"}
             icon="scale-balance"
           />
         </View>

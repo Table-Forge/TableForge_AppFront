@@ -2,7 +2,7 @@ import {
   ICharacter,
   ICharacterCreate,
 } from "@/src/features/characters/schemas/character.schema";
-import { IGetPaginatedParams, IPaginatedApiResponse } from "@/src/interfaces";
+import { IGetPaginatedParams, IPaginatedApiResponse, TOptions } from "@/src/interfaces";
 import { api } from "@/src/features/api";
 
 const ENDPOINT = "/api/characters";
@@ -42,6 +42,11 @@ export const CharacterService = {
   delete: async (id: number) => {
     const { data } = await api.delete(`${ENDPOINT}/${id}`);
 
+    return data;
+  },
+
+  getAlignmentEnum: async (): Promise<TOptions[]> => {
+    const { data } = await api.get(`${ENDPOINT}/enums/alignment`);
     return data;
   },
 };

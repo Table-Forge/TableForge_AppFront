@@ -47,7 +47,7 @@ export const TabBar = ({
         preserveAspectRatio="none"
       >
         <Path
-          d="M28,0 H160 C150,100 250,100 240,0 H372 Q400,0 400,28 V100 H0 V28 Q0,0 28,0 Z"
+          d="M32,0 H154 C144,100 256,100 246,0 H368 Q400,0 400,32 V68 Q400,100 368,100 H32 Q0,100 0,68 V32 Q0,0 32,0 Z"
           fill={DEFAULT_COLORS.primary_78}
           stroke={DEFAULT_COLORS.secondary_24}
           strokeWidth={1}
@@ -154,14 +154,15 @@ export const TabBar = ({
 export const styles = StyleSheet.create({
   containerWrapper: {
     position: "absolute",
-    bottom: 0,
-    left: 10,
-    right: 10,
-    height: Platform.OS === "ios" ? 88 : 74,
+    bottom: Platform.OS === "ios" ? 34 : 24,
+    left: 20,
+    right: 20,
+    height: 70,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "transparent",
-    overflow: "visible",
+    zIndex: 0,
+    // Note: We leave overflow: visible by default so the central button can pop out
   },
   svgBackground: {
     position: "absolute",
@@ -190,7 +191,6 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: "100%",
-    paddingBottom: Platform.OS === "ios" ? 15 : 0,
   },
   searchItemWrapper: {
     flex: 1,
@@ -204,12 +204,12 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: DEFAULT_COLORS.secondary,
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     position: "absolute",
     left: "50%",
-    marginLeft: -34,
+    marginLeft: -32,
     top: Platform.OS === "ios" ? -50 : -48,
 
     shadowColor: DEFAULT_COLORS.black,

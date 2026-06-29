@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useEffect } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
@@ -27,6 +27,7 @@ import { SURFACES } from "@/src/theme/tokens";
 
 export default function CampaignChatScreen() {
   const { campaignId } = useLocalSearchParams();
+  const router = useRouter();
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
   const parsedCampaignId = Number(campaignId);
@@ -171,17 +172,27 @@ export default function CampaignChatScreen() {
           renderItem={({ item }) => {
             const isMine = item.userId === user?.id;
             const member = members?.find((m) => m.userId === item.userId);
-            const displayName = member?.characterName
+            const isAdmin = member?.role === "Master";
+            
+            const displayName = isAdmin
+              ? `Mestre ${member?.username || item.username}`
+              : member?.characterName
               ? `${member.characterName} (${member.username || item.username})`
               : (item.username || `Usuário ${item.userId}`);
+              
+            const avatar = isAdmin
+              ? (member?.userImageUrl || undefined)
+              : (member?.characterImageUrl || undefined);
 
             return (
               <ChatBubble
                 content={item.content}
                 isMine={isMine}
                 timeText="23:59"
-                avatarUrl={member?.characterImageUrl || undefined}
+                avatarUrl={avatar}
                 senderName={displayName}
+                showAvatar={true}
+                onAvatarPress={!isMine ? () => router.push({ pathname: "/user/[id]", params: { id: item.userId }}) : undefined}
               />
             );
           }}

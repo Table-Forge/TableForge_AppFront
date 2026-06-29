@@ -1,6 +1,7 @@
 import React from "react";
-import { View, StyleSheet, Image } from "react-native";
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
@@ -15,6 +16,8 @@ export interface ChatBubbleProps {
   senderName?: string;
   isRead?: boolean;
   showReadReceipt?: boolean;
+  showAvatar?: boolean;
+  onAvatarPress?: () => void;
 }
 
 export function ChatBubble({
@@ -25,20 +28,44 @@ export function ChatBubble({
   senderName,
   isRead,
   showReadReceipt = false,
+  showAvatar = false,
+  onAvatarPress,
 }: ChatBubbleProps) {
+  const renderAvatar = () => {
+    if (!showAvatar) return null;
+
+    const Wrapper = onAvatarPress ? React.Fragment : View;
+
+    const content = !avatarUrl ? (
+      <View style={[styles.avatarImage, { alignItems: "center", justifyContent: "center" }]}>
+        <FontAwesome6 name="user" size={12} color={DEFAULT_COLORS.tertiary} />
+      </View>
+    ) : (
+      <Image
+        source={{ uri: avatarUrl }}
+        style={styles.avatarImage}
+        resizeMode="cover"
+      />
+    );
+
+    if (onAvatarPress) {
+      return (
+        <TouchableOpacity activeOpacity={0.8} onPress={onAvatarPress}>
+          {content}
+        </TouchableOpacity>
+      );
+    }
+
+    return content;
+  };
+
   return (
     <View style={[styles.messageRow, isMine && styles.myMessageRow]}>
-      {!isMine && (
-        <Image
-          source={{ uri: avatarUrl || undefined }}
-          style={styles.avatarImage}
-          resizeMode="cover"
-        />
-      )}
+      {!isMine && renderAvatar()}
       <View style={[styles.messageStack, isMine && styles.myMessageStack]}>
         {!!senderName && (
           <ThemedText style={[styles.username, isMine && styles.usernameMine]}>
-            {isMine ? "Você" : senderName}
+            {senderName}
           </ThemedText>
         )}
         <View style={[styles.bubble, isMine && styles.myBubble]}>
@@ -62,6 +89,7 @@ export function ChatBubble({
           </View>
         )}
       </View>
+      {isMine && renderAvatar()}
     </View>
   );
 }

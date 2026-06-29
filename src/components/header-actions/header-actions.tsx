@@ -30,8 +30,6 @@ export const HeaderActions = ({
 
 const styles = StyleSheet.create({
   wrapper: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
     flexDirection: "row",
     alignItems: "center",
     width: "100%",

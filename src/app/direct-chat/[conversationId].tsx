@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View, Image, TouchableOpacity } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
@@ -27,10 +27,11 @@ import {
 } from "@/src/features/conversations/schemas/conversation.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
-import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
+import { BORDERS, SURFACES } from "@/src/theme/tokens";
 
 export default function DirectChatScreen() {
   const { conversationId, title } = useLocalSearchParams();
+  const router = useRouter();
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
   const parsedConversationId = Number(conversationId);
@@ -61,6 +62,14 @@ export default function DirectChatScreen() {
       markAsRead(parsedConversationId);
     }
   }, [parsedConversationId, markAsRead]);
+
+  const otherUserAvatarUrl = useMemo(() => {
+    return messages.find((m) => m.senderId !== user?.id)?.senderAvatarUrl;
+  }, [messages, user?.id]);
+
+  const otherUserId = useMemo(() => {
+    return messages.find((m) => m.senderId !== user?.id)?.senderId;
+  }, [messages, user?.id]);
 
   useEffect(() => {
     if (!connection || !parsedConversationId) return;
@@ -163,24 +172,46 @@ export default function DirectChatScreen() {
             }
             onPress={handleBack}
           />
-          <View style={styles.headerTextContainer}>
-            <View style={styles.headerTitleRow}>
-              <FontAwesome6
-                name="scroll"
-                size={12}
-                color={DEFAULT_COLORS.tertiary}
-              />
-              <ThemedText style={styles.headerEyebrow}>Carta Direta</ThemedText>
+
+          <View style={[styles.headerTextContainer]}>
+            <View style={{ alignItems: "center" }}>
+              <View style={styles.headerTitleRow}>
+                <FontAwesome6
+                  name="scroll"
+                  size={10}
+                  color={DEFAULT_COLORS.tertiary}
+                />
+                <ThemedText style={styles.headerEyebrow}>Carta Direta</ThemedText>
+              </View>
+              <ThemedText
+                style={[styles.headerSubtitle, { marginTop: 0, textAlign: "center" }]}
+                numberOfLines={1}
+                weight="bold"
+              >
+                {displayTitle}
+              </ThemedText>
             </View>
-            <ThemedText
-              style={styles.headerSubtitle}
-              numberOfLines={1}
-              weight="bold"
-            >
-              {displayTitle}
-            </ThemedText>
           </View>
-          <View style={styles.headerSpacer} />
+
+          {otherUserAvatarUrl ? (
+            <TouchableOpacity 
+              activeOpacity={0.8}
+              onPress={() => otherUserId && router.push({ pathname: "/user/[id]", params: { id: otherUserId } })}
+            >
+              <Image
+                source={{ uri: otherUserAvatarUrl }}
+                style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: SURFACES.fillStrong, borderWidth: 1, borderColor: BORDERS.divider }}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+              activeOpacity={0.8}
+              onPress={() => otherUserId && router.push({ pathname: "/user/[id]", params: { id: otherUserId } })}
+              style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: SURFACES.fillStrong, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: BORDERS.divider }}
+            >
+              <FontAwesome6 name="user" size={14} color={DEFAULT_COLORS.tertiary} />
+            </TouchableOpacity>
+          )}
         </HeaderActions>
       </Screen.Header>
 
@@ -196,7 +227,6 @@ export default function DirectChatScreen() {
                 content={item.content}
                 isMine={isMine}
                 timeText={new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                avatarUrl={item.senderAvatarUrl || undefined}
                 isRead={item.statuses?.some(s => s.isRead && s.userId !== item.senderId)}
                 showReadReceipt={true}
               />
@@ -247,7 +277,11 @@ const styles = StyleSheet.create({
   },
   headerTextContainer: {
     flex: 1,
+    flexDirection: "row",
     alignItems: "center",
+    gap: 10,
+    justifyContent: 'center',
+    textAlign: 'center'
   },
   headerTitleRow: {
     flexDirection: "row",

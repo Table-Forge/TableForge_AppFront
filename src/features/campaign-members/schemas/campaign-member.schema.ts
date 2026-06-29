@@ -7,6 +7,7 @@ export const CampaignMemberSchema = z.object({
   characterId: z.number().optional().nullable(),
   role: z.string(),
   username: z.string().optional().nullable(),
+  userImageUrl: z.string().optional().nullable(),
   characterName: z.string().optional().nullable(),
   className: z.string().optional().nullable(),
   raceName: z.string().optional().nullable(),

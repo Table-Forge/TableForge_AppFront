@@ -7,9 +7,9 @@ import { SectionList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import {
-  CAMPAIGNS_PAGE_SIZE,
-  useInfiniteCampaigns,
-} from "@/src/features/campaigns/hooks/use-infinite-campaigns";
+  PLAYER_CAMPAIGNS_PAGE_SIZE,
+  useInfinitePlayerCampaigns,
+} from "@/src/features/campaigns/hooks/use-infinite-player-campaigns";
 import { ICampaign } from "@/src/features/campaigns/schemas/campaign.schema";
 import {
   CONVERSATIONS_PAGE_SIZE,
@@ -31,7 +31,10 @@ export default function Messages() {
     refetch: refetchCamp,
     fetchNextPage: fetchNextCampPage,
     hasNextPage: hasNextCampPage,
-  } = useInfiniteCampaigns({ size: CAMPAIGNS_PAGE_SIZE });
+  } = useInfinitePlayerCampaigns({
+    size: PLAYER_CAMPAIGNS_PAGE_SIZE,
+    filter: ["Creator", "Member"],
+  });
 
   const {
     data: convData,

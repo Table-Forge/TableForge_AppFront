@@ -189,7 +189,6 @@ export default function CampaignChatScreen() {
             value={message}
             onChangeText={setMessage}
             placeholder="Escreva uma mensagem"
-            editable={!isCreatingChatMessage}
           />
         </View>
         <ActionButton

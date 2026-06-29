@@ -211,7 +211,6 @@ export default function DirectChatScreen() {
             value={message}
             onChangeText={setMessage}
             placeholder="Escreva uma mensagem..."
-            editable={!isSending}
           />
         </View>
         <ActionButton

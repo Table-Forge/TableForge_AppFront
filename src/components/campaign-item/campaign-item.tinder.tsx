@@ -125,8 +125,13 @@ export const CampaignItemTinder = ({
           onPress={openMasterProfile}
         >
           <View style={styles.masterAvatar}>
-            <SwordDiceIcon size={18} color={DEFAULT_COLORS.tertiary} />
+            {data.creatorAvatarUrl ? (
+              <Image source={{ uri: data.creatorAvatarUrl }} style={styles.avatarImage} />
+            ) : (
+              <SwordDiceIcon size={18} color={DEFAULT_COLORS.tertiary} />
+            )}
           </View>
+          <FontAwesome5 name="crown" size={12} color={DEFAULT_COLORS.tertiary} />
           <ThemedText style={styles.tinderMasterText}>
             Mestre {gameMaster}
           </ThemedText>
@@ -263,16 +268,25 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   masterAvatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: DEFAULT_COLORS.white_12,
+    borderWidth: 2,
+    borderColor: DEFAULT_COLORS.tertiary,
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 14,
+    objectFit: "cover",
   },
   tinderMasterText: {
-    color: DEFAULT_COLORS.white_64,
+    color: DEFAULT_COLORS.tertiary,
     fontSize: 15,
+    fontWeight: "600",
   },
   tinderDivider: {
     height: 1,

@@ -84,21 +84,29 @@ export const CampaignItemList = ({
             {data.title}
           </ThemedText>
 
-          <Pressable
-            disabled={isOwner}
-            style={({ pressed }) => [
-              styles.masterRow,
-              pressed && !isOwner && { opacity: 0.75 },
-            ]}
-            onPress={openMasterProfile}
-          >
-            <View style={styles.masterAvatar}>
+        <Pressable
+          disabled={isOwner}
+          style={({ pressed }) => [
+            styles.masterRow,
+            pressed && !isOwner && { opacity: 0.75 },
+          ]}
+          onPress={openMasterProfile}
+        >
+          <View style={styles.masterAvatar}>
+            {data.creatorAvatarUrl ? (
+              <Image
+                source={{ uri: data.creatorAvatarUrl }}
+                style={styles.avatarImage}
+              />
+            ) : (
               <SwordDiceIcon size={16} color={DEFAULT_COLORS.purpleBright} />
-            </View>
-            <ThemedText style={styles.masterText}>
-              Mestre {gameMaster}
-            </ThemedText>
-          </Pressable>
+            )}
+          </View>
+          <FontAwesome5 name="crown" size={11} color={DEFAULT_COLORS.purpleBright} />
+          <ThemedText style={styles.masterText}>
+            Mestre {gameMaster}
+          </ThemedText>
+        </Pressable>
         </View>
         <View style={styles.rightColumn}>
           <View style={styles.listDifficultyBadge}>
@@ -220,16 +228,25 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   masterAvatar: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: DEFAULT_COLORS.white_12,
+    borderWidth: 2,
+    borderColor: DEFAULT_COLORS.purpleBright,
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 12,
+    objectFit: "cover",
   },
   masterText: {
-    fontSize: 12,
-    color: DEFAULT_COLORS.white_64,
+    color: DEFAULT_COLORS.purpleBright,
+    fontSize: 13,
+    fontWeight: "600",
   },
   rightColumn: {
     alignItems: "flex-end",

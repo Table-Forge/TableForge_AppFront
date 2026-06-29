@@ -58,6 +58,7 @@ export const CampaignSchema = z.object({
   gameSystemId: z.number().optional().nullable(),
   gameSystemName: z.string().optional().nullable(),
   membersCount: z.number().optional(),
+  creatorAvatarUrl: z.string().optional().nullable(),
 });
 
 export const CampaignCreateSchema = z.object({

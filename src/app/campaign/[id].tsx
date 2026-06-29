@@ -350,11 +350,12 @@ export default function CampaignDetails() {
                   />
                 ) : (
                   <SwordDiceIcon
-                    size={18}
+                    size={16}
                     color={DEFAULT_COLORS.purpleBright}
                   />
                 )}
               </View>
+              <FontAwesome5 name="crown" size={11} color={DEFAULT_COLORS.purpleBright} />
               <ThemedText style={styles.masterText}>
                 Mestre {campaign.creatorUsername || "desconhecido"}
               </ThemedText>
@@ -591,20 +592,22 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: DEFAULT_COLORS.white_12,
-    borderWidth: 1,
-    borderColor: BORDERS.highlight,
+    borderWidth: 2,
+    borderColor: DEFAULT_COLORS.purpleBright,
   },
   masterAvatarImage: {
     width: "100%",
     height: "100%",
+    borderRadius: 12,
+    objectFit: "cover",
   },
   masterText: {
+    color: DEFAULT_COLORS.purpleBright,
     fontSize: 13,
-    color: DEFAULT_COLORS.textMuted,
+    fontWeight: "600",
   },
   content: { padding: 20, gap: 20 },
   toggleRow: {

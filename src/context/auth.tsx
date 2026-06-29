@@ -7,6 +7,7 @@ import {
 } from "react";
 import { useRouter, useSegments } from "expo-router";
 import Toast from "react-native-toast-message";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { authTokenStore } from "@/src/features/auth-token-store";
 import { ILoginResponse } from "@/src/features/users/schemas/auth.schema";
@@ -25,6 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const segments = useSegments();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     async function loadStorageData() {
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             text1: "Sessão expirada. Redirecionando...",
           });
           await authTokenStore.clear();
+          queryClient.clear();
           setUser(null);
         }
       } catch (e) {
@@ -54,12 +57,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           text2: `${e}`,
         });
         await authTokenStore.clear();
+        queryClient.clear();
       } finally {
         setIsLoading(false);
       }
     }
     loadStorageData();
-  }, []);
+  }, [queryClient]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -80,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await authTokenStore.clear();
+    queryClient.clear();
     setUser(null);
   };
 

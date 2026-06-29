@@ -14,6 +14,7 @@ export interface ChatBubbleProps {
   timeText?: string;
   avatarUrl?: string;
   senderName?: string;
+  senderIcon?: React.ReactNode;
   isRead?: boolean;
   showReadReceipt?: boolean;
   showAvatar?: boolean;
@@ -26,6 +27,7 @@ export function ChatBubble({
   timeText,
   avatarUrl,
   senderName,
+  senderIcon,
   isRead,
   showReadReceipt = false,
   showAvatar = false,
@@ -33,8 +35,6 @@ export function ChatBubble({
 }: ChatBubbleProps) {
   const renderAvatar = () => {
     if (!showAvatar) return null;
-
-    const Wrapper = onAvatarPress ? React.Fragment : View;
 
     const content = !avatarUrl ? (
       <View style={[styles.avatarImage, { alignItems: "center", justifyContent: "center" }]}>
@@ -64,9 +64,12 @@ export function ChatBubble({
       {!isMine && renderAvatar()}
       <View style={[styles.messageStack, isMine && styles.myMessageStack]}>
         {!!senderName && (
-          <ThemedText style={[styles.username, isMine && styles.usernameMine]}>
-            {senderName}
-          </ThemedText>
+          <View style={[styles.senderNameRow, isMine && styles.mySenderNameRow]}>
+            {senderIcon && <View style={styles.senderIconContainer}>{senderIcon}</View>}
+            <ThemedText style={[styles.username, isMine && styles.usernameMine]}>
+              {senderName}
+            </ThemedText>
+          </View>
         )}
         <View style={[styles.bubble, isMine && styles.myBubble]}>
           <ThemedText style={styles.messageText}>{content}</ThemedText>
@@ -98,7 +101,6 @@ const styles = StyleSheet.create({
   messageRow: {
     width: "100%",
     flexDirection: "row",
-    alignItems: "flex-end",
     gap: 8,
   },
   myMessageRow: {
@@ -110,8 +112,19 @@ const styles = StyleSheet.create({
   myMessageStack: {
     alignItems: "flex-end",
   },
-  username: {
+  senderNameRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 4,
+    gap: 4,
+  },
+  mySenderNameRow: {
+    justifyContent: "flex-end",
+  },
+  senderIconContainer: {
+    marginBottom: 2, // Slight adjustment to align with the text visually if needed
+  },
+  username: {
     fontSize: 10,
     color: DEFAULT_COLORS.tertiary,
     letterSpacing: 1,

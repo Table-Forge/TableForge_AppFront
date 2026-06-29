@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useEffect } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
@@ -173,16 +174,14 @@ export default function CampaignChatScreen() {
             const isMine = item.userId === user?.id;
             const member = members?.find((m) => m.userId === item.userId);
             const isAdmin = member?.role === "Master";
-            
+
             const displayName = isAdmin
               ? `Mestre ${member?.username || item.username}`
               : member?.characterName
-              ? `${member.characterName} (${member.username || item.username})`
-              : (item.username || `Usuário ${item.userId}`);
-              
-            const avatar = isAdmin
-              ? (member?.userImageUrl || undefined)
-              : (member?.characterImageUrl || undefined);
+                ? `${member.characterName} (${member.username || item.username})`
+                : (item.username || `Usuário ${item.userId}`);
+
+            const avatar = member?.characterImageUrl || member?.userImageUrl || undefined;
 
             return (
               <ChatBubble
@@ -191,8 +190,9 @@ export default function CampaignChatScreen() {
                 timeText="23:59"
                 avatarUrl={avatar}
                 senderName={displayName}
+                senderIcon={isAdmin ? <FontAwesome5 name="crown" size={9} color={isMine ? DEFAULT_COLORS.crown : DEFAULT_COLORS.tertiary} /> : undefined}
                 showAvatar={true}
-                onAvatarPress={!isMine ? () => router.push({ pathname: "/user/[id]", params: { id: item.userId }}) : undefined}
+                onAvatarPress={!isMine ? () => router.push({ pathname: "/user/[id]", params: { id: item.userId } }) : undefined}
               />
             );
           }}

@@ -84,6 +84,11 @@ export const useJoinRequestsMutation = (campaignId?: number) => {
           type: "success",
           text1: "Solicitação aprovada.",
         });
+      } else if (updated.status === "Rejected") {
+        Toast.show({
+          type: "success",
+          text1: "Solicitação rejeitada.",
+        });
       }
     },
     onError: (error: any) => {

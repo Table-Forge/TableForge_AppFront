@@ -137,7 +137,7 @@ export default function CampaignDetails() {
   const canSeePrivateModules = viewerType !== "outsider";
 
   const currentUserJoinRequest = useMemo(
-    () => joinRequests.find((request) => request.userId === currentUserId),
+    () => joinRequests.find((request) => request.userId === currentUserId && request.status === "Pending"),
     [currentUserId, joinRequests],
   );
   const pendingJoinRequests = useMemo(

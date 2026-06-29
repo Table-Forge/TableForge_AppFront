@@ -32,7 +32,7 @@ export default function DirectChatScreen() {
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
   const parsedConversationId = Number(conversationId);
-  const displayTitle = typeof title === "string" ? title : "Chat Direto";
+  const displayTitle = typeof title === "string" ? title : "Carta Direta";
   const [message, setMessage] = useState("");
   const queryClient = useQueryClient();
   const { connection } = useSignalR();
@@ -164,11 +164,11 @@ export default function DirectChatScreen() {
           <View style={styles.headerTextContainer}>
             <View style={styles.headerTitleRow}>
               <FontAwesome6
-                name="user"
+                name="scroll"
                 size={12}
                 color={DEFAULT_COLORS.tertiary}
               />
-              <ThemedText style={styles.headerEyebrow}>Chat Direto</ThemedText>
+              <ThemedText style={styles.headerEyebrow}>Carta Direta</ThemedText>
             </View>
             <ThemedText
               style={styles.headerSubtitle}

@@ -77,7 +77,7 @@ export default function Messages() {
   
   if (directConversations.length > 0 || isLoadingConv) {
     sections.push({
-      title: "Conversas Diretas",
+      title: "Cartas Diretas",
       data: directConversations,
       type: "direct" as const,
     });
@@ -248,14 +248,14 @@ const DirectChatItem = ({
     >
       <View style={styles.avatarContainer}>
         <FontAwesome5
-          name="user"
+          name="scroll"
           size={20}
           color={DEFAULT_COLORS.secondary}
         />
       </View>
 
       <View style={styles.content}>
-        <ThemedText style={styles.eyebrowSmall}>DM</ThemedText>
+        <ThemedText style={styles.eyebrowSmall}>Carta</ThemedText>
         <View style={styles.headerRow}>
           <ThemedText weight="bold" style={styles.campaignTitle} numberOfLines={1}>
             {item.name || "Usuário"}

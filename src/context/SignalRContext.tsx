@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/src/context/auth";
 import { authTokenStore } from "@/src/features/auth-token-store";
 import { 
   IConversationMessage, 
@@ -22,11 +23,11 @@ const SignalRContext = createContext<SignalRContextData>({
 });
 
 export const useSignalR = () => useContext(SignalRContext);
-
 export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   // Need to dynamically import BaseURL or hardcode relative to API
   // Using the same base URL approach as API. Assuming the backend is hosted at the same base URL.
@@ -83,7 +84,9 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 if (conv.id === messageDto.conversationId) {
                   return {
                     ...conv,
-                    unreadMessagesCount: conv.unreadMessagesCount + 1,
+                    unreadMessagesCount: messageDto.senderId !== user?.id 
+                      ? conv.unreadMessagesCount + 1 
+                      : conv.unreadMessagesCount,
                     lastMessageContent: messageDto.content,
                   };
                 }
@@ -129,7 +132,7 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
         hubConnection.stop();
       }
     };
-  }, [queryClient, HUB_URL]);
+  }, [queryClient, HUB_URL, user?.id]);
 
   return (
     <SignalRContext.Provider value={{ connection, isConnected }}>

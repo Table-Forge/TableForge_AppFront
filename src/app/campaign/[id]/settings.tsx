@@ -14,8 +14,6 @@ import { useCampaignBlockedRaces } from "@/src/features/campaign-blocked-races/h
 import { Toggle } from "@/src/components/toggle/toggle";
 import { useCampaign } from "@/src/features/campaigns/hooks/use-campaign";
 import { useCampaignsMutation } from "@/src/features/campaigns/hooks/use-campaigns-mutations";
-import { useClassesSelect } from "@/src/features/classes/hooks/use-classes-select";
-import { useRacesSelect } from "@/src/features/races/hooks/use-races-select";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
@@ -41,28 +39,20 @@ export default function CampaignSettings() {
   const { data: blockedRaces = [] } = useCampaignBlockedRaces({
     campaignId,
   });
-  const { classOptions } = useClassesSelect({ enabled: !!campaign });
-  const { raceOptions } = useRacesSelect({ enabled: !!campaign });
   const [toggleConfirmation, setToggleConfirmation] =
     useState<ToggleConfirmation | null>(null);
 
   const blockedClassNames = useMemo(() => {
-    const blockedClassIds = blockedClasses.map((item) => item.classId);
-
-    return classOptions
-      .filter((option) => blockedClassIds.includes(Number(option.value)))
-      .map((option) => option.name)
+    return blockedClasses
+      .map((item) => item.className || `Classe ${item.classId}`)
       .join(", ");
-  }, [blockedClasses, classOptions]);
+  }, [blockedClasses]);
 
   const blockedRaceNames = useMemo(() => {
-    const blockedRaceIds = blockedRaces.map((item) => item.raceId);
-
-    return raceOptions
-      .filter((option) => blockedRaceIds.includes(Number(option.value)))
-      .map((option) => option.name)
+    return blockedRaces
+      .map((item) => item.raceName || `Raça ${item.raceId}`)
       .join(", ");
-  }, [blockedRaces, raceOptions]);
+  }, [blockedRaces]);
 
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const { deleteCampaignMutation, isDeletingCampaign } = useCampaignsMutation();

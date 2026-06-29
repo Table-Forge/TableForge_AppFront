@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -12,6 +12,7 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { Button } from "@/src/components/button/button";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
+import { Input } from "@/src/components/input/input";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useCampaignBlockedClasses } from "@/src/features/campaign-blocked-classes/hooks/use-campaign-blocked-classes";
@@ -25,6 +26,7 @@ import { TOptions } from "@/src/interfaces";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
+import { normalizeString } from "@/src/utils/format";
 
 type BlockedOptionsType = "classes" | "races";
 
@@ -58,18 +60,34 @@ export default function CampaignBlockedOptionsScreen() {
     isCreatingCampaignBlockedRaces,
     isDeletingCampaignBlockedRace,
   } = useCampaignBlockedRacesMutation(campaignId);
-  const { classOptions, isLoadingClassesSelect } = useClassesSelect({
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { classOptions, isLoadingClassesSelect, setSearch: setClassSearch } = useClassesSelect({
     enabled: blockedOptionsType === "classes",
   });
-  const { raceOptions, isLoadingRacesSelect } = useRacesSelect({
+  const { raceOptions, isLoadingRacesSelect, setSearch: setRaceSearch } = useRacesSelect({
     enabled: blockedOptionsType === "races",
   });
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  const options = useMemo<TOptions[]>(
-    () => (blockedOptionsType === "classes" ? classOptions : raceOptions),
-    [blockedOptionsType, classOptions, raceOptions],
-  );
+  const handleSearchChange = (text: string) => {
+    setSearchQuery(text);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      setClassSearch(text);
+      setRaceSearch(text);
+    }, 400);
+  };
+
+  const options = useMemo<TOptions[]>(() => {
+    const baseOptions = blockedOptionsType === "classes" ? classOptions : raceOptions;
+    const normalizedQuery = normalizeString(searchQuery);
+    if (!normalizedQuery) return baseOptions;
+
+    return baseOptions.filter((opt) => normalizeString(opt.name).includes(normalizedQuery));
+  }, [blockedOptionsType, classOptions, raceOptions, searchQuery]);
   const title =
     blockedOptionsType === "classes"
       ? "Classes bloqueadas"
@@ -121,9 +139,9 @@ export default function CampaignBlockedOptionsScreen() {
         ),
         classIdsToCreate.length
           ? createCampaignBlockedClassesMutation.mutateAsync({
-              campaignId,
-              classIds: classIdsToCreate,
-            })
+            campaignId,
+            classIds: classIdsToCreate,
+          })
           : Promise.resolve(),
       ]);
     } else {
@@ -141,9 +159,9 @@ export default function CampaignBlockedOptionsScreen() {
         ),
         raceIdsToCreate.length
           ? createCampaignBlockedRacesMutation.mutateAsync({
-              campaignId,
-              raceIds: raceIdsToCreate,
-            })
+            campaignId,
+            raceIds: raceIdsToCreate,
+          })
           : Promise.resolve(),
       ]);
     }
@@ -153,6 +171,7 @@ export default function CampaignBlockedOptionsScreen() {
 
   return (
     <Screen style={styles.container}>
+      <Stack.Screen options={{ gestureEnabled: false }} />
       <Screen.Header>
         <HeaderActions>
           <ActionButton
@@ -180,42 +199,50 @@ export default function CampaignBlockedOptionsScreen() {
             <ThemedText style={styles.emptyText}>Carregando...</ThemedText>
           </View>
         ) : (
-          <View style={styles.optionsCard}>
-            {options.map((option, index) => {
-              const optionId = Number(option.value);
-              const isSelected = selectedIds.includes(optionId);
-              const isLast = index === options.length - 1;
+          <View>
+            <Input
+              placeholder={`Buscar ${blockedOptionsType === "classes" ? "classes" : "raças"}...`}
+              value={searchQuery}
+              onChangeText={handleSearchChange}
+              containerStyle={styles.searchInput}
+            />
+            <View style={styles.optionsCard}>
+              {options.map((option, index) => {
+                const optionId = Number(option.value);
+                const isSelected = selectedIds.includes(optionId);
+                const isLast = index === options.length - 1;
 
-              return (
-                <Pressable
-                  key={String(option.value)}
-                  style={[
-                    styles.optionItem,
-                    isLast && styles.optionItemLast,
-                    isSelected && styles.optionItemSelected,
-                  ]}
-                  onPress={() => handleToggleOption(optionId)}
-                >
-                  <ThemedText
+                return (
+                  <Pressable
+                    key={String(option.value)}
                     style={[
-                      styles.optionText,
-                      isSelected && styles.optionTextSelected,
+                      styles.optionItem,
+                      isLast && styles.optionItemLast,
+                      isSelected && styles.optionItemSelected,
                     ]}
+                    onPress={() => handleToggleOption(optionId)}
                   >
-                    {option.name}
-                  </ThemedText>
-                  {isSelected && (
-                    <View style={styles.checkBadge}>
-                      <FontAwesome5
-                        name="check"
-                        size={11}
-                        color={DEFAULT_COLORS.white}
-                      />
-                    </View>
-                  )}
-                </Pressable>
-              );
-            })}
+                    <ThemedText
+                      style={[
+                        styles.optionText,
+                        isSelected && styles.optionTextSelected,
+                      ]}
+                    >
+                      {option.name}
+                    </ThemedText>
+                    {isSelected && (
+                      <View style={styles.checkBadge}>
+                        <FontAwesome5
+                          name="check"
+                          size={11}
+                          color={DEFAULT_COLORS.white}
+                        />
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
         )}
       </Screen.Body>
@@ -248,7 +275,11 @@ const styles = StyleSheet.create({
     width: 45,
   },
   content: {
-    padding: 20,
+    padding: 16,
+    paddingBottom: 40,
+  },
+  searchInput: {
+    marginBottom: 16,
   },
   loadingWrapper: {
     alignItems: "center",

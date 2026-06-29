@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  ActivityIndicator,
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -29,6 +30,8 @@ interface IProps {
   placeholder?: string;
   error?: string;
   disabled?: boolean;
+  onSearchChange?: (text: string) => void;
+  isLoading?: boolean;
 }
 
 export const Select: React.FC<IProps> = ({
@@ -38,9 +41,23 @@ export const Select: React.FC<IProps> = ({
   placeholder = "Selecione...",
   error,
   disabled = false,
+  onSearchChange,
+  isLoading = false,
 }) => {
   const [visible, setVisible] = useState(false);
   const [search, setSearch] = useState("");
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearchChange = (text: string) => {
+    setSearch(text);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      if (onSearchChange) {
+        onSearchChange(text);
+      }
+    }, 400);
+  };
+
   const containerRef = useRef<View>(null);
   const { scrollToFocusedInput } = useScrollToFocusedInput();
 
@@ -70,6 +87,7 @@ export const Select: React.FC<IProps> = ({
 
     if (!nextVisible) {
       setSearch("");
+      if (onSearchChange) onSearchChange("");
     }
   };
 
@@ -150,22 +168,22 @@ export const Select: React.FC<IProps> = ({
           <TouchableWithoutFeedback onPress={() => handleVisibleChange(false)}>
             <View style={styles.overlay}>
               <TouchableWithoutFeedback>
-              <View style={styles.sheet}>
-                <View style={styles.handle} />
+                <View style={styles.sheet}>
+                  <View style={styles.handle} />
+                  
+                  <ThemedText weight="bold" style={styles.sheetTitle}>
+                    Selecione uma opção
+                  </ThemedText>
 
-                <ThemedText weight="bold" style={styles.sheetTitle}>
-                  Selecione uma opção
-                </ThemedText>
-
-                <View style={styles.searchContainer}>
-                  <MaterialCommunityIcons
-                    name="magnify"
-                    size={20}
-                    color={DEFAULT_COLORS.textMutedLight}
-                  />
-                  <TextInput
+                  <View style={styles.searchContainer}>
+                    <MaterialCommunityIcons
+                      name="magnify"
+                      size={20}
+                      color={DEFAULT_COLORS.textMutedLight}
+                    />
+                    <TextInput
                     value={search}
-                    onChangeText={setSearch}
+                    onChangeText={handleSearchChange}
                     placeholder="Pesquisar"
                     placeholderTextColor={DEFAULT_COLORS.white_35}
                     style={styles.searchInput}
@@ -173,7 +191,7 @@ export const Select: React.FC<IProps> = ({
                     autoCorrect={false}
                   />
                   {!!search && (
-                    <TouchableOpacity onPress={() => setSearch("")}>
+                    <TouchableOpacity onPress={() => handleSearchChange("")}>
                       <MaterialCommunityIcons
                         name="close-circle"
                         size={20}
@@ -189,9 +207,13 @@ export const Select: React.FC<IProps> = ({
                   contentContainerStyle={{ paddingBottom: 20 }}
                   keyboardShouldPersistTaps="handled"
                   ListEmptyComponent={
-                    <ThemedText style={styles.emptyText}>
-                      Nenhum item encontrado.
-                    </ThemedText>
+                    isLoading ? (
+                      <ActivityIndicator size="small" color={DEFAULT_COLORS.purpleBright} style={{ marginTop: 20 }} />
+                    ) : (
+                      <ThemedText style={styles.emptyText}>
+                        Nenhum item encontrado.
+                      </ThemedText>
+                    )
                   }
                   renderItem={({ item }) => {
                     const isSelected = item.value === value;

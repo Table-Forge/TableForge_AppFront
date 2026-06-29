@@ -66,8 +66,8 @@ export default function CreateCharacterScreen() {
     isUpdatingCharacter,
   } = useCharactersMutation();
   const { createImageMutation, isCreatingImage } = useImagesMutation();
-  const { classOptions, isLoadingClassesSelect } = useClassesSelect();
-  const { raceOptions, isLoadingRacesSelect } = useRacesSelect();
+  const { classOptions, isLoadingClassesSelect, setSearch: setClassSearch } = useClassesSelect();
+  const { raceOptions, isLoadingRacesSelect, setSearch: setRaceSearch } = useRacesSelect();
   const { alignmentOptions, isLoadingAlignmentEnum } = useAlignmentEnum();
 
   const editingId = editId ? Number(editId) : undefined;
@@ -243,6 +243,8 @@ export default function CreateCharacterScreen() {
                     options={classOptions}
                     placeholder="Selecione"
                     disabled={isLoadingClassesSelect}
+                    onSearchChange={setClassSearch}
+                    isLoading={isLoadingClassesSelect}
                   />
                 </View>
 
@@ -254,6 +256,8 @@ export default function CreateCharacterScreen() {
                     options={raceOptions}
                     placeholder="Selecione"
                     disabled={isLoadingRacesSelect}
+                    onSearchChange={setRaceSearch}
+                    isLoading={isLoadingRacesSelect}
                   />
                 </View>
               </View>

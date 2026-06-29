@@ -1,5 +1,5 @@
 import { TOptions } from "@/src/interfaces";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useAllRaces } from "./use-all-races";
 
 interface IUseRacesSelectParams {
@@ -9,9 +9,12 @@ interface IUseRacesSelectParams {
 export const useRacesSelect = ({
   enabled = true,
 }: IUseRacesSelectParams = {}) => {
+  const [search, setSearch] = useState("");
+
   const racesQuery = useAllRaces({
     page: 1,
     size: 100,
+    search,
     enabled,
   });
 
@@ -28,5 +31,6 @@ export const useRacesSelect = ({
     raceOptions,
     isLoadingRacesSelect: racesQuery.isPending,
     racesQuery,
+    setSearch,
   };
 };

@@ -14,6 +14,8 @@ interface ControlledSelectProps<TFieldValues extends FieldValues> {
   name: Path<TFieldValues>;
   options: TOptions[];
   placeholder?: string;
+  onSearchChange?: (text: string) => void;
+  isLoading?: boolean;
 }
 
 export function ControlledSelect<TFieldValues extends FieldValues = FieldValues>({
@@ -22,6 +24,8 @@ export function ControlledSelect<TFieldValues extends FieldValues = FieldValues>
   name,
   options,
   placeholder,
+  onSearchChange,
+  isLoading,
 }: ControlledSelectProps<TFieldValues>) {
   const {
     field: { onChange, value },
@@ -39,6 +43,8 @@ export function ControlledSelect<TFieldValues extends FieldValues = FieldValues>
       options={options}
       placeholder={placeholder}
       value={value}
+      onSearchChange={onSearchChange}
+      isLoading={isLoading}
     />
   );
 }

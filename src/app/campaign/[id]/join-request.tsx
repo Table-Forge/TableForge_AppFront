@@ -21,8 +21,11 @@ import { useCampaignMembers } from "@/src/features/campaign-members/hooks/use-ca
 import { useCharacters } from "@/src/features/characters/hooks/use-characters";
 import { ICharacter } from "@/src/features/characters/schemas/character.schema";
 import { useJoinRequestsMutation } from "@/src/features/join-requests/hooks/use-join-requests-mutations";
+import { useCampaignBlockedClasses } from "@/src/features/campaign-blocked-classes/hooks/use-campaign-blocked-classes";
+import { useCampaignBlockedRaces } from "@/src/features/campaign-blocked-races/hooks/use-campaign-blocked-races";
 import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
+import { ModalConfirmation } from "@/src/components/modals/modal-confirmation/modal-confirmation";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
@@ -39,6 +42,7 @@ export default function CampaignJoinRequestScreen() {
   const [selectedCharacterId, setSelectedCharacterId] = useState<number>();
   const [message, setMessage] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
   const { data, isLoading, isError } = useCharacters({
     page: 1,
     size: 100,
@@ -47,6 +51,8 @@ export default function CampaignJoinRequestScreen() {
   });
   const { data: campaign } = useCampaign(campaignId);
   const { data: members = [] } = useCampaignMembers({ campaignId });
+  const { data: blockedClasses = [] } = useCampaignBlockedClasses({ campaignId });
+  const { data: blockedRaces = [] } = useCampaignBlockedRaces({ campaignId });
   const { createJoinRequestMutation, isCreatingJoinRequest } =
     useJoinRequestsMutation(campaignId);
 
@@ -58,7 +64,7 @@ export default function CampaignJoinRequestScreen() {
     setSelectedCharacterId(parsedSelectedCharacterId);
   }, [parsedSelectedCharacterId]);
 
-  const handleSubmit = () => {
+  const executeSubmit = () => {
     if (!userId || !selectedCharacterId) return;
 
     createJoinRequestMutation.mutate(
@@ -81,10 +87,28 @@ export default function CampaignJoinRequestScreen() {
               joinRequestId: createdJoinRequest.id,
             });
           }
+          setIsConfirmationModalVisible(false);
           handleBack();
         },
       },
     );
+  };
+
+  const handleSubmit = () => {
+    if (!userId || !selectedCharacterId) return;
+
+    const selectedCharacter = characters.find((c) => c.id === selectedCharacterId);
+    if (selectedCharacter) {
+      const isClassBlocked = blockedClasses.some((bc) => bc.classId === selectedCharacter.classId);
+      const isRaceBlocked = blockedRaces.some((br) => br.raceId === selectedCharacter.raceId);
+
+      if (isClassBlocked || isRaceBlocked) {
+        setIsConfirmationModalVisible(true);
+        return;
+      }
+    }
+
+    executeSubmit();
   };
 
   const isSubmitDisabled =
@@ -221,6 +245,17 @@ export default function CampaignJoinRequestScreen() {
           />
         </View>
       </Screen.Footer>
+
+      <ModalConfirmation
+        visible={isConfirmationModalVisible}
+        title="Atenção"
+        description="O personagem selecionado possui uma classe e/ou raça que está bloqueada pelo mestre nesta campanha. Sua solicitação poderá não ser aprovada. Deseja enviar mesmo assim?"
+        confirmText="Sim, enviar"
+        cancelText="Cancelar"
+        onConfirm={executeSubmit}
+        onClose={() => setIsConfirmationModalVisible(false)}
+        isLoading={isCreatingJoinRequest}
+      />
     </Screen>
   );
 }

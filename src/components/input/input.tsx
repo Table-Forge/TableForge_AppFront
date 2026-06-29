@@ -66,6 +66,7 @@ export const Input = forwardRef<TextInput, InputProps>(
         <View
           style={[
             styles.inputContainer,
+            props.multiline && styles.inputContainerMultiline,
             isFocused && styles.inputFocused,
             error ? styles.inputError : null,
             disabled && styles.inputDisabled,
@@ -83,7 +84,12 @@ export const Input = forwardRef<TextInput, InputProps>(
 
           <TextInput
             ref={ref}
-            style={[styles.input, style, disabled && styles.inputTextDisabled]}
+            style={[
+              styles.input,
+              props.multiline && styles.inputMultiline,
+              style,
+              disabled && styles.inputTextDisabled,
+            ]}
             placeholderTextColor={
               disabled ? DEFAULT_COLORS.white_25 : DEFAULT_COLORS.white_35
             }
@@ -155,6 +161,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 52,
   },
+  inputContainerMultiline: {
+    height: undefined,
+    minHeight: 52,
+  },
   inputFocused: {
     borderColor: BORDERS.highlightStrong,
     backgroundColor: SURFACES.fillStrong,
@@ -165,6 +175,11 @@ const styles = StyleSheet.create({
     ...fonts.regular,
     fontSize: 15,
     height: "100%",
+  },
+  inputMultiline: {
+    height: undefined,
+    minHeight: 24,
+    paddingVertical: 14,
   },
   inputError: {
     borderColor: DEFAULT_COLORS.danger,

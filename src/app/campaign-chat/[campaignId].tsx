@@ -6,8 +6,9 @@ import { FlatList, StyleSheet, View } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
+import { ChatInput } from "@/src/components/chat-input/chat-input";
+import { ChatBubble } from "@/src/components/chat-bubble/chat-bubble";
 import { HeaderActions } from "@/src/components/header-actions/header-actions";
-import { Input } from "@/src/components/input/input";
 import { Screen } from "@/src/components/screen/screen";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { useAuth } from "@/src/context/auth";
@@ -22,7 +23,7 @@ import { useBackRouter } from "@/src/hooks/use-back-route";
 import { useSignalR } from "@/src/context/SignalRContext";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
-import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
+import { SURFACES } from "@/src/theme/tokens";
 
 export default function CampaignChatScreen() {
   const { campaignId } = useLocalSearchParams();
@@ -58,7 +59,7 @@ export default function CampaignChatScreen() {
         if (!oldData) return oldData;
         const exists = oldData.items.some((m: IChatMessage) => m.id === campaignMessageDto.id);
         if (exists) return oldData;
-        
+
         return {
           ...oldData,
           items: [campaignMessageDto, ...oldData.items],
@@ -167,9 +168,23 @@ export default function CampaignChatScreen() {
           inverted
           data={messages}
           keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <MessageBubble item={item} isMine={item.userId === user?.id} />
-          )}
+          renderItem={({ item }) => {
+            const isMine = item.userId === user?.id;
+            const member = members?.find((m) => m.userId === item.userId);
+            const displayName = member?.characterName
+              ? `${member.characterName} (${member.username || item.username})`
+              : (item.username || `Usuário ${item.userId}`);
+
+            return (
+              <ChatBubble
+                content={item.content}
+                isMine={isMine}
+                timeText="23:59"
+                avatarUrl={member?.characterImageUrl || undefined}
+                senderName={displayName}
+              />
+            );
+          }}
           contentContainerStyle={styles.listContent}
           refreshing={isLoading}
           onRefresh={refetch}
@@ -183,57 +198,19 @@ export default function CampaignChatScreen() {
         />
       </Screen.Body>
 
-      <Screen.Footer style={styles.inputBar}>
-        <View style={styles.inputWrapper}>
-          <Input
-            value={message}
-            onChangeText={setMessage}
-            placeholder="Escreva uma mensagem"
-          />
-        </View>
-        <ActionButton
-          variant="circle"
-          active
-          icon={<Ionicons name="send" size={20} color={DEFAULT_COLORS.white} />}
-          onPress={
-            isCreatingChatMessage || !message.trim()
-              ? undefined
-              : handleSendMessage
-          }
-          style={
-            isCreatingChatMessage || !message.trim()
-              ? styles.sendButtonDisabled
-              : null
-          }
-        />
-      </Screen.Footer>
+      <ChatInput
+        value={message}
+        onChangeText={setMessage}
+        onSend={handleSendMessage}
+        isSending={isCreatingChatMessage}
+        placeholder="Escreva uma mensagem"
+        backgroundColor={SURFACES.background}
+      />
     </Screen>
   );
 }
 
-const MessageBubble = ({
-  item,
-  isMine,
-}: {
-  item: IChatMessage;
-  isMine: boolean;
-}) => (
-  <View style={[styles.messageRow, isMine && styles.myMessageRow]}>
-    {!isMine && <View style={styles.avatarDot} />}
-    <View style={[styles.messageStack, isMine && styles.myMessageStack]}>
-      <ThemedText style={[styles.username, isMine && styles.usernameMine]}>
-        {isMine ? "Você" : item.username || `Usuário ${item.userId}`}
-      </ThemedText>
-      <View style={[styles.bubble, isMine && styles.myBubble]}>
-        <ThemedText style={styles.messageText}>{item.content}</ThemedText>
-      </View>
-      <ThemedText style={[styles.messageTime, isMine && styles.myMessageTime]}>
-        23:59
-      </ThemedText>
-    </View>
-    {isMine && <View style={styles.avatarDot} />}
-  </View>
-);
+
 
 const styles = StyleSheet.create({
   container: {
@@ -298,89 +275,13 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: 12,
     paddingTop: 22,
-    paddingBottom: 18,
+    paddingBottom: 80,
     flexGrow: 1,
     justifyContent: "flex-end",
     gap: 14,
   },
-  messageRow: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 8,
-  },
-  myMessageRow: {
-    justifyContent: "flex-end",
-  },
-  messageStack: {
-    maxWidth: "82%",
-  },
-  myMessageStack: {
-    alignItems: "flex-end",
-  },
-  username: {
-    marginBottom: 4,
-    fontSize: 10,
-    color: DEFAULT_COLORS.tertiary,
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    ...fonts.bold,
-  },
-  usernameMine: {
-    color: DEFAULT_COLORS.crown,
-    textAlign: "right",
-  },
-  avatarDot: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: DEFAULT_COLORS.primary_80,
-    borderWidth: 1,
-    borderColor: DEFAULT_COLORS.secondary_30,
-    marginBottom: 12,
-  },
-  bubble: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: RADII.xs,
-    backgroundColor: SURFACES.card,
-    borderWidth: 1,
-    borderColor: BORDERS.highlight,
-    ...SHADOWS.soft,
-  },
-  myBubble: {
-    backgroundColor: DEFAULT_COLORS.orangeGlow_25,
-    borderColor: BORDERS.cta,
-  },
-  messageText: {
-    fontSize: 13,
-    color: DEFAULT_COLORS.white,
-    lineHeight: 17,
-  },
-  messageTime: {
-    marginTop: 2,
-    fontSize: 10,
-    color: DEFAULT_COLORS.textMuted,
-  },
-  myMessageTime: {
-    textAlign: "right",
-  },
-  inputBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: BORDERS.divider,
-    backgroundColor: SURFACES.cardAlt,
-  },
-  inputWrapper: {
-    flex: 1,
-  },
-  sendButtonDisabled: {
-    opacity: 0.45,
-  },
+
+
   emptyWrapper: {
     marginTop: 24,
     marginHorizontal: 4,

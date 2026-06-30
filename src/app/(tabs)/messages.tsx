@@ -97,10 +97,7 @@ export default function Messages() {
   };
 
   const summaryCount = chatCampaigns.length + directConversations.length;
-  const summary =
-    summaryCount > 0
-      ? `${summaryCount} chat${summaryCount === 1 ? "" : "s"} ativo${summaryCount === 1 ? "" : "s"}`
-      : "Sem conversas ativas";
+  const summary = "Conversas";
 
   const handleMarkReadStatus = (isRead: boolean) => {
     selectedIds.forEach((id) => {
@@ -179,7 +176,7 @@ export default function Messages() {
         <Screen.Header style={styles.topWrapper}>
           <View style={styles.titleWrapper}>
             <ThemedText weight="bold" style={styles.eyebrow}>
-              Guilda
+              Mensagens
             </ThemedText>
             <View style={styles.titleRow}>
               <FontAwesome6

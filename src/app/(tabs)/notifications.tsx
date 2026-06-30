@@ -248,7 +248,7 @@ export default function Notifications() {
       <Screen.Header style={styles.topWrapper}>
         <View style={styles.titleWrapper}>
           <ThemedText weight="bold" style={styles.eyebrow}>
-            Inbox místico
+            Notificações
           </ThemedText>
           <View style={styles.titleRow}>
             <FontAwesome6

@@ -42,7 +42,7 @@ export const ControlledToggle = ({
 
   useEffect(() => {
     translateX.value = withSpring(field.value ? 1 : 0, { damping: 15 });
-  }, [field.value]);
+  }, [field.value, translateX]);
 
   const animatedThumbStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value * 20 }],

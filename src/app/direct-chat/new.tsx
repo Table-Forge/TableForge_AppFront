@@ -7,7 +7,7 @@ import { HeaderActions } from "@/src/components/header-actions/header-actions";
 import { ActionButton } from "@/src/components/action-button/action-button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import { authTokenStore } from "@/src/features/auth-token-store";
-import { useCreateDirectConversation } from "@/src/features/conversations/hooks/use-create-direct-conversation";
+import { useConversationMutations } from "@/src/features/conversations/hooks/use-conversation-mutations";
 import { ConversationType } from "@/src/features/conversations/schemas/conversation.schema";
 import { useUserFriendships } from "@/src/features/friendships/hooks/use-user-friendships";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
@@ -25,7 +25,8 @@ export default function NewDirectChat() {
     size: 100,
   });
 
-  const { mutate: createChat, isPending } = useCreateDirectConversation();
+  const { createDirectConversationMutation } = useConversationMutations();
+  const { mutate: createChat, isPending } = createDirectConversationMutation;
 
   const handleCreateChat = (otherUserId: number) => {
     createChat(

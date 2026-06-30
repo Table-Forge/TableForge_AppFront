@@ -49,4 +49,12 @@ export const ConversationService = {
   markAsRead: async (conversationId: number): Promise<void> => {
     await api.post(`${ENDPOINT}/${conversationId}/read`);
   },
+
+  markAsUnread: async (conversationId: number): Promise<void> => {
+    await api.post(`${ENDPOINT}/${conversationId}/unread`);
+  },
+
+  deleteConversation: async (conversationId: number): Promise<void> => {
+    await api.delete(`${ENDPOINT}/${conversationId}`);
+  },
 };

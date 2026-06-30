@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
+import { SwipeActionBtn, SwipeActionsContainer } from "@/src/components/swipe-actions/swipe-actions";
 
 import { formatDate } from "@/src/utils/format";
 import { Button } from "@/src/components/button/button";
@@ -38,24 +39,16 @@ export function CampaignAnnouncementsSection({
 
   const renderRightActions = (announcement: ICampaignAnnouncement) => {
     return (
-      <View style={styles.swipeActionsContainer}>
+      <SwipeActionsContainer>
         {onEditAnnouncement && (
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={[styles.swipeActionBtn, styles.editActionBtn]}
-            onPress={() => onEditAnnouncement(announcement)}
-          >
+          <SwipeActionBtn variant="edit" onPress={() => onEditAnnouncement(announcement)}>
             <FontAwesome5 name="pen" size={14} color={DEFAULT_COLORS.white} />
-          </TouchableOpacity>
+          </SwipeActionBtn>
         )}
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={[styles.swipeActionBtn, styles.deleteActionBtn]}
-          onPress={() => onDeleteAnnouncement(announcement)}
-        >
+        <SwipeActionBtn variant="danger" onPress={() => onDeleteAnnouncement(announcement)}>
           <FontAwesome5 name="trash" size={14} color={DEFAULT_COLORS.white} />
-        </TouchableOpacity>
-      </View>
+        </SwipeActionBtn>
+      </SwipeActionsContainer>
     );
   };
 
@@ -92,7 +85,9 @@ export function CampaignAnnouncementsSection({
                   renderRightActions={() => renderRightActions(announcement)}
                   containerStyle={styles.swipeContainer}
                 >
-                  {card}
+                  <View style={{ backgroundColor: SURFACES.card, borderRadius: RADII.md }}>
+                    {card}
+                  </View>
                 </Swipeable>
               );
             }
@@ -311,26 +306,6 @@ const styles = StyleSheet.create({
   },
   swipeContainer: {
     marginBottom: 12,
-  },
-  swipeActionsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 8,
-    height: "100%",
-  },
-  swipeActionBtn: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  deleteActionBtn: {
-    backgroundColor: "#ef4444",
-  },
-  editActionBtn: {
-    backgroundColor: DEFAULT_COLORS.purpleBright,
   },
   announcementCardNormal: {
     marginBottom: 0,

@@ -1,8 +1,9 @@
 import React from "react";
-import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { parseUTCDate } from "@/src/utils/format";
+import { SwipeActionBtn, SwipeActionsContainer } from "@/src/components/swipe-actions/swipe-actions";
 
 import { Button } from "@/src/components/button/button";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
@@ -78,22 +79,14 @@ export const SessionItem = ({
 
   const renderRightActions = () => {
     return (
-      <View style={styles.swipeActionsContainer}>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={[styles.swipeActionBtn, styles.editActionBtn]}
-          onPress={onEditSession}
-        >
+      <SwipeActionsContainer>
+        <SwipeActionBtn variant="edit" onPress={onEditSession}>
           <FontAwesome5 name="pen" size={14} color={DEFAULT_COLORS.white} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={[styles.swipeActionBtn, styles.deleteActionBtn]}
-          onPress={() => onDeleteSession(session)}
-        >
+        </SwipeActionBtn>
+        <SwipeActionBtn variant="danger" onPress={() => onDeleteSession(session)}>
           <FontAwesome5 name="trash" size={14} color={DEFAULT_COLORS.white} />
-        </TouchableOpacity>
-      </View>
+        </SwipeActionBtn>
+      </SwipeActionsContainer>
     );
   };
 
@@ -224,26 +217,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: BORDERS.divider,
     marginTop: 4,
-  },
-  swipeActionsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 8,
-    height: "100%",
-  },
-  swipeActionBtn: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  editActionBtn: {
-    backgroundColor: DEFAULT_COLORS.purpleBright,
-  },
-  deleteActionBtn: {
-    backgroundColor: "#ef4444",
   },
   sessionSummary: {
     flexDirection: "row",

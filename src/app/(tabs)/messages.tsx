@@ -1,10 +1,15 @@
-import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
+import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
+import { MenuPopup } from "@/src/components/menu-popup/menu-popup";
+import { useConversationMutations } from "@/src/features/conversations/hooks/use-conversation-mutations";
 import { SectionList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
 
 import { Screen } from "@/src/components/screen/screen";
+import { SwipeActionBtn, SwipeActionsContainer } from "@/src/components/swipe-actions/swipe-actions";
 import { ThemedText } from "@/src/components/themed-text/themed-text";
 import {
   PLAYER_CAMPAIGNS_PAGE_SIZE,
@@ -20,11 +25,12 @@ import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 import { NewDirectChatModal } from "@/src/components/modals/new-direct-chat-modal/new-direct-chat-modal";
+import { ModalConfirmation } from "@/src/components/modals/modal-confirmation/modal-confirmation";
 
 export default function Messages() {
   const router = useRouter();
   const [isNewChatOpen, setNewChatOpen] = useState(false);
-  
+
   const {
     data: campData,
     isLoading: isLoadingCamp,
@@ -43,6 +49,27 @@ export default function Messages() {
     fetchNextPage: fetchNextConvPage,
     hasNextPage: hasNextConvPage,
   } = useInfiniteConversations({ size: CONVERSATIONS_PAGE_SIZE });
+
+  const { markMessagesAsReadMutation, markMessagesAsUnreadMutation, deleteConversationMutation } = useConversationMutations();
+  const markAsReadMutation = markMessagesAsReadMutation;
+  const markAsUnreadMutation = markMessagesAsUnreadMutation;
+
+  const [conversationToDelete, setConversationToDelete] = useState<number | null>(null);
+
+  const handleDeleteConversation = (conversationId: number) => {
+    setConversationToDelete(conversationId);
+  };
+
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const isSelectionMode = selectedIds.length > 0;
+
+  const toggleSelection = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((itemId) => itemId !== id)
+        : [...prev, id],
+    );
+  };
 
   const chatCampaigns = useMemo(
     () =>
@@ -73,8 +100,61 @@ export default function Messages() {
       ? `${summaryCount} chat${summaryCount === 1 ? "" : "s"} ativo${summaryCount === 1 ? "" : "s"}`
       : "Sem conversas ativas";
 
+  const handleMarkReadStatus = (isRead: boolean) => {
+    selectedIds.forEach((id) => {
+      if (isRead) {
+        markAsReadMutation.mutate(id);
+      } else {
+        markAsUnreadMutation.mutate(id);
+      }
+    });
+    setSelectedIds([]);
+  };
+
+  const menuOptions = () => {
+    const hasSelection = selectedIds.length > 0;
+    const selectedConversations = directConversations.filter((conv) =>
+      selectedIds.includes(conv.id),
+    );
+    const allSelectedAreRead =
+      selectedConversations.length > 0 &&
+      selectedConversations.every((conv) => !conv.unreadMessagesCount || conv.unreadMessagesCount === 0);
+
+    return [
+      {
+        label: hasSelection ? "Limpar seleção" : "Selecionar tudo",
+        icon: (
+          <Ionicons
+            name={
+              hasSelection ? "close-circle-outline" : "checkmark-done-outline"
+            }
+            size={18}
+            color={DEFAULT_COLORS.purpleBright}
+          />
+        ),
+        onPress: () =>
+          hasSelection
+            ? setSelectedIds([])
+            : setSelectedIds(
+              directConversations.map((conv) => conv.id),
+            ),
+      },
+      {
+        label: allSelectedAreRead ? "Marcar como não lida" : "Marcar como lida",
+        icon: (
+          <MaterialCommunityIcons
+            name={allSelectedAreRead ? "email-outline" : "email-open-outline"}
+            size={18}
+            color={DEFAULT_COLORS.purpleBright}
+          />
+        ),
+        onPress: () => handleMarkReadStatus(!allSelectedAreRead),
+      },
+    ];
+  };
+
   const sections: any[] = [];
-  
+
   if (directConversations.length > 0 || isLoadingConv) {
     sections.push({
       title: "Cartas Diretas",
@@ -82,7 +162,7 @@ export default function Messages() {
       type: "direct" as const,
     });
   }
-  
+
   if (chatCampaigns.length > 0 || isLoadingCamp) {
     sections.push({
       title: "Tavernas abertas",
@@ -107,17 +187,32 @@ export default function Messages() {
                 style={styles.titleIcon}
               />
               <ThemedText weight="bold" style={styles.titleValue}>
-                {summary}
+                {isSelectionMode ? `${selectedIds.length} selecionada(s)` : summary}
               </ThemedText>
             </View>
           </View>
-          
-          <TouchableOpacity
-            style={styles.newChatButton}
-            onPress={() => setNewChatOpen(true)}
-          >
-            <FontAwesome6 name="plus" size={16} color={DEFAULT_COLORS.white} />
-          </TouchableOpacity>
+
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.newChatButton}
+              onPress={() => setNewChatOpen(true)}
+            >
+              <FontAwesome6 name="plus" size={16} color={DEFAULT_COLORS.white} />
+            </TouchableOpacity>
+
+            <View style={styles.menuButton}>
+              <MenuPopup
+                trigger={
+                  <MaterialDesignIcons
+                    name="dots-vertical-circle-outline"
+                    size={32}
+                    color={DEFAULT_COLORS.white}
+                  />
+                }
+                options={menuOptions()}
+              />
+            </View>
+          </View>
         </Screen.Header>
 
         <Screen.Body>
@@ -159,6 +254,17 @@ export default function Messages() {
                         params: { conversationId: conv.id, title: conv.name || "Usuário" },
                       })
                     }
+                    onLongPress={() => toggleSelection(conv.id)}
+                    isSelected={selectedIds.includes(conv.id)}
+                    isSelectionMode={isSelectionMode}
+                    onDelete={() => handleDeleteConversation(conv.id)}
+                    onToggleRead={() => {
+                      if (conv.unreadMessagesCount && conv.unreadMessagesCount > 0) {
+                        markAsReadMutation.mutate(conv.id);
+                      } else {
+                        markAsUnreadMutation.mutate(conv.id);
+                      }
+                    }}
                   />
                 );
               }
@@ -181,6 +287,21 @@ export default function Messages() {
         </Screen.Body>
       </Screen>
 
+      <ModalConfirmation
+        visible={!!conversationToDelete}
+        title="Excluir conversa"
+        description="Tem certeza que deseja excluir esta conversa?"
+        confirmText="Excluir"
+        onClose={() => setConversationToDelete(null)}
+        onConfirm={() => {
+          if (conversationToDelete) {
+            deleteConversationMutation.mutate(conversationToDelete);
+            setConversationToDelete(null);
+          }
+        }}
+        isLoading={deleteConversationMutation.isPending}
+      />
+
       <NewDirectChatModal
         visible={isNewChatOpen}
         onClose={() => setNewChatOpen(false)}
@@ -197,7 +318,7 @@ const CampaignChatItem = ({
   onPress: () => void;
 }) => (
   <TouchableOpacity
-    style={styles.messageCard}
+    style={[styles.messageCard, { marginBottom: 10 }]}
     activeOpacity={0.8}
     onPress={onPress}
   >
@@ -233,25 +354,69 @@ const CampaignChatItem = ({
 const DirectChatItem = ({
   item,
   onPress,
+  onLongPress,
+  isSelected,
+  isSelectionMode,
+  onDelete,
+  onToggleRead,
 }: {
   item: IConversation;
   onPress: () => void;
+  onLongPress: () => void;
+  isSelected: boolean;
+  isSelectionMode: boolean;
+  onDelete?: () => void;
+  onToggleRead?: () => void;
 }) => {
-
   const unreadCount = item.unreadMessagesCount || 0;
 
-  return (
-    <TouchableOpacity
-      style={styles.messageCard}
+  const renderRightActions = () => {
+    return (
+      <SwipeActionsContainer>
+        <SwipeActionBtn variant="secondary" onPress={onToggleRead}>
+          <MaterialCommunityIcons 
+            name={unreadCount > 0 ? "email-open" : "email"} 
+            size={18} 
+            color={DEFAULT_COLORS.white} 
+          />
+        </SwipeActionBtn>
+        <SwipeActionBtn variant="danger" onPress={onDelete}>
+          <FontAwesome5 name="trash" size={14} color={DEFAULT_COLORS.white} />
+        </SwipeActionBtn>
+      </SwipeActionsContainer>
+    );
+  };
+
+  const content = (
+    <View style={{ backgroundColor: SURFACES.card, borderRadius: RADII.lg }}>
+      <TouchableOpacity
+        style={[
+          styles.messageCard,
+          unreadCount > 0 && styles.unreadCard,
+          isSelected && styles.selectedCard,
+        ]}
       activeOpacity={0.8}
-      onPress={onPress}
+      onLongPress={onLongPress}
+      onPress={isSelectionMode ? onLongPress : onPress}
     >
-      <View style={styles.avatarContainer}>
-        <FontAwesome5
-          name="scroll"
-          size={20}
-          color={DEFAULT_COLORS.secondary}
-        />
+      <View style={[
+        styles.avatarContainer,
+        unreadCount > 0 && styles.iconContainerUnread,
+        isSelected && styles.iconContainerSelected,
+      ]}>
+        {isSelected ? (
+          <Ionicons
+            name="checkmark-circle"
+            size={24}
+            color={DEFAULT_COLORS.orange}
+          />
+        ) : (
+          <FontAwesome5
+            name="scroll"
+            size={20}
+            color={unreadCount > 0 ? DEFAULT_COLORS.orange : DEFAULT_COLORS.secondary}
+          />
+        )}
       </View>
 
       <View style={styles.content}>
@@ -276,6 +441,17 @@ const DirectChatItem = ({
         </ThemedText>
       </View>
     </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <Swipeable
+      renderRightActions={renderRightActions}
+      containerStyle={styles.swipeContainer}
+      overshootRight={false}
+    >
+      {content}
+    </Swipeable>
   );
 };
 
@@ -316,10 +492,25 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: DEFAULT_COLORS.white,
   },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  menuButton: {
+    width: 42,
+    height: 42,
+    borderRadius: RADII.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: DEFAULT_COLORS.primary_80,
+    borderWidth: 1,
+    borderColor: DEFAULT_COLORS.secondary_30,
+  },
   newChatButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 42,
+    height: 42,
+    borderRadius: RADII.pill,
     backgroundColor: DEFAULT_COLORS.secondary,
     justifyContent: "center",
     alignItems: "center",
@@ -328,11 +519,14 @@ const styles = StyleSheet.create({
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    marginTop: 12,
-    marginBottom: 14,
-    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
+  swipeContainer: {
+    backgroundColor: DEFAULT_COLORS.background,
+    marginBottom: 10,
+  },
+
   sectionTitle: {
     fontSize: 12,
     color: DEFAULT_COLORS.tertiary,
@@ -364,7 +558,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: BORDERS.highlight,
     ...SHADOWS.soft,
-    marginBottom: 10, // Added for SectionList items gap
+  },
+  unreadCard: {
+    backgroundColor: DEFAULT_COLORS.orangeGlow_07,
+    borderColor: BORDERS.ctaSoft,
+  },
+  selectedCard: {
+    borderColor: BORDERS.cta,
+    backgroundColor: DEFAULT_COLORS.orangeGlow_25,
   },
   avatarContainer: {
     width: 48,
@@ -376,6 +577,13 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderWidth: 1,
     borderColor: BORDERS.highlight,
+  },
+  iconContainerUnread: {
+    borderColor: BORDERS.ctaSoft,
+    backgroundColor: DEFAULT_COLORS.orangeGlow_07,
+  },
+  iconContainerSelected: {
+    borderColor: BORDERS.cta,
   },
   content: {
     flex: 1,

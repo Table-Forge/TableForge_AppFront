@@ -25,7 +25,7 @@ import { useFriendshipsMutation } from "@/src/features/friendships/hooks/use-fri
 import { notify } from "@/src/features/notifications/helpers/notify";
 import { useUser } from "@/src/features/users/hooks/use-user";
 import { useBackRouter } from "@/src/hooks/use-back-route";
-import { useCreateDirectConversation } from "@/src/features/conversations/hooks/use-create-direct-conversation";
+import { useConversationMutations } from "@/src/features/conversations/hooks/use-conversation-mutations";
 import { ConversationType } from "@/src/features/conversations/schemas/conversation.schema";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
@@ -45,7 +45,8 @@ export default function PublicUserProfileScreen() {
   const { data: user, isPending, isError } = useUser(userId, true);
   const [activeTab, setActiveTab] = useState<ITabs>("Perfil");
 
-  const { mutate: createChat, isPending: isCreatingChat } = useCreateDirectConversation();
+  const { createDirectConversationMutation } = useConversationMutations();
+  const { mutate: createChat, isPending: isCreatingChat } = createDirectConversationMutation;
 
   const currentUserId = currentUser?.id ? Number(currentUser.id) : undefined;
   const isSelf = currentUserId === userId;

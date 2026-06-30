@@ -19,8 +19,7 @@ import {
   conversationMessagesQueryKey,
   useInfiniteConversationMessages,
 } from "@/src/features/conversations/hooks/use-infinite-conversation-messages";
-import { useSendMessage } from "@/src/features/conversations/hooks/use-send-message";
-import { useMarkMessagesAsRead } from "@/src/features/conversations/hooks/use-mark-messages-as-read";
+import { useConversationMutations } from "@/src/features/conversations/hooks/use-conversation-mutations";
 import {
   ConversationMessageType,
   IConversationMessage,
@@ -47,10 +46,9 @@ export default function DirectChatScreen() {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteConversationMessages(parsedConversationId, { size: 20 });
-  const { mutate: sendMessage, isPending: isSending } = useSendMessage(
-    parsedConversationId,
-  );
-  const { mutate: markAsRead } = useMarkMessagesAsRead();
+  const { sendMessageMutation, markMessagesAsReadMutation } = useConversationMutations();
+  const { mutate: sendMessage, isPending: isSending } = sendMessageMutation;
+  const { mutate: markAsRead } = markMessagesAsReadMutation;
 
   const messages = useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
@@ -141,12 +139,15 @@ export default function DirectChatScreen() {
   const handleSendMessage = () => {
     const content = message.trim();
 
-    if (!content || !user?.id) return;
+    if (!content || !user?.id || !parsedConversationId) return;
 
     sendMessage(
       {
-        type: ConversationMessageType.Text,
-        content,
+        conversationId: parsedConversationId,
+        payload: {
+          type: ConversationMessageType.Text,
+          content,
+        }
       },
       {
         onSuccess: () => {

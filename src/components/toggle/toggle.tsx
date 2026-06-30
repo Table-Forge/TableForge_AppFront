@@ -26,7 +26,7 @@ export const Toggle = ({ value, onValueChange, error, disabled }: IProps) => {
       damping: 15,
       stiffness: 150,
     });
-  }, [value]);
+  }, [value, translateX]);
 
   const toggleHandle = () => {
     if (disabled) return;

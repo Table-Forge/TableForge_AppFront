@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else if (user && inAuthGroup) {
       router.replace("/(tabs)/campaigns");
     }
-  }, [user, segments, isLoading]);
+  }, [user, segments, isLoading, router]);
 
   const signIn = async (data: ILoginResponse) => {
     await authTokenStore.setAuthData(data);

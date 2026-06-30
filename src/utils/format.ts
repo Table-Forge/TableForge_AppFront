@@ -218,6 +218,24 @@ const parseUTCDate = (date: string | Date | Dayjs): Dayjs => {
   return dayjs.utc(date).local();
 };
 
+const formatDateDivider = (dateString: string | undefined) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "";
+
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) return "Hoje";
+  if (date.toDateString() === yesterday.toDateString()) return "Ontem";
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
+  const year = date.getFullYear() !== today.getFullYear() ? ` ${date.getFullYear()}` : "";
+  return `${day} ${month}${year}`;
+};
+
 export {
   encodeIdForApi,
   decodeIdFromApi,
@@ -240,4 +258,6 @@ export {
   formatDocument,
   combineDateTime,
   parseUTCDate,
+  formatDateDivider,
 };
+

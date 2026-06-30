@@ -26,9 +26,11 @@ import { fonts } from "@/src/theme/fonts";
 import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 import { NewDirectChatModal } from "@/src/components/modals/new-direct-chat-modal/new-direct-chat-modal";
 import { ModalConfirmation } from "@/src/components/modals/modal-confirmation/modal-confirmation";
+import { useAuth } from "@/src/context/auth";
 
 export default function Messages() {
   const router = useRouter();
+  const { user } = useAuth();
   const [isNewChatOpen, setNewChatOpen] = useState(false);
 
   const {
@@ -245,13 +247,21 @@ export default function Messages() {
                 );
               } else {
                 const conv = item as IConversation;
+                const otherParticipant = conv.participants?.find(
+                  (p) => p.userId !== user?.id,
+                );
                 return (
                   <DirectChatItem
                     item={conv}
                     onPress={() =>
                       router.push({
                         pathname: "/direct-chat/[conversationId]",
-                        params: { conversationId: conv.id, title: conv.name || "Usuário" },
+                        params: {
+                          conversationId: conv.id,
+                          title: conv.name || "Usuário",
+                          otherUserId: otherParticipant?.userId ?? "",
+                          avatarUrl: otherParticipant?.avatarUrl ?? "",
+                        },
                       })
                     }
                     onLongPress={() => toggleSelection(conv.id)}

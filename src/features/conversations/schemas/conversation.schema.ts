@@ -57,6 +57,7 @@ export interface IConversationMessage {
   metadata: string | null;
   createdAt: string;
   statuses: IConversationMessageStatus[];
+  isOptimistic?: boolean;
 }
 
 export interface IConversationMessageCreate {

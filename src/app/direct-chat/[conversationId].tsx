@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
-import { FlatList, StyleSheet, View, Image, TouchableOpacity } from "react-native";
+import { FlatList, StyleSheet, View, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
@@ -27,14 +27,16 @@ import {
 import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, SURFACES } from "@/src/theme/tokens";
+import { formatDateDivider } from "@/src/utils/format";
 
 export default function DirectChatScreen() {
-  const { conversationId, title } = useLocalSearchParams();
+  const { conversationId, title, otherUserId: otherUserIdParam, avatarUrl: avatarUrlParam } =
+    useLocalSearchParams();
   const router = useRouter();
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
   const parsedConversationId = Number(conversationId);
-  const displayTitle = typeof title === "string" ? title : "Carta Direta";
+  const displayTitle = typeof title === "string" && title.length > 0 ? title : "Carta Direta";
   const [message, setMessage] = useState("");
   const queryClient = useQueryClient();
   const { connection } = useSignalR();
@@ -62,12 +64,18 @@ export default function DirectChatScreen() {
   }, [parsedConversationId, markAsRead]);
 
   const otherUserAvatarUrl = useMemo(() => {
-    return messages.find((m) => m.senderId !== user?.id)?.senderAvatarUrl;
-  }, [messages, user?.id]);
+    const paramAvatar =
+      typeof avatarUrlParam === "string" && avatarUrlParam.length > 0
+        ? avatarUrlParam
+        : undefined;
+    return paramAvatar ?? messages.find((m) => m.senderId !== user?.id)?.senderAvatarUrl;
+  }, [avatarUrlParam, messages, user?.id]);
 
   const otherUserId = useMemo(() => {
+    const paramId = Number(otherUserIdParam);
+    if (paramId > 0) return paramId;
     return messages.find((m) => m.senderId !== user?.id)?.senderId;
-  }, [messages, user?.id]);
+  }, [otherUserIdParam, messages, user?.id]);
 
   useEffect(() => {
     if (!connection || !parsedConversationId) return;
@@ -136,8 +144,8 @@ export default function DirectChatScreen() {
     if (hasNextPage) fetchNextPage();
   };
 
-  const handleSendMessage = () => {
-    const content = message.trim();
+  const handleSendMessage = (text: string) => {
+    const content = text.trim();
 
     if (!content || !user?.id || !parsedConversationId) return;
 
@@ -148,13 +156,9 @@ export default function DirectChatScreen() {
           type: ConversationMessageType.Text,
           content,
         }
-      },
-      {
-        onSuccess: () => {
-          setMessage("");
-        },
-      },
+      }
     );
+    setMessage("");
   };
 
   return (
@@ -195,7 +199,7 @@ export default function DirectChatScreen() {
           </View>
 
           {otherUserAvatarUrl ? (
-            <TouchableOpacity 
+            <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => otherUserId && router.push({ pathname: "/user/[id]", params: { id: otherUserId } })}
             >
@@ -205,7 +209,7 @@ export default function DirectChatScreen() {
               />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity 
+            <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => otherUserId && router.push({ pathname: "/user/[id]", params: { id: otherUserId } })}
               style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: SURFACES.fillStrong, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: BORDERS.divider }}
@@ -221,16 +225,57 @@ export default function DirectChatScreen() {
           inverted
           data={messages}
           keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             const isMine = item.senderId === user?.id;
+
+            let showDateDivider = false;
+            if (item.createdAt) {
+              if (index === messages.length - 1) {
+                showDateDivider = true;
+              } else if (index < messages.length - 1) {
+                const nextItem = messages[index + 1];
+                if (nextItem.createdAt) {
+                  const current = new Date(item.createdAt);
+                  const prev = new Date(nextItem.createdAt);
+                  if (current.toDateString() !== prev.toDateString()) {
+                    showDateDivider = true;
+                  }
+                }
+              }
+            }
+
+            let status: 'sending' | 'sent' | 'received' | 'read' | undefined;
+            if (isMine) {
+              if (item.isOptimistic) {
+                status = 'sending';
+              } else {
+                const otherStatuses = item.statuses?.filter(s => s.userId !== item.senderId) || [];
+                if (otherStatuses.length > 0 && otherStatuses.every(s => s.isRead)) {
+                  status = 'read';
+                } else if (otherStatuses.length > 0 && otherStatuses.every(s => s.isReceived)) {
+                  status = 'received';
+                } else {
+                  status = 'sent';
+                }
+              }
+            }
+
             return (
-              <ChatBubble
-                content={item.content}
-                isMine={isMine}
-                timeText={new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                isRead={item.statuses?.some(s => s.isRead && s.userId !== item.senderId)}
-                showReadReceipt={true}
-              />
+              <View style={{ width: '100%' }}>
+                {showDateDivider && (
+                  <View style={[styles.sectionHeader, { marginBottom: 16, marginTop: 0 }]}>
+                    <View style={styles.sectionLine} />
+                    <ThemedText style={styles.sectionTitle}>{formatDateDivider(item.createdAt)}</ThemedText>
+                    <View style={styles.sectionLine} />
+                  </View>
+                )}
+                <ChatBubble
+                  content={item.content}
+                  isMine={isMine}
+                  timeText={item.createdAt && !isNaN(new Date(item.createdAt).getTime()) ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}
+                  status={status}
+                />
+              </View>
             );
           }}
           contentContainerStyle={styles.listContent}
@@ -240,9 +285,13 @@ export default function DirectChatScreen() {
           onEndReachedThreshold={0.4}
           ListEmptyComponent={
             <View style={styles.emptyWrapper}>
-              <ThemedText style={styles.emptyText}>
-                Nenhuma mensagem ainda.
-              </ThemedText>
+              {isLoading ? (
+                <ActivityIndicator size="small" color={DEFAULT_COLORS.tertiary} />
+              ) : (
+                <ThemedText style={styles.emptyText}>
+                  Nenhuma mensagem ainda.
+                </ThemedText>
+              )}
             </View>
           }
         />
@@ -315,7 +364,25 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     gap: 14,
   },
-
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginTop: 12,
+    marginBottom: 6,
+    gap: 12,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    color: DEFAULT_COLORS.tertiary,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+  },
+  sectionLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: DEFAULT_COLORS.tertiary_20,
+  },
 
   emptyWrapper: {
     marginTop: 24,

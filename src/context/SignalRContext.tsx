@@ -63,7 +63,22 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const queryKey = conversationMessagesQueryKey(messageDto.conversationId);
           
           queryClient.setQueryData(queryKey, (oldData: any) => {
-            if (!oldData) return oldData;
+            if (!oldData) {
+              return {
+                pages: [
+                  {
+                    items: [messageDto],
+                    pagination: { page: 1, size: 20, totalItems: 1, totalPages: 1 }
+                  }
+                ],
+                pageParams: [1]
+              };
+            }
+            const exists = oldData.pages.some((page: any) =>
+              page.items.some((m: IConversationMessage) => m.id === messageDto.id),
+            );
+            if (exists) return oldData;
+
             // Optimistic update of infinite query
             const newPages = [...oldData.pages];
             if (newPages.length > 0) {
@@ -76,25 +91,40 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
           });
 
           // Also update the unread count in conversations list
-          queryClient.setQueryData(CONVERSATIONS_QUERY_KEY, (oldData: any) => {
-            if (!oldData) return oldData;
-            const newPages = oldData.pages.map((page: any) => ({
-              ...page,
-              items: page.items.map((conv: any) => {
-                if (conv.id === messageDto.conversationId) {
-                  return {
-                    ...conv,
-                    unreadMessagesCount: messageDto.senderId !== user?.id 
-                      ? conv.unreadMessagesCount + 1 
-                      : conv.unreadMessagesCount,
-                    lastMessageContent: messageDto.content,
-                  };
-                }
-                return conv;
-              }),
-            }));
-            return { ...oldData, pages: newPages };
-          });
+          const oldConversations: any = queryClient.getQueryData(CONVERSATIONS_QUERY_KEY);
+          let conversationFound = false;
+          
+          if (oldConversations && oldConversations.pages) {
+            conversationFound = oldConversations.pages.some((page: any) => 
+              page.items.some((conv: any) => conv.id === messageDto.conversationId)
+            );
+          }
+
+          if (!conversationFound) {
+            queryClient.invalidateQueries({ queryKey: CONVERSATIONS_QUERY_KEY });
+          } else {
+            queryClient.setQueryData(CONVERSATIONS_QUERY_KEY, (oldData: any) => {
+              if (!oldData) return oldData;
+              
+              const newPages = oldData.pages.map((page: any) => ({
+                ...page,
+                items: page.items.map((conv: any) => {
+                  if (conv.id === messageDto.conversationId) {
+                    return {
+                      ...conv,
+                      unreadMessagesCount: messageDto.senderId !== user?.id 
+                        ? conv.unreadMessagesCount + 1 
+                        : conv.unreadMessagesCount,
+                      lastMessageContent: messageDto.content,
+                    };
+                  }
+                  return conv;
+                }),
+              }));
+              
+              return { ...oldData, pages: newPages };
+            });
+          }
         });
 
         // Global Event: Status Update

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -11,7 +11,7 @@ import { BORDERS, RADII, SHADOWS, SURFACES } from "@/src/theme/tokens";
 interface ChatInputProps {
   value: string;
   onChangeText: (text: string) => void;
-  onSend: () => void;
+  onSend: (text: string) => void;
   isSending?: boolean;
   placeholder?: string;
   backgroundColor?: string;
@@ -21,11 +21,25 @@ export function ChatInput({
   value,
   onChangeText,
   onSend,
-  isSending = false,
   placeholder = "Escreva uma mensagem...",
   backgroundColor = SURFACES.cardAlt,
 }: ChatInputProps) {
-  const isSendDisabled = isSending || !value.trim();
+  const latestTextRef = useRef(value);
+
+  useEffect(() => {
+    latestTextRef.current = value;
+  }, [value]);
+
+  const handleChangeText = (text: string) => {
+    latestTextRef.current = text;
+    onChangeText(text);
+  };
+
+  const handleSendPress = () => {
+    setTimeout(() => onSend(latestTextRef.current), 0);
+  };
+
+  const isSendDisabled = !value.trim();
 
   return (
     <Screen.Footer>
@@ -33,7 +47,7 @@ export function ChatInput({
         <View style={styles.inputWrapper}>
           <Input
             value={value}
-            onChangeText={onChangeText}
+            onChangeText={handleChangeText}
             placeholder={placeholder}
             multiline={true}
             style={styles.inputStyle}
@@ -43,7 +57,7 @@ export function ChatInput({
           variant="circle"
           active
           icon={<Ionicons name="send" size={20} color={DEFAULT_COLORS.white} />}
-          onPress={isSendDisabled ? undefined : onSend}
+          onPress={isSendDisabled ? undefined : handleSendPress}
           style={isSendDisabled ? styles.sendButtonDisabled : null}
         />
       </View>

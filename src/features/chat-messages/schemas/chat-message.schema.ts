@@ -6,6 +6,8 @@ export const ChatMessageSchema = z.object({
   userId: z.number(),
   content: z.string(),
   username: z.string().optional().nullable(),
+  avatarUrl: z.string().optional().nullable(),
+  createdAt: z.string(),
 });
 
 export const ChatMessageCreateSchema = z.object({

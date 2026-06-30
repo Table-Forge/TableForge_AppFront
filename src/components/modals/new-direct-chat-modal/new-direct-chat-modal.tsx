@@ -41,9 +41,17 @@ export const NewDirectChatModal = ({ visible, onClose }: NewDirectChatModalProps
       { type: ConversationType.Direct, otherUserId },
       {
         onSuccess: (conversation) => {
+          const otherParticipant = conversation.participants?.find(
+            (p) => p.userId !== myUserId,
+          );
           router.push({
             pathname: "/direct-chat/[conversationId]",
-            params: { conversationId: conversation.id },
+            params: {
+              conversationId: conversation.id,
+              title: conversation.name || "Usuário",
+              otherUserId: otherParticipant?.userId ?? "",
+              avatarUrl: otherParticipant?.avatarUrl ?? "",
+            },
           });
         },
         onError: (err: any) => {

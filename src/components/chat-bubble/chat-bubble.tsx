@@ -12,11 +12,10 @@ export interface ChatBubbleProps {
   content: string;
   isMine: boolean;
   timeText?: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   senderName?: string;
   senderIcon?: React.ReactNode;
-  isRead?: boolean;
-  showReadReceipt?: boolean;
+  status?: 'sending' | 'sent' | 'received' | 'read';
   showAvatar?: boolean;
   onAvatarPress?: () => void;
 }
@@ -28,8 +27,7 @@ export function ChatBubble({
   avatarUrl,
   senderName,
   senderIcon,
-  isRead,
-  showReadReceipt = false,
+  status,
   showAvatar = false,
   onAvatarPress,
 }: ChatBubbleProps) {
@@ -59,6 +57,23 @@ export function ChatBubble({
     return content;
   };
 
+  const renderStatusIcon = () => {
+    if (!isMine || !status) return null;
+
+    switch (status) {
+      case 'sending':
+        return <Ionicons name="time-outline" size={14} color={DEFAULT_COLORS.textMuted} style={styles.statusIcon} />;
+      case 'sent':
+        return <Ionicons name="checkmark-outline" size={14} color={DEFAULT_COLORS.textMuted} style={styles.statusIcon} />;
+      case 'received':
+        return <Ionicons name="checkmark-done-outline" size={14} color={DEFAULT_COLORS.textMuted} style={styles.statusIcon} />;
+      case 'read':
+        return <Ionicons name="checkmark-done" size={14} color={DEFAULT_COLORS.orange} style={styles.statusIcon} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <View style={[styles.messageRow, isMine && styles.myMessageRow]}>
       {!isMine && renderAvatar()}
@@ -74,21 +89,14 @@ export function ChatBubble({
         <View style={[styles.bubble, isMine && styles.myBubble]}>
           <ThemedText style={styles.messageText}>{content}</ThemedText>
         </View>
-        {(!!timeText || showReadReceipt) && (
+        {(!!timeText || !!status) && (
           <View style={styles.statusRow}>
             {!!timeText && (
               <ThemedText style={[styles.messageTime, isMine && styles.myMessageTime]}>
                 {timeText}
               </ThemedText>
             )}
-            {isMine && showReadReceipt && (
-              <Ionicons
-                name="checkmark-done"
-                size={14}
-                color={isRead ? DEFAULT_COLORS.secondary : DEFAULT_COLORS.textMuted}
-                style={styles.statusIcon}
-              />
-            )}
+            {renderStatusIcon()}
           </View>
         )}
       </View>

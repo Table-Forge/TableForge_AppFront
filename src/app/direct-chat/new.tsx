@@ -33,9 +33,17 @@ export default function NewDirectChat() {
       { type: ConversationType.Direct, otherUserId },
       {
         onSuccess: (conversation) => {
+          const otherParticipant = conversation.participants?.find(
+            (p) => p.userId !== myUserId,
+          );
           router.replace({
             pathname: "/direct-chat/[conversationId]",
-            params: { conversationId: conversation.id, title: conversation.name || "Usuário" },
+            params: {
+              conversationId: conversation.id,
+              title: conversation.name || "Usuário",
+              otherUserId: otherParticipant?.userId ?? "",
+              avatarUrl: otherParticipant?.avatarUrl ?? "",
+            },
           });
         },
       }

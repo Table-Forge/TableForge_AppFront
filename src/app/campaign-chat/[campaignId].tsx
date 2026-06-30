@@ -3,7 +3,7 @@ import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useEffect } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View, ActivityIndicator } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { ActionButton } from "@/src/components/action-button/action-button";
@@ -23,8 +23,9 @@ import { notify } from "@/src/features/notifications/helpers/notify";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { useSignalR } from "@/src/context/SignalRContext";
 import { DEFAULT_COLORS } from "@/src/theme/colors";
-import { fonts } from "@/src/theme/fonts";
+import { formatDateDivider } from "@/src/utils/format";
 import { SURFACES } from "@/src/theme/tokens";
+import { fonts } from "@/src/theme/fonts";
 
 export default function CampaignChatScreen() {
   const { campaignId } = useLocalSearchParams();
@@ -91,8 +92,8 @@ export default function CampaignChatScreen() {
 
   const messages = data;
 
-  const handleSendMessage = () => {
-    const content = message.trim();
+  const handleSendMessage = (text: string) => {
+    const content = text.trim();
 
     if (!content || !user?.id) return;
 
@@ -116,10 +117,10 @@ export default function CampaignChatScreen() {
               senderName: user.nickname || user.username || "Aventureiro",
             });
           }
-          setMessage("");
         },
       },
     );
+    setMessage("");
   };
 
   return (
@@ -160,17 +161,11 @@ export default function CampaignChatScreen() {
       </Screen.Header>
 
       <Screen.Body style={styles.content}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionLine} />
-          <ThemedText style={styles.sectionTitle}>15 Fev</ThemedText>
-          <View style={styles.sectionLine} />
-        </View>
-
         <FlatList
           inverted
           data={messages}
           keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             const isMine = item.userId === user?.id;
             const member = members?.find((m) => m.userId === item.userId);
             const isAdmin = member?.role === "Master";
@@ -179,21 +174,46 @@ export default function CampaignChatScreen() {
               ? `Mestre ${member?.username || item.username}`
               : member?.characterName
                 ? `${member.characterName} (${member.username || item.username})`
-                : (item.username || `Usuário ${item.userId}`);
+                : (item.username || member?.username || `Usuário ${item.userId}`);
 
-            const avatar = member?.characterImageUrl || member?.userImageUrl || undefined;
+            const avatar = member?.characterImageUrl || member?.userImageUrl || item.avatarUrl || undefined;
+
+            let showDateDivider = false;
+            if (item.createdAt) {
+              if (index === messages.length - 1) {
+                showDateDivider = true;
+              } else if (index < messages.length - 1) {
+                const nextItem = messages[index + 1];
+                if (nextItem.createdAt) {
+                  const current = new Date(item.createdAt);
+                  const prev = new Date(nextItem.createdAt);
+                  if (current.toDateString() !== prev.toDateString()) {
+                    showDateDivider = true;
+                  }
+                }
+              }
+            }
 
             return (
-              <ChatBubble
-                content={item.content}
-                isMine={isMine}
-                timeText="23:59"
-                avatarUrl={avatar}
-                senderName={displayName}
-                senderIcon={isAdmin ? <FontAwesome5 name="crown" size={9} color={isMine ? DEFAULT_COLORS.crown : DEFAULT_COLORS.tertiary} /> : undefined}
-                showAvatar={true}
-                onAvatarPress={!isMine ? () => router.push({ pathname: "/user/[id]", params: { id: item.userId } }) : undefined}
-              />
+              <View style={{ width: '100%' }}>
+                {showDateDivider && (
+                  <View style={[styles.sectionHeader, { marginBottom: 16, marginTop: 0 }]}>
+                    <View style={styles.sectionLine} />
+                    <ThemedText style={styles.sectionTitle}>{formatDateDivider(item.createdAt)}</ThemedText>
+                    <View style={styles.sectionLine} />
+                  </View>
+                )}
+                <ChatBubble
+                  content={item.content}
+                  isMine={isMine}
+                  timeText={item.createdAt && !isNaN(new Date(item.createdAt).getTime()) ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}
+                  avatarUrl={avatar}
+                  senderName={displayName}
+                  senderIcon={isAdmin ? <FontAwesome5 name="crown" size={9} color={isMine ? DEFAULT_COLORS.crown : DEFAULT_COLORS.tertiary} /> : undefined}
+                  showAvatar={true}
+                  onAvatarPress={!isMine ? () => router.push({ pathname: "/user/[id]", params: { id: item.userId } }) : undefined}
+                />
+              </View>
             );
           }}
           contentContainerStyle={styles.listContent}
@@ -201,9 +221,13 @@ export default function CampaignChatScreen() {
           onRefresh={refetch}
           ListEmptyComponent={
             <View style={styles.emptyWrapper}>
-              <ThemedText style={styles.emptyText}>
-                Nenhuma mensagem por aqui.
-              </ThemedText>
+              {isLoading ? (
+                <ActivityIndicator size="small" color={DEFAULT_COLORS.tertiary} />
+              ) : (
+                <ThemedText style={styles.emptyText}>
+                  Nenhuma mensagem por aqui.
+                </ThemedText>
+              )}
             </View>
           }
         />

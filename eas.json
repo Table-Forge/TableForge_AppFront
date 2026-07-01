@@ -9,7 +9,9 @@
       "distribution": "internal"
     },
     "preview": {
-      "node": "20",
+      "env": {
+        "NODE_VERSION": "20"
+      },
       "distribution": "internal"
     },
     "production": {

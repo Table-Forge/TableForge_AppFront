@@ -72,11 +72,7 @@ export const TabBar = ({
             });
 
             if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate({
-                name: route.name,
-                merge: true,
-                params: route.params,
-              });
+              navigation.navigate(route.name, route.params);
             }
           };
 

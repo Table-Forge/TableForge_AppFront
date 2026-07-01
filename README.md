@@ -1,50 +1,79 @@
-# Welcome to your Expo app 👋
+# TableForge - AppFront 🎲
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+![Expo](https://img.shields.io/badge/Expo-54.0.34-black?style=flat&logo=expo)
+![React Native](https://img.shields.io/badge/React_Native-0.81.5-blue?style=flat&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=flat&logo=typescript)
 
-## Get started
+Welcome to the frontend mobile application for **TableForge** – a comprehensive Tabletop RPG management platform designed to help Dungeon Masters and players organize campaigns, manage characters, and enhance their gaming experience.
 
-1. Install dependencies
+## ✨ Features
 
+- **Campaign Management**: View and manage RPG campaigns, members, and sessions.
+- **Character Sheets**: Access character details, avatars, and stats on the go.
+- **Real-time Updates**: Integrated with SignalR for live updates and synchronization.
+- **Dungeon Master Tools**: Special views and controls tailored for the campaign's DM.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [React Native](https://reactnative.dev/) & [Expo](https://expo.dev/)
+- **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/) & React Navigation
+- **State Management / Data Fetching**: [TanStack React Query](https://tanstack.com/query/latest)
+- **Real-time Communication**: [@microsoft/signalr](https://learn.microsoft.com/en-us/aspnet/core/signalr/introduction)
+- **Forms & Validation**: [React Hook Form](https://react-hook-form.com/) & [Zod](https://zod.dev/)
+- **UI & Icons**: [Lucide React Native](https://lucide.dev/), Reanimated, and custom components
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or newer recommended)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- Expo Go app on your physical device (or Android Studio / Xcode for emulators)
+
+### Installation
+
+1. Clone the repository and navigate to the project folder:
+   ```bash
+   cd TableForge-AppFront
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Set up environment variables:
+   Ensure you have a `.env.development` (or relevant `.env` file) configured with your backend API and SignalR endpoints.
 
-   ```bash
-    npx expo start
-   ```
+### Running the App
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Start the Expo development server:
 
 ```bash
-npm run reset-project
+npm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+This will open a dashboard in your terminal. You can:
+- Press `a` to open on an **Android Emulator**
+- Press `i` to open on an **iOS Simulator**
+- Scan the **QR Code** with your phone's camera (iOS) or the Expo Go app (Android) to run it on a physical device.
 
-## Learn more
+## 📜 Available Scripts
 
-To learn more about developing your project with Expo, look at the following resources:
+- `npm start` - Starts the Expo development server.
+- `npm run android` - Starts the app directly in an Android emulator.
+- `npm run ios` - Starts the app directly in an iOS simulator.
+- `npm run web` - Starts the web version (if configured).
+- `npm run test` - Runs Jest tests.
+- `npm run lint` - Runs Expo linting.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 🤝 Contributing
 
-## Join the community
+1. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Commit your changes (`git commit -m 'feat(scope): add amazing feature'`) - *Following Conventional Commits!*
+3. Push to the branch (`git push origin feature/amazing-feature`)
+4. Open a Pull Request
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+*Powered by coffee, critical hits, and nat 20s.* 🐉

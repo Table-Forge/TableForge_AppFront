@@ -338,16 +338,11 @@ const CampaignChatItem = ({
     </View>
 
     <View style={styles.content}>
-      <ThemedText style={styles.eyebrowSmall}>Taverna</ThemedText>
       <View style={styles.headerRow}>
         <ThemedText weight="bold" style={styles.campaignTitle} numberOfLines={1}>
           {item.title}
         </ThemedText>
-        <Ionicons
-          name="chevron-forward"
-          size={18}
-          color={DEFAULT_COLORS.textMuted}
-        />
+        {/* Placeholder para unreadBadge de campanhas (requer back-end) */}
       </View>
       <ThemedText style={styles.lastMessage} numberOfLines={1}>
         {item.creatorUsername
@@ -394,6 +389,10 @@ const DirectChatItem = ({
     );
   };
 
+  const formattedTime = item.lastMessageAt
+    ? new Date(item.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : "";
+
   const content = (
     <View style={{ backgroundColor: SURFACES.card, borderRadius: RADII.lg }}>
       <TouchableOpacity
@@ -427,25 +426,24 @@ const DirectChatItem = ({
       </View>
 
       <View style={styles.content}>
-        <ThemedText style={styles.eyebrowSmall}>Carta</ThemedText>
         <View style={styles.headerRow}>
           <ThemedText weight="bold" style={styles.campaignTitle} numberOfLines={1}>
             {item.name || "Usuário"}
+          </ThemedText>
+          {formattedTime ? (
+            <ThemedText style={styles.lastMessageTime}>{formattedTime}</ThemedText>
+          ) : null}
+        </View>
+        <View style={styles.footerRow}>
+          <ThemedText style={[styles.lastMessage, unreadCount > 0 && styles.lastMessageUnread, { flex: 1 }]} numberOfLines={1}>
+            {item.lastMessageContent || "Nenhuma mensagem"}
           </ThemedText>
           {unreadCount > 0 && (
             <View style={styles.unreadBadge}>
               <ThemedText style={styles.unreadBadgeText}>{unreadCount}</ThemedText>
             </View>
           )}
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={DEFAULT_COLORS.textMuted}
-          />
         </View>
-        <ThemedText style={[styles.lastMessage, unreadCount > 0 && styles.lastMessageUnread]} numberOfLines={1}>
-          {item.lastMessageContent || "Nenhuma mensagem"}
-        </ThemedText>
       </View>
     </TouchableOpacity>
     </View>
@@ -618,6 +616,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: DEFAULT_COLORS.textMuted,
     lineHeight: 18,
+  },
+  lastMessageTime: {
+    fontSize: 11,
+    color: DEFAULT_COLORS.textMuted,
+  },
+  footerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 2,
   },
   lastMessageUnread: {
     color: DEFAULT_COLORS.white,

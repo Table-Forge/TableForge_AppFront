@@ -9,6 +9,8 @@ import {
 } from "@/src/features/conversations/schemas/conversation.schema";
 import { CONVERSATIONS_QUERY_KEY } from "@/src/features/conversations/hooks/use-infinite-conversations";
 import { conversationMessagesQueryKey } from "@/src/features/conversations/hooks/use-infinite-conversation-messages";
+import { NOTIFICATION_KEYS } from "@/src/features/notifications/hooks/query-key";
+import type { INotification } from "@/src/features/notifications/schemas/notification.schema";
 // We need to import the correct query key for campaign messages, but for now we'll rely on the caller to refetch or we update it if we know the key.
 // Actually, it's better to expose the connection to let the hooks attach their own listeners if they are screen-specific, but for global direct chats, we handle them here to show badges anywhere.
 
@@ -144,6 +146,22 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 return { ...msg, statuses: updatedStatuses };
               }),
             }));
+            return { ...oldData, pages: newPages };
+          });
+        });
+
+        // Global Event: Notification Received
+        hubConnection.on("ReceiveNotification", (notification: INotification) => {
+          queryClient.setQueryData(NOTIFICATION_KEYS.all, (oldData: any) => {
+            if (!oldData) return oldData;
+
+            const newPages = [...oldData.pages];
+            if (newPages.length > 0) {
+              newPages[0] = {
+                ...newPages[0],
+                items: [notification, ...newPages[0].items],
+              };
+            }
             return { ...oldData, pages: newPages };
           });
         });

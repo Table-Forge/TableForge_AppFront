@@ -57,14 +57,18 @@ export default function CampaignSettings() {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const { deleteCampaignMutation, isDeletingCampaign } = useCampaignsMutation();
 
-  const handleToggleConfirm = () => {
+  const handleToggleConfirm = async () => {
     if (!campaign || !toggleConfirmation) return;
 
-    updateCampaignMutation.mutate({
-      ...campaign,
-      [toggleConfirmation.field]: toggleConfirmation.nextValue,
-    });
-    setToggleConfirmation(null);
+    try {
+      await updateCampaignMutation.mutateAsync({
+        ...campaign,
+        [toggleConfirmation.field]: toggleConfirmation.nextValue,
+      });
+      setToggleConfirmation(null);
+    } catch {
+      // handled by mutation
+    }
   };
 
   const handleDeleteCampaignConfirm = async () => {
@@ -230,6 +234,7 @@ export default function CampaignSettings() {
         cancelText="Cancelar"
         onClose={() => setToggleConfirmation(null)}
         onConfirm={handleToggleConfirm}
+        isLoading={isUpdatingCampaign}
       />
 
       <ModalConfirmation

@@ -10,26 +10,32 @@ import { InfoCard } from "@/src/components/info-card/info-card";
 import { Screen } from "@/src/components/screen/screen";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  UpdatePasswordSchema,
-  IUpdatePassword,
-} from "@/src/features/users/schemas/user.schema";
+import { z } from "zod";
 import { useAuth } from "@/src/context/auth";
 import { ControlledToggle } from "@/src/components/toggle/controlled-toggle";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, SURFACES } from "@/src/theme/tokens";
 
+const NotificationSettingsSchema = z.object({
+  privateMessages: z.boolean(),
+  motivationalMessages: z.boolean(),
+  systemUpdates: z.boolean(),
+  campaignReminders: z.boolean(),
+});
+
+type INotificationSettings = z.infer<typeof NotificationSettingsSchema>;
+
 export default function NotificationsSettingsScreen() {
   const { user } = useAuth();
   const { handleBack } = useBackRouter();
 
-  const { control } = useForm<IUpdatePassword>({
-    resolver: zodResolver(UpdatePasswordSchema),
+  const { control } = useForm<INotificationSettings>({
+    resolver: zodResolver(NotificationSettingsSchema),
     defaultValues: {
-      userId: user?.id,
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      privateMessages: true,
+      motivationalMessages: true,
+      systemUpdates: true,
+      campaignReminders: true,
     },
   });
 

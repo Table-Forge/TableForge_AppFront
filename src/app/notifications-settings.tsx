@@ -11,7 +11,6 @@ import { Screen } from "@/src/components/screen/screen";
 import { useBackRouter } from "@/src/hooks/use-back-route";
 import { Ionicons } from "@expo/vector-icons";
 import { z } from "zod";
-import { useAuth } from "@/src/context/auth";
 import { ControlledToggle } from "@/src/components/toggle/controlled-toggle";
 import { fonts } from "@/src/theme/fonts";
 import { BORDERS, SURFACES } from "@/src/theme/tokens";
@@ -26,7 +25,6 @@ const NotificationSettingsSchema = z.object({
 type INotificationSettings = z.infer<typeof NotificationSettingsSchema>;
 
 export default function NotificationsSettingsScreen() {
-  const { user } = useAuth();
   const { handleBack } = useBackRouter();
 
   const { control } = useForm<INotificationSettings>({

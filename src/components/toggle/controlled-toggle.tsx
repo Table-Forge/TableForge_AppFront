@@ -8,6 +8,8 @@ import Animated, {
 } from "react-native-reanimated";
 import {
   Control,
+  FieldValues,
+  Path,
   UseFormReturn,
   useController,
 } from "react-hook-form";
@@ -15,25 +17,25 @@ import { DEFAULT_COLORS } from "@/src/theme/colors";
 import { ThemedText } from "../themed-text/themed-text";
 import { useScrollToFocusedInput } from "@/src/context/scroll-to-focused-input";
 
-interface IProps {
-  control?: Control<any>;
+interface IProps<T extends FieldValues> {
+  control?: Control<T>;
   label: string;
   description?: string;
-  hookForm?: UseFormReturn<any>;
-  name: string;
+  hookForm?: UseFormReturn<T>;
+  name: Path<T>;
 }
 
-export const ControlledToggle = ({
+export const ControlledToggle = <T extends FieldValues>({
   name,
   control,
   label,
   description,
   hookForm,
-}: IProps) => {
+}: IProps<T>) => {
   const { field } = useController({
     name,
-    control: hookForm?.control ?? control,
-    defaultValue: false,
+    control: (hookForm?.control ?? control) as Control<T>,
+    defaultValue: false as any,
   });
   const containerRef = useRef<View>(null);
   const { scrollToFocusedInput } = useScrollToFocusedInput();

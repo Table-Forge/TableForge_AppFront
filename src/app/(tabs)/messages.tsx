@@ -96,7 +96,6 @@ export default function Messages() {
     refetchConv();
   };
 
-  const summaryCount = chatCampaigns.length + directConversations.length;
   const summary = "Conversas";
 
   const handleMarkReadStatus = (isRead: boolean) => {
